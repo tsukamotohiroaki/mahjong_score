@@ -1,24 +1,14 @@
-# README
+# Mahjong Score
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+麻雀の半荘結果を記録・集計できる麻雀スコア管理アプリ（Web）
 
-Things you may want to cover:
+## 開発環境（Docker）
 
-* Ruby version
+起動：
+- docker compose up
 
-* System dependencies
+アクセス：
+- http://localhost:3000
 
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+## ブランチメモ
+- chore/initial-setup: Rails + Docker + PostgreSQL の初期構成保存用（以後更新しない）
