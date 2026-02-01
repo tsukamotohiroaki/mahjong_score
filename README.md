@@ -80,6 +80,9 @@ docker compose exec web bin/rails generate model ModelName field:type
 
 # ルーティング確認
 docker compose exec web bin/rails routes
+
+# RSpec実行
+docker compose run --rm -e RAILS_ENV=test web bash -lc "bundle install && bundle exec rspec"
 ```
 
 ### その他
