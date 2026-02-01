@@ -1,1 +1,22 @@
-<p>（準備中）</p>
+<div class="games-new">
+  <h1>メンバー入力</h1>
+
+  <%= form_with url: games_path, method: :post, local: true, class: "member-form" do |f| %>
+    <div class="player-inputs">
+      <% 4.times do |i| %>
+        <div class="player-input">
+          <label for="player_<%= i + 1 %>">プレイヤー<%= i + 1 %></label>
+          <input type="text" name="players[]" id="player_<%= i + 1 %>" required>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="form-actions">
+      <%= submit_tag "ゲーム開始", class: "btn btn-primary" %>
+    </div>
+  <% end %>
+
+  <div class="back-link">
+    <%= link_to "← トップに戻る", root_path %>
+  </div>
+</div>
