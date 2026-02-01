@@ -145,4 +145,15 @@ docker compose up --build
 
 ## 開発メモ
 
+<<<<<<< Updated upstream
 - `chore/initial-setup` ブランチ: Rails + Docker + PostgreSQL の初期構成保存用（以後更新しない）
+=======
+## 開発フロー
+1. イシューを作成する
+2. ブランチを切る
+3. 実装する
+4. 動作確認する
+5. PRを作成する
+6. マージする
+7. イシューをCloseする
+>>>>>>> Stashed changes
