@@ -3,6 +3,12 @@ class GamesController < ApplicationController
   end
 
   def create
-    redirect_to root_path
+    ActiveRecord::Base.transaction do
+      game = Game.create!(rule_type: "default")
+      params[:players].each { |name| game.players.create!(name: name) }
+      redirect_to new_game_round_path(game)
+    end
+  rescue ActiveRecord::RecordInvalid
+    redirect_to new_game_path
   end
 end
