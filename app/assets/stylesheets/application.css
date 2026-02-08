@@ -134,3 +134,53 @@
 .back-link a:hover {
   text-decoration: underline;
 }
+
+/* Games show page styles */
+.games-show {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 40px 20px;
+}
+
+.games-show h1 {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: #333;
+}
+
+.score-table {
+  width: 100%;
+  max-width: 600px;
+  border-collapse: collapse;
+  margin-bottom: 2rem;
+}
+
+.score-table th,
+.score-table td {
+  border: 1px solid #ccc;
+  padding: 10px 12px;
+  text-align: center;
+}
+
+.score-table thead th {
+  background-color: #e9ecef;
+  font-weight: bold;
+  color: #333;
+}
+
+.score-table tbody td:first-child {
+  background-color: #f8f9fa;
+  font-weight: bold;
+  color: #666;
+}
+
+.score-table tfoot td {
+  background-color: #e9ecef;
+  font-weight: bold;
+}
+
+.actions {
+  margin-bottom: 1rem;
+}

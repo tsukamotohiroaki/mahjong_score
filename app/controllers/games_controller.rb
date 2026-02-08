@@ -1,4 +1,10 @@
 class GamesController < ApplicationController
+  def show
+    @game = Game.find(params[:id])
+    @players = @game.players.order(:created_at)
+    @rounds = @game.rounds.includes(:scores).order(:round_number)
+  end
+
   def new
   end
 

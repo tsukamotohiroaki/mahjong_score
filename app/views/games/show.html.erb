@@ -1,0 +1,37 @@
+<div class="games-show">
+  <h1>スコア一覧</h1>
+
+  <table class="score-table">
+    <thead>
+      <tr>
+        <th></th>
+        <% @players.each do |player| %>
+          <th><%= player.name %></th>
+        <% end %>
+      </tr>
+    </thead>
+    <tbody>
+      <% (1..10).each do |num| %>
+        <% round = @rounds.find { |r| r.round_number == num } %>
+        <tr>
+          <td><%= link_to num, new_game_round_path(@game, round_number: num) %></td>
+          <% @players.each do |player| %>
+            <td><%= round&.scores&.find { |s| s.player_id == player.id }&.point %></td>
+          <% end %>
+        </tr>
+      <% end %>
+    </tbody>
+    <tfoot>
+      <tr>
+        <td>合計</td>
+        <% @players.each do |player| %>
+          <td><%= @rounds.sum { |r| r.scores.find { |s| s.player_id == player.id }&.point.to_i } %></td>
+        <% end %>
+      </tr>
+    </tfoot>
+  </table>
+
+  <div class="back-link">
+    <%= link_to "← トップに戻る", root_path %>
+  </div>
+</div>

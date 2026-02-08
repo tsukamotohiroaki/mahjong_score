@@ -37,4 +37,68 @@ RSpec.describe "Games", type: :request do
       end
     end
   end
+
+  describe "GET /games/:id" do
+    let(:game) { create(:game) }
+    let!(:players) do
+      %w[Alice Bob Carol Dave].map { |name| create(:player, game: game, name: name) }
+    end
+
+    context "半荘データがない場合" do
+      it "ステータス200が返る" do
+        get game_path(game)
+        expect(response).to have_http_status(200)
+      end
+
+      it "プレイヤー名が全員表示される" do
+        get game_path(game)
+        %w[Alice Bob Carol Dave].each do |name|
+          expect(response.body).to include(name)
+        end
+      end
+
+      it "行番号が点数入力画面へのリンクになっている" do
+        get game_path(game)
+        (1..10).each do |num|
+          expect(response.body).to include(new_game_round_path(game, round_number: num))
+        end
+      end
+
+      it "合計行が表示される" do
+        get game_path(game)
+        expect(response.body).to include("合計")
+      end
+    end
+
+    context "半荘データがある場合" do
+      let!(:round1) { create(:round, game: game, round_number: 1) }
+      let!(:round2) { create(:round, game: game, round_number: 2) }
+
+      before do
+        [30000, 25000, 25000, 20000].each_with_index do |point, i|
+          create(:score, round: round1, player: players[i], point: point)
+        end
+        [40000, 20000, 25000, 15000].each_with_index do |point, i|
+          create(:score, round: round2, player: players[i], point: point)
+        end
+      end
+
+      it "各プレイヤーの点数が表示される" do
+        get game_path(game)
+        expect(response.body).to include("30000")
+        expect(response.body).to include("40000")
+      end
+
+      it "半荘が round_number 昇順で表示される" do
+        get game_path(game)
+        expect(response.body.index("30000")).to be < response.body.index("40000")
+      end
+
+      it "合計行が表示される" do
+        get game_path(game)
+        expect(response.body).to include("70000")  # Alice: 30000 + 40000
+        expect(response.body).to include("45000")  # Bob: 25000 + 20000
+      end
+    end
+  end
 end
