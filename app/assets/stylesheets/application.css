@@ -305,6 +305,23 @@
   letter-spacing: 0.02em;
 }
 
+.form-error {
+  margin: 8px 0 16px;
+  padding: 10px 12px;
+  border: 1px solid #d27d7d;
+  border-radius: 8px;
+  background: #ffe9e9;
+  color: #7a1f1f;
+  font-weight: 700;
+}
+
+.validation-message {
+  margin: 10px 0 0;
+  color: #7a1f1f;
+  font-weight: 700;
+  text-align: center;
+}
+
 .scoreboard tfoot th,
 .scoreboard tfoot td {
   background: #d9e6fb;
@@ -329,6 +346,12 @@
   border-radius: 8px;
   font-weight: 700;
   letter-spacing: 0.03em;
+}
+
+.rounds-submit:disabled,
+.rounds-submit.is-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .rounds-submit:hover {
