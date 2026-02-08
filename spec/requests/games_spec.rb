@@ -20,10 +20,10 @@ RSpec.describe "Games", type: :request do
         expect(game.players.map(&:name)).to eq(players)
       end
 
-      it "点数入力画面にリダイレクトする" do
+      it "スコア一覧画面にリダイレクトする" do
         post games_path, params: { players: players }
         game = Game.last
-        expect(response).to redirect_to(new_game_round_path(game))
+        expect(response).to redirect_to(game_path(game))
       end
     end
 
