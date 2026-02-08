@@ -1,0 +1,131 @@
+<div class="rounds-new">
+  <div class="rounds-panel">
+    <h1>点数入力</h1>
+
+    <%= form_with url: game_rounds_path(@game), method: :post, local: true, class: "rounds-form" do %>
+      <% if @round_number.present? %>
+        <%= hidden_field_tag :round_number, @round_number %>
+      <% end %>
+
+      <table class="scoreboard">
+        <% if @round_number.present? %>
+        <caption class="scoreboard-caption"><%= @round_number %>回戦</caption>
+        <% end %>
+        <thead>
+          <tr>
+            <th>プレイヤー</th>
+            <th>点数</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @players.each do |player| %>
+            <tr>
+              <td class="player-name"><%= player.name %></td>
+              <td class="score-cell">
+                <label for="score_<%= player.id %>" class="sr-only"><%= player.name %>の点数</label>
+                <div class="score-field">
+                  <%= text_field_tag "scores[#{player.id}]",
+                                     nil,
+                                     id: "score_#{player.id}",
+                                     inputmode: "numeric",
+                                     pattern: "[0-9]*",
+                                     autocomplete: "off",
+                                     maxlength: 4,
+                                     class: "score-input" %>
+                  <span class="score-unit score-unit--hundreds">00点</span>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+        <tfoot>
+          <tr class="score-total">
+            <th>合計</th>
+            <td class="score-total-value">
+              <span data-total-output>0</span>
+              <span class="score-unit">点</span>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <div class="form-actions">
+        <%= submit_tag "入力完了", class: "btn btn-primary rounds-submit" %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="back-link">
+    <%= link_to "← スコア一覧に戻る", game_path(@game) %>
+  </div>
+</div>
+
+<script>
+  (() => {
+    const form = document.querySelector(".rounds-form");
+    if (!form) return;
+
+    const inputs = Array.from(form.querySelectorAll(".score-input"));
+    const totalOutput = form.querySelector("[data-total-output]");
+    if (inputs.length === 0 || !totalOutput) return;
+
+    const TARGET_TOTAL = 100000;
+    const UNIT_SCALE = 100;
+    const TARGET_UNITS = TARGET_TOTAL / UNIT_SCALE;
+
+    const parseValue = (value) => {
+      if (value == null) return null;
+      const trimmed = value.trim();
+      if (trimmed === "") return null;
+      const number = Number(trimmed);
+      if (!Number.isFinite(number)) return null;
+      return Math.trunc(number);
+    };
+
+    const sumUnits = (skipInput = null) =>
+      inputs.reduce((sum, input) => {
+        if (input === skipInput) return sum;
+        const value = parseValue(input.value);
+        return value == null ? sum : sum + value;
+      }, 0);
+
+    const countFilled = (skipInput = null) =>
+      inputs.filter((input) => input !== skipInput && parseValue(input.value) != null).length;
+
+    const update = () => {
+      const autoInput = inputs.find((input) => input.dataset.auto === "true");
+      let targetInput = null;
+
+      if (autoInput && countFilled(autoInput) === inputs.length - 1) {
+        targetInput = autoInput;
+      } else if (!autoInput && countFilled() === inputs.length - 1) {
+        const emptyInput = inputs.find((input) => parseValue(input.value) == null);
+        if (emptyInput && emptyInput.dataset.manual !== "true") {
+          targetInput = emptyInput;
+        }
+      }
+
+      if (targetInput) {
+        const remaining = TARGET_UNITS - sumUnits(targetInput);
+        targetInput.value = String(remaining);
+        targetInput.dataset.auto = "true";
+        delete targetInput.dataset.manual;
+      } else if (autoInput && autoInput.dataset.manual !== "true") {
+        autoInput.value = "";
+        delete autoInput.dataset.auto;
+      }
+
+      totalOutput.textContent = String(sumUnits() * UNIT_SCALE);
+    };
+
+    inputs.forEach((input) => {
+      input.addEventListener("input", () => {
+        input.dataset.manual = "true";
+        if (input.dataset.auto === "true") delete input.dataset.auto;
+        update();
+      });
+    });
+
+    update();
+  })();
+</script>
