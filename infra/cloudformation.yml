@@ -1,0 +1,316 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Mahjong Score App - EC2 + RDS (PostgreSQL) on same VPC"
+
+# ==============================================================
+# Parameters: スタック作成時にユーザーが入力する値
+# ==============================================================
+Parameters:
+  KeyPairName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: "EC2にSSH接続するためのキーペア名"
+
+  DBPassword:
+    Type: String
+    NoEcho: true
+    MinLength: 8
+    Description: "RDSのマスターパスワード（8文字以上）"
+
+  RailsMasterKey:
+    Type: String
+    NoEcho: true
+    Description: "config/master.key の中身"
+
+  EC2InstanceType:
+    Type: String
+    Default: t2.micro
+    AllowedValues: [t2.micro, t2.small, t3.micro, t3.small]
+    Description: "EC2のインスタンスタイプ"
+
+  DBInstanceClass:
+    Type: String
+    Default: db.t3.micro
+    AllowedValues: [db.t3.micro, db.t3.small]
+    Description: "RDSのインスタンスクラス"
+
+# ==============================================================
+# Mappings: リージョンごとの Amazon Linux 2023 AMI
+# ==============================================================
+Mappings:
+  RegionAMI:
+    ap-northeast-1:
+      AMI: ami-0599b6e53ca798bb2
+    us-east-1:
+      AMI: ami-0c7217cdde317cfec
+    us-west-2:
+      AMI: ami-0efcece6bed30fd98
+
+# ==============================================================
+# Resources: 実際に作成するAWSリソース
+# ==============================================================
+Resources:
+
+  # ----------------------------------------------------------
+  # 1. VPC — ネットワークの「敷地」
+  # ----------------------------------------------------------
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: mahjong-score-vpc
+
+  # ----------------------------------------------------------
+  # 2. Internet Gateway — 敷地の「正門」
+  # ----------------------------------------------------------
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: mahjong-score-igw
+
+  # VPCに正門を取り付ける
+  VPCGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
+  # ----------------------------------------------------------
+  # 3. Subnets — ネットワークの「区画」
+  # ----------------------------------------------------------
+
+  # EC2用（インターネットに出られる）
+  PublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: !Select [0, !GetAZs ""]
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: mahjong-score-public-subnet
+
+  # RDS用（外部からアクセス不可）— AZ-a
+  PrivateSubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.10.0/24
+      AvailabilityZone: !Select [0, !GetAZs ""]
+      Tags:
+        - Key: Name
+          Value: mahjong-score-private-subnet-a
+
+  # RDS用（外部からアクセス不可）— AZ-c
+  # RDSのSubnet Groupには異なるAZのSubnetが2つ必要
+  PrivateSubnetC:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.11.0/24
+      AvailabilityZone: !Select [1, !GetAZs ""]
+      Tags:
+        - Key: Name
+          Value: mahjong-score-private-subnet-c
+
+  # ----------------------------------------------------------
+  # 4. Route Table — 「道案内」
+  # ----------------------------------------------------------
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: mahjong-score-public-rt
+
+  # 「0.0.0.0/0（全ての通信）はInternet Gatewayへ」
+  PublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: VPCGatewayAttachment
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  # Public SubnetにRoute Tableを紐づける
+  PublicSubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet
+      RouteTableId: !Ref PublicRouteTable
+
+  # ----------------------------------------------------------
+  # 5. Security Groups — 「ファイアウォール」
+  # ----------------------------------------------------------
+
+  # EC2用: SSH(22) + Rails(3000) を許可
+  EC2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Allow SSH and Rails access"
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+          Description: "SSH"
+        - IpProtocol: tcp
+          FromPort: 3000
+          ToPort: 3000
+          CidrIp: 0.0.0.0/0
+          Description: "Rails"
+      Tags:
+        - Key: Name
+          Value: mahjong-score-ec2-sg
+
+  # RDS用: EC2からの5432のみ許可
+  RDSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Allow PostgreSQL from EC2 only"
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          SourceSecurityGroupId: !Ref EC2SecurityGroup
+          Description: "PostgreSQL from EC2"
+      Tags:
+        - Key: Name
+          Value: mahjong-score-rds-sg
+
+  # ----------------------------------------------------------
+  # 6. RDS — PostgreSQLデータベース
+  # ----------------------------------------------------------
+
+  # RDSを置くSubnetの組み合わせ（2つのAZ必須）
+  DBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: "Mahjong Score DB Subnet Group"
+      SubnetIds:
+        - !Ref PrivateSubnetA
+        - !Ref PrivateSubnetC
+
+  RDSInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceIdentifier: mahjong-score-db
+      Engine: postgres
+      EngineVersion: "16"
+      DBInstanceClass: !Ref DBInstanceClass
+      AllocatedStorage: 20
+      StorageType: gp3
+      MasterUsername: postgres
+      MasterUserPassword: !Ref DBPassword
+      DBName: mahjong_score_production
+      VPCSecurityGroups:
+        - !Ref RDSSecurityGroup
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      PubliclyAccessible: false
+      BackupRetentionPeriod: 1
+      DeletionProtection: false
+      Tags:
+        - Key: Name
+          Value: mahjong-score-rds
+
+  # ----------------------------------------------------------
+  # 7. EC2 — Railsアプリを動かすサーバー
+  # ----------------------------------------------------------
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    DependsOn: RDSInstance
+    Properties:
+      InstanceType: !Ref EC2InstanceType
+      ImageId: !FindInMap [RegionAMI, !Ref "AWS::Region", AMI]
+      KeyName: !Ref KeyPairName
+      SubnetId: !Ref PublicSubnet
+      SecurityGroupIds:
+        - !Ref EC2SecurityGroup
+      Tags:
+        - Key: Name
+          Value: mahjong-score-ec2
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          set -ex
+
+          # ログを残す（トラブルシューティング用）
+          exec > /var/log/user-data.log 2>&1
+
+          echo "=== パッケージ更新 ==="
+          yum update -y
+
+          echo "=== Docker インストール ==="
+          yum install -y docker git
+          systemctl start docker
+          systemctl enable docker
+          usermod -aG docker ec2-user
+
+          echo "=== Docker Compose インストール ==="
+          curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" \
+            -o /usr/local/bin/docker-compose
+          chmod +x /usr/local/bin/docker-compose
+
+          echo "=== アプリ取得 ==="
+          cd /home/ec2-user
+          git clone https://github.com/tsukamotohiroaki/mahjong_score.git
+          cd mahjong_score
+
+          echo "=== 環境変数ファイル作成 ==="
+          cat <<'ENVEOF' > .env
+          RAILS_ENV=production
+          DATABASE_HOST=${RDSInstance.Endpoint.Address}
+          DATABASE_PORT=5432
+          DATABASE_USERNAME=postgres
+          DATABASE_PASSWORD=${DBPassword}
+          DATABASE_NAME=mahjong_score_production
+          SECRET_KEY_BASE=$(openssl rand -hex 64)
+          RAILS_MASTER_KEY=${RailsMasterKey}
+          ENVEOF
+
+          # .envの行頭スペースを除去
+          sed -i 's/^[[:space:]]*//' .env
+
+          chown -R ec2-user:ec2-user /home/ec2-user/mahjong_score
+
+          echo "=== Docker Compose 起動 ==="
+          /usr/local/bin/docker-compose --env-file .env up -d
+
+          echo "=== DB セットアップ（起動待ち） ==="
+          sleep 30
+          /usr/local/bin/docker-compose exec -T web bash -lc \
+            "bundle install && bin/rails db:create db:migrate RAILS_ENV=production"
+
+          echo "=== アセットプリコンパイル ==="
+          /usr/local/bin/docker-compose exec -T web bash -lc \
+            "bin/rails assets:precompile RAILS_ENV=production"
+
+          echo "=== 完了 ==="
+
+# ==============================================================
+# Outputs: スタック作成後に表示する情報
+# ==============================================================
+Outputs:
+  EC2PublicIP:
+    Description: "ブラウザでアクセスするURL"
+    Value: !Sub "http://${EC2Instance.PublicIp}:3000"
+
+  EC2PublicIPAddress:
+    Description: "EC2のパブリックIP"
+    Value: !GetAtt EC2Instance.PublicIp
+
+  RDSEndpoint:
+    Description: "RDSのエンドポイント"
+    Value: !GetAtt RDSInstance.Endpoint.Address
+
+  SSHCommand:
+    Description: "SSH接続コマンド"
+    Value: !Sub "ssh -i <キーペア>.pem ec2-user@${EC2Instance.PublicIp}"
