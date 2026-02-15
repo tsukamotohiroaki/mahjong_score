@@ -11,6 +11,34 @@
       <% end %>
     </div>
 
+    <h2>ルール設定</h2>
+    <div class="rule-inputs">
+      <div class="rule-input">
+        <label for="game_mochi_ten">持ち点</label>
+        <input type="number" name="game[mochi_ten]" id="game_mochi_ten" value="25000">
+      </div>
+      <div class="rule-input">
+        <label for="game_kaeshi_ten">返し点</label>
+        <input type="number" name="game[kaeshi_ten]" id="game_kaeshi_ten" value="30000">
+      </div>
+      <div class="rule-input">
+        <label for="game_rank_1_bonus">1位</label>
+        <input type="number" name="game[rank_1_bonus]" id="game_rank_1_bonus" value="50">
+      </div>
+      <div class="rule-input">
+        <label for="game_rank_2_bonus">2位</label>
+        <input type="number" name="game[rank_2_bonus]" id="game_rank_2_bonus" value="10">
+      </div>
+      <div class="rule-input">
+        <label for="game_rank_3_bonus">3位</label>
+        <input type="number" name="game[rank_3_bonus]" id="game_rank_3_bonus" value="-10">
+      </div>
+      <div class="rule-input">
+        <label for="game_rank_4_bonus">4位</label>
+        <input type="number" name="game[rank_4_bonus]" id="game_rank_4_bonus" value="-30">
+      </div>
+    </div>
+
     <div class="form-actions">
       <%= submit_tag "ゲーム開始", class: "btn btn-primary" %>
     </div>
