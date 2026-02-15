@@ -181,6 +181,10 @@
   font-weight: bold;
 }
 
+.score-table .negative {
+  color: #dc3545;
+}
+
 .actions {
   margin-bottom: 1rem;
 }
