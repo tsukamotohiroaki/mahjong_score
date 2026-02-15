@@ -61,4 +61,62 @@ RSpec.describe Game, type: :model do
       end
     end
   end
+
+  describe '#calculate_ranking_scores' do
+    let(:game) { create(:game) }
+    let(:players) do
+      %w[Alice Bob Carol Dave].map { |name| create(:player, game: game, name: name) }
+    end
+    let(:round) { create(:round, game: game, round_number: 1) }
+
+    context '全員異なる素点' do
+      before do
+        [40000, 25000, 20000, 15000].each_with_index do |point, i|
+          create(:score, round: round, player: players[i], point: point)
+        end
+      end
+
+      it '順位点が正しく計算されること' do
+        results = game.calculate_ranking_scores(round)
+        expect(results[players[0].id]).to eq({ rank: 1, score: 60.0 })   # (40000-30000)/1000 + 50
+        expect(results[players[1].id]).to eq({ rank: 2, score: 5.0 })    # (25000-30000)/1000 + 10
+        expect(results[players[2].id]).to eq({ rank: 3, score: -20.0 })  # (20000-30000)/1000 + (-10)
+        expect(results[players[3].id]).to eq({ rank: 4, score: -45.0 })  # (15000-30000)/1000 + (-30)
+      end
+    end
+
+    context '1位と2位が同点の場合' do
+      before do
+        [30000, 30000, 25000, 15000].each_with_index do |point, i|
+          create(:score, round: round, player: players[i], point: point)
+        end
+      end
+
+      it '同点者の順位ボーナスが均等に分配されること' do
+        results = game.calculate_ranking_scores(round)
+        # 1位と2位のボーナスを均等分配: (50 + 10) / 2 = 30.0
+        expect(results[players[0].id]).to eq({ rank: 1, score: 30.0 })   # (30000-30000)/1000 + 30
+        expect(results[players[1].id]).to eq({ rank: 1, score: 30.0 })
+        expect(results[players[2].id]).to eq({ rank: 3, score: -15.0 })  # (25000-30000)/1000 + (-10)
+        expect(results[players[3].id]).to eq({ rank: 4, score: -45.0 })  # (15000-30000)/1000 + (-30)
+      end
+    end
+
+    context '3位と4位が同点の場合' do
+      before do
+        [40000, 30000, 15000, 15000].each_with_index do |point, i|
+          create(:score, round: round, player: players[i], point: point)
+        end
+      end
+
+      it '同点者の順位ボーナスが均等に分配されること' do
+        results = game.calculate_ranking_scores(round)
+        expect(results[players[0].id]).to eq({ rank: 1, score: 60.0 })
+        expect(results[players[1].id]).to eq({ rank: 2, score: 10.0 })
+        # 3位と4位のボーナスを均等分配: (-10 + -30) / 2 = -20.0
+        expect(results[players[2].id]).to eq({ rank: 3, score: -35.0 })  # (15000-30000)/1000 + (-20)
+        expect(results[players[3].id]).to eq({ rank: 3, score: -35.0 })
+      end
+    end
+  end
 end
