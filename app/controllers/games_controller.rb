@@ -3,6 +3,9 @@ class GamesController < ApplicationController
     @game = Game.find(params[:id])
     @players = @game.players.order(:created_at)
     @rounds = @game.rounds.includes(:scores).order(:round_number)
+    @ranking_scores = @rounds.each_with_object({}) do |round, hash|
+      hash[round.id] = @game.calculate_ranking_scores(round)
+    end
   end
 
   def new

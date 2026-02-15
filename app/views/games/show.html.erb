@@ -16,7 +16,12 @@
         <tr>
           <td><%= link_to num, new_game_round_path(@game, round_number: num) %></td>
           <% @players.each do |player| %>
-            <td><%= round&.scores&.find { |s| s.player_id == player.id }&.point %></td>
+            <% if round && @ranking_scores[round.id]
+                 score = @ranking_scores[round.id][player.id]&.dig(:score)
+               end %>
+            <td class="<%= 'negative' if score && score < 0 %>">
+              <%= score ? sprintf('%.1f', score) : '' %>
+            </td>
           <% end %>
         </tr>
       <% end %>
@@ -25,7 +30,10 @@
       <tr>
         <td>合計</td>
         <% @players.each do |player| %>
-          <td><%= @rounds.sum { |r| r.scores.find { |s| s.player_id == player.id }&.point.to_i } %></td>
+          <% total = @ranking_scores.values.sum { |rs| rs[player.id]&.dig(:score).to_f } %>
+          <td class="<%= 'negative' if total < 0 %>">
+            <%= sprintf('%.1f', total) %>
+          </td>
         <% end %>
       </tr>
     </tfoot>

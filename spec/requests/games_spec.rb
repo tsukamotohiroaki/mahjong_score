@@ -102,29 +102,37 @@ RSpec.describe "Games", type: :request do
       let!(:round2) { create(:round, game: game, round_number: 2) }
 
       before do
+        # Round1: Alice:30000(1位) Bob:25000(2位タイ) Carol:25000(2位タイ) Dave:20000(4位)
         [30000, 25000, 25000, 20000].each_with_index do |point, i|
           create(:score, round: round1, player: players[i], point: point)
         end
+        # Round2: Alice:40000(1位) Bob:20000(3位) Carol:25000(2位) Dave:15000(4位)
         [40000, 20000, 25000, 15000].each_with_index do |point, i|
           create(:score, round: round2, player: players[i], point: point)
         end
       end
 
-      it "各プレイヤーの点数が表示される" do
+      it "各半荘の順位点が表示される" do
         get game_path(game)
-        expect(response.body).to include("30000")
-        expect(response.body).to include("40000")
+        # Round1 Alice: (30000-30000)/1000 + 50 = 50.0
+        expect(response.body).to include("50.0")
+        # Round2 Alice: (40000-30000)/1000 + 50 = 60.0
+        expect(response.body).to include("60.0")
       end
 
       it "半荘が round_number 昇順で表示される" do
         get game_path(game)
-        expect(response.body.index("30000")).to be < response.body.index("40000")
+        expect(response.body.index("50.0")).to be < response.body.index("60.0")
       end
 
-      it "合計行が表示される" do
+      it "合計行に順位点の合計が表示される" do
         get game_path(game)
-        expect(response.body).to include("70000")  # Alice: 30000 + 40000
-        expect(response.body).to include("45000")  # Bob: 25000 + 20000
+        expect(response.body).to include("110.0")  # Alice: 50.0 + 60.0
+      end
+
+      it "マイナスの順位点に negative クラスが付与される" do
+        get game_path(game)
+        expect(response.body).to include('class="negative"')
       end
     end
   end
