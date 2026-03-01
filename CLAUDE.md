@@ -8,11 +8,43 @@
 
 ## 技術スタック
 
+### バックエンド
+
 - Ruby 3.3.10 / Rails 7.1.3
 - PostgreSQL 16
+
+### フロントエンド
+
 - Hotwire (Turbo + Stimulus)
-- Docker / Docker Compose
-- テスト: RSpec + FactoryBot
+- ERB テンプレート
+- Sprockets（アセットパイプライン）
+
+### インフラ
+
+- Docker / Docker Compose（開発環境）
+- AWS EC2 + RDS（本番環境）
+- CloudFormation（Infrastructure as Code）
+
+### テスト
+
+- RSpec（モデル・リクエストスペック）
+- FactoryBot（テストデータ生成）
+- Playwright（E2E テスト、4月〜導入予定）
+
+### CI/CD
+
+- GitHub Actions（3月〜導入予定）
+
+### AI 支援ツール
+
+- Claude Code: テストコード生成・実装・リファクタリング
+- Claude in Chrome: 探索的テスト・ビジュアル確認（ベータ）
+
+### 開発ツール
+
+- Cursor エディタ
+- GitHub CLI（イシュー管理）
+- pry-rails / amazing_print（Rails コンソール）
 
 ## コマンド
 
@@ -27,6 +59,20 @@
 - TDDで開発する
 - 必ずテストを先に書き、失敗を確認してから実装する
 - Red → Green → Refactor のサイクルを守る
+
+## テスト戦略
+
+- RSpec（単体・リクエスト）: サーバー側の品質保証（モデル・コントローラー）
+- Playwright（E2E）: ブラウザ側の品質保証（JS動作・ユーザー操作フロー）
+- Claude in Chrome: 探索的テストの補助（ビジュアル確認・仕様の抜け漏れ発見）
+- RSpec = 厨房の裏側を守る門番、Playwright = お客さんの席を守る門番、Claude in Chrome = 味見してくれるシェフ仲間
+- Playwright 導入タイミング: Stimulus リファクタリング時（4月予定）
+  - リファクタリング前に現在の動作を E2E テストで固める
+  - インライン JS → Stimulus への書き換え時に壊れたら即検知
+- Claude Code + Playwright でテストコード生成・実行を効率化する
+  - テストシナリオの設計は人間が握る（TDD の原則と同じ）
+- Claude in Chrome で本番・ローカル環境の動作確認を補助する
+  - ベータ機能のため、正式な品質保証プロセスへの組み込みは時期を見て判断
 
 ## AIへの制約事項
 
