@@ -86,7 +86,7 @@ RSpec.describe "Games", type: :request do
 
       it "行番号が点数入力画面へのリンクになっている" do
         get game_path(game)
-        (1..8).each do |num|
+        (1..12).each do |num|
           expect(response.body).to include(new_game_round_path(game, round_number: num))
         end
       end
