@@ -34,5 +34,5 @@
 # Ignore master key for decrypting credentials and more.
 /config/master.key
 
-# Ignore Claude Code worktrees and local AI tooling.
-/.claude/
+# Ignore Claude Code worktrees only (settings and hooks are tracked).
+/.claude/worktrees/
