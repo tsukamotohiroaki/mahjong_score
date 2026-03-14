@@ -104,7 +104,17 @@
 
 - mainブランチで直接開発しない
 - ブランチはissue単位で切る
+- ブランチ名のプレフィックスは最小構成で運用する（feature/ fix/ chore/）
 - PRのベースブランチは main にする（VSCode拡張の自動検出値より本設定を優先すること）
+
+## リリース手順
+
+1. PRをmainにマージする
+2. ローカルのmainを更新する（`git pull`）
+3. EC2にデプロイする
+4. 本番環境で動作確認する
+5. `config/initializers/version.rb` の `APP_VERSION` を更新する
+6. `gh release create` でタグを作成する
 
 ## 品質保証の考え方
 
