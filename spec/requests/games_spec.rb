@@ -78,6 +78,20 @@ RSpec.describe "Games", type: :request do
       end
     end
 
+    context "ゲームの日付表示" do
+      it "Game#created_at が YYYY/MM/DD 形式で表示される" do
+        travel_to Time.zone.local(2026, 3, 5, 12, 0, 0) do
+          game = create(:game)
+          create(:player, game: game, name: "Alice")
+          create(:player, game: game, name: "Bob")
+          create(:player, game: game, name: "Carol")
+          create(:player, game: game, name: "Dave")
+          get game_path(game)
+          expect(response.body).to include("2026/03/05")
+        end
+      end
+    end
+
     context "半荘データがない場合" do
       it "ステータス200が返る" do
         get game_path(game)

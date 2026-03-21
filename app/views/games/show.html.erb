@@ -1,6 +1,10 @@
 <div class="games-show">
   <h1>スコア一覧</h1>
 
+  <div class="game-date" style="width: 100%; max-width: 600px; text-align: left;">
+    <%= @game.created_at.strftime("%Y/%m/%d") %>
+  </div>
+
   <table class="score-table">
     <thead>
       <tr>
