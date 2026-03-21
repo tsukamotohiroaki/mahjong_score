@@ -60,10 +60,18 @@
       if (navigator.share) {
         navigator.share({ title: '麻雀スコア', url: url });
       } else {
-        navigator.clipboard.writeText(url).then(function() {
+        var textarea = document.createElement('textarea');
+        textarea.value = url;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+          document.execCommand('copy');
           btn.textContent = 'コピーしました！';
           setTimeout(function() { btn.textContent = 'URLを共有する'; }, 2000);
-        });
+        } catch (e) {}
+        document.body.removeChild(textarea);
       }
     });
   })();
