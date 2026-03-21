@@ -146,7 +146,8 @@
 
 .games-show h1 {
   font-size: 2rem;
-  margin-bottom: 2rem;
+  margin-top: 0rem;
+  margin-bottom: 1rem;
   color: #333;
 }
 
