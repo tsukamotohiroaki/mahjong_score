@@ -215,7 +215,7 @@ Resources:
         - !Ref RDSSecurityGroup
       DBSubnetGroupName: !Ref DBSubnetGroup
       PubliclyAccessible: false
-      BackupRetentionPeriod: 1
+      BackupRetentionPeriod: 7
       DeletionProtection: false
       Tags:
         - Key: Name
