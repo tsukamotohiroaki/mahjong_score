@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_08_052810) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_15_062315) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -18,6 +18,12 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_08_052810) do
     t.string "rule_type"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "mochi_ten", default: 25000, null: false
+    t.integer "kaeshi_ten", default: 30000, null: false
+    t.integer "rank_1_bonus", default: 50, null: false
+    t.integer "rank_2_bonus", default: 10, null: false
+    t.integer "rank_3_bonus", default: -10, null: false
+    t.integer "rank_4_bonus", default: -30, null: false
   end
 
   create_table "players", force: :cascade do |t|

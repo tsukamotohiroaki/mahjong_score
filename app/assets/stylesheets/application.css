@@ -181,6 +181,195 @@
   font-weight: bold;
 }
 
+.score-table .negative {
+  color: #dc3545;
+}
+
 .actions {
   margin-bottom: 1rem;
+}
+
+/* Rounds new page styles */
+.rounds-new {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 32px 20px 48px;
+  background:
+    radial-gradient(circle at 15% 15%, #e2efff 0, #f4f8ff 50%, #e9f0fb 80%),
+    linear-gradient(135deg, rgba(148, 189, 238, 0.28), rgba(255, 255, 255, 0));
+  font-family: "Hiragino Maru Gothic ProN", "Yu Gothic", "Noto Sans JP", sans-serif;
+}
+
+.rounds-panel {
+  width: 100%;
+  max-width: 640px;
+  background: #f7fbff;
+  border: 2px solid #7b95c6;
+  border-radius: 10px;
+  box-shadow: 0 10px 20px rgba(48, 86, 138, 0.18);
+  padding: 18px 18px 22px;
+}
+
+.rounds-panel h1 {
+  font-size: 1.4rem;
+  margin: 0 0 12px;
+  color: #1f3b62;
+  letter-spacing: 0.02em;
+}
+
+.rounds-form {
+  width: 100%;
+}
+
+.scoreboard {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #f4f8ff;
+  border: 2px solid #7b95c6;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.scoreboard-caption {
+  caption-side: top;
+  text-align: center;
+  font-weight: 700;
+  color: #223a5a;
+  padding: 8px 0 6px;
+  background: #d9e6fb;
+  border-bottom: 2px solid #7b95c6;
+}
+
+.scoreboard thead th {
+  background: #dfe9fa;
+  color: #223a5a;
+  font-weight: 700;
+  padding: 10px 12px;
+  text-align: center;
+  border-bottom: 2px solid #7b95c6;
+}
+
+.scoreboard tbody td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #b6c8e6;
+  border-right: 1px solid #b6c8e6;
+}
+
+.scoreboard tbody tr td:last-child {
+  border-right: none;
+}
+
+.scoreboard tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.player-name {
+  font-weight: 700;
+  color: #223552;
+}
+
+.score-cell {
+  width: 40%;
+}
+
+.score-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.score-input {
+  width: 120px;
+  max-width: 100%;
+  padding: 8px 10px;
+  font-size: 1rem;
+  border: 1px solid #8fa8cd;
+  border-radius: 6px;
+  text-align: right;
+  background: #ffffff;
+}
+
+.score-input:focus {
+  outline: none;
+  border-color: #577fbd;
+  box-shadow: 0 0 0 3px rgba(87, 127, 189, 0.2);
+}
+
+.score-unit {
+  font-weight: 700;
+  color: #35547a;
+}
+
+.score-unit--hundreds {
+  letter-spacing: 0.02em;
+}
+
+.form-error {
+  margin: 8px 0 16px;
+  padding: 10px 12px;
+  border: 1px solid #d27d7d;
+  border-radius: 8px;
+  background: #ffe9e9;
+  color: #7a1f1f;
+  font-weight: 700;
+}
+
+.validation-message {
+  margin: 10px 0 0;
+  color: #7a1f1f;
+  font-weight: 700;
+  text-align: center;
+}
+
+.scoreboard tfoot th,
+.scoreboard tfoot td {
+  background: #d9e6fb;
+  color: #223a5a;
+  font-weight: 700;
+  padding: 10px 12px;
+  border-top: 2px solid #7b95c6;
+}
+
+.scoreboard tfoot th {
+  text-align: left;
+}
+
+.score-total-value {
+  text-align: right;
+  border-left: 1px solid #b6c8e6;
+}
+
+.rounds-submit {
+  width: 100%;
+  background: linear-gradient(135deg, #2b66b5, #4c7fc5);
+  border-radius: 8px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.rounds-submit:disabled,
+.rounds-submit.is-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.rounds-submit:hover {
+  opacity: 0.9;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

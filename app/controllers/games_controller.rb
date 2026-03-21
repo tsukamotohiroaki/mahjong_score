@@ -3,6 +3,9 @@ class GamesController < ApplicationController
     @game = Game.find(params[:id])
     @players = @game.players.order(:created_at)
     @rounds = @game.rounds.includes(:scores).order(:round_number)
+    @ranking_scores = @rounds.each_with_object({}) do |round, hash|
+      hash[round.id] = @game.calculate_ranking_scores(round)
+    end
   end
 
   def new
@@ -10,11 +13,21 @@ class GamesController < ApplicationController
 
   def create
     ActiveRecord::Base.transaction do
-      game = Game.create!(rule_type: "default")
+      game = Game.create!(game_params)
       params[:players].each { |name| game.players.create!(name: name) }
       redirect_to game_path(game)
     end
   rescue ActiveRecord::RecordInvalid
     redirect_to new_game_path
+  end
+
+  private
+
+  def game_params
+    if params[:game].present?
+      params.require(:game).permit(:mochi_ten, :kaeshi_ten, :rank_1_bonus, :rank_2_bonus, :rank_3_bonus, :rank_4_bonus)
+    else
+      {}
+    end
   end
 end
