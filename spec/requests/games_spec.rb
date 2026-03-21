@@ -71,6 +71,13 @@ RSpec.describe "Games", type: :request do
       %w[Alice Bob Carol Dave].map { |name| create(:player, game: game, name: name) }
     end
 
+    context "共有ボタン" do
+      it "URLを共有するボタンが表示される" do
+        get game_path(game)
+        expect(response.body).to include('data-share-url')
+      end
+    end
+
     context "半荘データがない場合" do
       it "ステータス200が返る" do
         get game_path(game)
