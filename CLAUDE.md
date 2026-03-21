@@ -20,6 +20,7 @@
 - ルーティング確認: `docker compose exec web bin/rails routes`
 
 ## 開発プロセス
+- Issue駆動開発を実践する（実装前にIssueを作成し、Issueを起点にブランチを切る）
 - TDDで開発する
 - 必ずテストを先に書き、失敗を確認してから実装する
 - Red → Green → Refactor のサイクルを守る
