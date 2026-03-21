@@ -39,6 +39,10 @@
     </tfoot>
   </table>
 
+  <div class="game-date">
+    <%= @game.created_at.strftime("%Y/%m/%d") %>
+  </div>
+
   <div class="share-section">
     <button class="share-button" data-share-url="<%= game_url(@game) %>">
       URLを共有する
