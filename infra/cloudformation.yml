@@ -34,6 +34,7 @@ Parameters:
 
   NotificationEmail:
     Type: String
+    Default: "tsukamotohiroaki0721+mahjong_score@gmail.com"
     Description: "アラーム通知先のメールアドレス"
 
 # ==============================================================
