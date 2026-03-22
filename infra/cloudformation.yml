@@ -190,6 +190,21 @@ Resources:
   # 6. RDS — PostgreSQLデータベース
   # ----------------------------------------------------------
 
+  # PostgreSQLログ出力設定（スロークエリ・エラーログ）
+  DBParameterGroup:
+    Type: AWS::RDS::DBParameterGroup
+    Properties:
+      Description: "Mahjong Score - PostgreSQL log settings"
+      Family: postgres16
+      Parameters:
+        log_min_duration_statement: "1000"  # 1秒以上のクエリをスロークエリとして記録
+        log_connections: "1"
+        log_disconnections: "1"
+        log_error_verbosity: "default"
+      Tags:
+        - Key: Name
+          Value: mahjong-score-db-params
+
   # RDSを置くSubnetの組み合わせ（2つのAZ必須）
   DBSubnetGroup:
     Type: AWS::RDS::DBSubnetGroup
@@ -214,6 +229,9 @@ Resources:
       VPCSecurityGroups:
         - !Ref RDSSecurityGroup
       DBSubnetGroupName: !Ref DBSubnetGroup
+      DBParameterGroupName: !Ref DBParameterGroup
+      EnableCloudwatchLogsExports:
+        - postgresql
       PubliclyAccessible: false
       BackupRetentionPeriod: 7
       DeletionProtection: false
