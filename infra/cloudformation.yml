@@ -328,7 +328,7 @@ Resources:
           chown -R ec2-user:ec2-user /home/ec2-user/mahjong_score
 
           echo "=== Docker Compose 起動 ==="
-          /usr/local/bin/docker-compose --env-file .env up -d
+          /usr/local/bin/docker-compose -f docker-compose.yml -f docker-compose.production.yml --env-file .env up -d
 
           echo "=== DB セットアップ（起動待ち） ==="
           sleep 30
@@ -364,20 +364,6 @@ Resources:
               },
               "append_dimensions": {
                 "InstanceId": "${!aws:InstanceId}"
-              }
-            },
-            "logs": {
-              "logs_collected": {
-                "files": {
-                  "collect_list": [
-                    {
-                      "file_path": "/home/ec2-user/mahjong_score/log/production.log",
-                      "log_group_name": "/mahjong-score/rails/production",
-                      "log_stream_name": "{instance_id}",
-                      "timezone": "Asia/Tokyo"
-                    }
-                  ]
-                }
               }
             }
           }
