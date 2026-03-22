@@ -32,6 +32,11 @@ Parameters:
     AllowedValues: [db.t3.micro, db.t3.small]
     Description: "RDSのインスタンスクラス"
 
+  NotificationEmail:
+    Type: String
+    Default: "tsukamotohiroaki0721+mahjong_score@gmail.com"
+    Description: "アラーム通知先のメールアドレス"
+
 # ==============================================================
 # Mappings: リージョンごとの Amazon Linux 2023 AMI
 # ==============================================================
@@ -378,6 +383,97 @@ Resources:
           systemctl enable amazon-cloudwatch-agent
 
           echo "=== 完了 ==="
+
+  # ----------------------------------------------------------
+  # 9. SNS — アラーム通知先
+  # ----------------------------------------------------------
+  SNSAlarmTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: mahjong-score-alarms
+      Tags:
+        - Key: Name
+          Value: mahjong-score-alarms
+
+  SNSAlarmSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      TopicArn: !Ref SNSAlarmTopic
+      Protocol: email
+      Endpoint: !Ref NotificationEmail
+
+  # ----------------------------------------------------------
+  # 10. CloudWatch Alarms — 異常検知
+  # ----------------------------------------------------------
+
+  # CPU使用率 80% が5分継続で発火
+  AlarmCPUHigh:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: mahjong-score-cpu-high
+      AlarmDescription: "CPU使用率が80%を5分間超過"
+      Namespace: AWS/EC2
+      MetricName: CPUUtilization
+      Dimensions:
+        - Name: InstanceId
+          Value: !Ref EC2Instance
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 80
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      AlarmActions:
+        - !Ref SNSAlarmTopic
+      OKActions:
+        - !Ref SNSAlarmTopic
+
+  # メモリ使用率 80% で発火（CloudWatch Agentのカスタムメトリクス）
+  AlarmMemoryHigh:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: mahjong-score-memory-high
+      AlarmDescription: "メモリ使用率が80%を超過"
+      Namespace: CWAgent
+      MetricName: mem_used_percent
+      Dimensions:
+        - Name: InstanceId
+          Value: !Ref EC2Instance
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 80
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      AlarmActions:
+        - !Ref SNSAlarmTopic
+      OKActions:
+        - !Ref SNSAlarmTopic
+
+  # ディスク使用率 80% で発火（CloudWatch Agentのカスタムメトリクス）
+  AlarmDiskHigh:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: mahjong-score-disk-high
+      AlarmDescription: "ディスク使用率が80%を超過"
+      Namespace: CWAgent
+      MetricName: disk_used_percent
+      Dimensions:
+        - Name: InstanceId
+          Value: !Ref EC2Instance
+        - Name: path
+          Value: "/"
+        - Name: device
+          Value: xvda1
+        - Name: fstype
+          Value: xfs
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 80
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      AlarmActions:
+        - !Ref SNSAlarmTopic
+      OKActions:
+        - !Ref SNSAlarmTopic
 
 # ==============================================================
 # Outputs: スタック作成後に表示する情報
