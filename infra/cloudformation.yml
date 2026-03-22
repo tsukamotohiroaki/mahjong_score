@@ -222,7 +222,34 @@ Resources:
           Value: mahjong-score-rds
 
   # ----------------------------------------------------------
-  # 7. EC2 — Railsアプリを動かすサーバー
+  # 7. IAM Role — EC2にCloudWatch書き込み権限を付与
+  # ----------------------------------------------------------
+  EC2InstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: mahjong-score-ec2-role
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
+      Tags:
+        - Key: Name
+          Value: mahjong-score-ec2-role
+
+  EC2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      InstanceProfileName: mahjong-score-ec2-profile
+      Roles:
+        - !Ref EC2InstanceRole
+
+  # ----------------------------------------------------------
+  # 8. EC2 — Railsアプリを動かすサーバー
   # ----------------------------------------------------------
   EC2Instance:
     Type: AWS::EC2::Instance
@@ -234,6 +261,7 @@ Resources:
       SubnetId: !Ref PublicSubnet
       SecurityGroupIds:
         - !Ref EC2SecurityGroup
+      IamInstanceProfile: !Ref EC2InstanceProfile
       Tags:
         - Key: Name
           Value: mahjong-score-ec2
@@ -292,6 +320,58 @@ Resources:
           echo "=== アセットプリコンパイル ==="
           /usr/local/bin/docker-compose exec -T web bash -lc \
             "bin/rails assets:precompile RAILS_ENV=production"
+
+          echo "=== CloudWatch Agent インストール ==="
+          yum install -y amazon-cloudwatch-agent
+
+          echo "=== CloudWatch Agent 設定ファイル作成 ==="
+          mkdir -p /opt/aws/amazon-cloudwatch-agent/etc
+          cat <<'CWEOF' > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+          {
+            "agent": {
+              "metrics_collection_interval": 60,
+              "run_as_user": "root"
+            },
+            "metrics": {
+              "metrics_collected": {
+                "mem": {
+                  "measurement": ["mem_used_percent"],
+                  "metrics_collection_interval": 60
+                },
+                "disk": {
+                  "measurement": ["disk_used_percent"],
+                  "resources": ["/"],
+                  "metrics_collection_interval": 60
+                }
+              },
+              "append_dimensions": {
+                "InstanceId": "${!aws:InstanceId}"
+              }
+            },
+            "logs": {
+              "logs_collected": {
+                "files": {
+                  "collect_list": [
+                    {
+                      "file_path": "/home/ec2-user/mahjong_score/log/production.log",
+                      "log_group_name": "/mahjong-score/rails/production",
+                      "log_stream_name": "{instance_id}",
+                      "timezone": "Asia/Tokyo"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+          CWEOF
+
+          echo "=== CloudWatch Agent 起動 ==="
+          /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+            -a fetch-config \
+            -m ec2 \
+            -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json \
+            -s
+          systemctl enable amazon-cloudwatch-agent
 
           echo "=== 完了 ==="
 
