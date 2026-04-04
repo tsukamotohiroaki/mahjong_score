@@ -116,6 +116,33 @@ mahjong_score/
 └── Gemfile             # gem 定義
 ```
 
+## 本番環境（AWS）
+
+### 構成
+
+- EC2（t2.micro）+ RDS（PostgreSQL 16）
+- CloudFormation でインフラをコード化（`infra/cloudformation.yml`）
+- Docker Compose で Rails アプリを起動
+
+### デプロイ手順
+
+1. EC2 に SSH 接続する
+2. アプリを更新する（`git pull`）
+3. コンテナを再起動する（`docker-compose up -d`）
+4. 本番環境で動作確認する
+
+### systemd サービスの設定（初回のみ）
+
+EC2 再起動時にアプリが自動起動するよう設定する：
+
+```bash
+sudo cp infra/mahjong-score.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable mahjong-score
+```
+
+※ CloudFormation で新規構築した場合は UserData で自動設定済み
+
 ## トラブルシューティング
 
 ### `localhost:3000` にアクセスできない

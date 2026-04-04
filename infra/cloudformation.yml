@@ -381,6 +381,11 @@ Resources:
             -s
           systemctl enable amazon-cloudwatch-agent
 
+          echo "=== systemd サービス設定 ==="
+          cp /home/ec2-user/mahjong_score/infra/mahjong-score.service /etc/systemd/system/
+          systemctl daemon-reload
+          systemctl enable mahjong-score
+
           echo "=== 完了 ==="
 
   # ----------------------------------------------------------
