@@ -1,0 +1,15 @@
+[Unit]
+Description=Mahjong Score Application
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=ec2-user
+WorkingDirectory=/home/ec2-user/mahjong_score
+ExecStart=/usr/local/bin/docker-compose -f docker-compose.yml -f docker-compose.production.yml --env-file .env up -d
+ExecStop=/usr/local/bin/docker-compose -f docker-compose.yml -f docker-compose.production.yml down
+
+[Install]
+WantedBy=multi-user.target
