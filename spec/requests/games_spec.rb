@@ -1,6 +1,25 @@
 require 'rails_helper'
 
 RSpec.describe "Games", type: :request do
+  describe "GET /games/new" do
+    it "ステータス200が返る" do
+      get new_game_path
+      expect(response).to have_http_status(200)
+    end
+
+    it "プレイヤー入力欄が4つ表示される" do
+      get new_game_path
+      expect(response.body.scan('name="players[]"').size).to eq(4)
+    end
+
+    it "ルール設定フォームが表示される" do
+      get new_game_path
+      expect(response.body).to include('name="game[mochi_ten]"')
+      expect(response.body).to include('name="game[kaeshi_ten]"')
+      expect(response.body).to include('name="game[rank_1_bonus]"')
+    end
+  end
+
   describe "POST /games" do
     context "4人分のプレイヤー名が入力された場合" do
       let(:players) { ["Player1", "Player2", "Player3", "Player4"] }
