@@ -83,6 +83,12 @@ docker compose exec web bin/rails routes
 
 # RSpec実行
 docker compose run --rm -e RAILS_ENV=test web bash -lc "bundle install && bundle exec rspec"
+
+# E2Eテスト実行（ホスト）※ 事前に docker compose up でアプリを起動しておく
+npx playwright test
+
+# E2Eテスト実行（Docker）
+docker compose run --rm playwright
 ```
 
 ### その他
@@ -112,6 +118,7 @@ mahjong_score/
 ├── db/
 │   ├── migrate/        # マイグレーションファイル
 │   └── schema.rb       # スキーマ定義
+├── e2e/                # E2Eテスト（Playwright）
 ├── docker-compose.yml  # Docker Compose 設定
 └── Gemfile             # gem 定義
 ```

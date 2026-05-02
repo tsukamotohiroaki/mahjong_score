@@ -28,5 +28,18 @@ services:
       RAILS_MASTER_KEY: ${RAILS_MASTER_KEY:-}
     command: bash -lc "bundle install && bin/rails s -b 0.0.0.0"
 
+  playwright:
+    image: mcr.microsoft.com/playwright:v1.59.1-noble
+    depends_on:
+      - web
+    working_dir: /app
+    volumes:
+      - .:/app
+    environment:
+      BASE_URL: http://web:3000
+    command: bash -lc "npm ci && npx playwright test"
+    profiles:
+      - e2e
+
 volumes:
   postgres_data:

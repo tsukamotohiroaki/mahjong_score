@@ -36,3 +36,8 @@
 
 # Ignore Claude Code worktrees only (settings and hooks are tracked).
 /.claude/worktrees/
+
+# Node.js / Playwright
+/node_modules/
+/test-results/
+/playwright-report/
