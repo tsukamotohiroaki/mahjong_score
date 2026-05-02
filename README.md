@@ -104,12 +104,65 @@ docker compose logs -f web
 docker compose exec web bundle install
 ```
 
+## Hotwire（Turbo + Stimulus）
+
+Rails 標準の Hotwire スタックを使用しています。
+
+### 構成
+
+- **importmap-rails**: JSモジュールの配信（バンドラー不要）
+- **Turbo**: ページ遷移の高速化（Turbo Drive）
+- **Stimulus**: HTML属性ベースの軽量JSフレームワーク
+
+### Stimulus コントローラーの追加方法
+
+```bash
+# コントローラーを作成
+docker compose exec web bin/rails generate stimulus controller_name
+```
+
+`app/javascript/controllers/` にファイルが生成されます。
+
+### ファイル構成
+
+```
+app/javascript/
+├── application.js                 # エントリーポイント（Turbo + Stimulus を読み込み）
+└── controllers/
+    ├── application.js             # Stimulus アプリケーション設定
+    ├── index.js                   # コントローラーの自動読み込み
+    └── hello_controller.js        # サンプルコントローラー
+config/
+└── importmap.rb                   # JSモジュールのピン定義
+```
+
+### Stimulus コントローラーの使い方
+
+```erb
+<!-- ビューで data-controller 属性を指定 -->
+<div data-controller="hello">
+  <!-- connect() 時に "Hello World!" に置き換わる -->
+</div>
+```
+
+```javascript
+// app/javascript/controllers/hello_controller.js
+import { Controller } from "@hotwired/stimulus"
+
+export default class extends Controller {
+  connect() {
+    this.element.textContent = "Hello World!"
+  }
+}
+```
+
 ## ディレクトリ構成（主要部分）
 
 ```
 mahjong_score/
 ├── app/
 │   ├── controllers/    # コントローラー
+│   ├── javascript/     # JS（Stimulus コントローラー等）
 │   ├── models/         # モデル
 │   └── views/          # ビュー
 ├── config/
