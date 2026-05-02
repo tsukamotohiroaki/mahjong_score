@@ -17,7 +17,7 @@ function scoreInputs(page: Page) {
 }
 
 function totalOutput(page: Page) {
-  return page.locator("[data-total-output]");
+  return page.locator("[data-score-input-target='totalOutput']");
 }
 
 function submitButton(page: Page) {

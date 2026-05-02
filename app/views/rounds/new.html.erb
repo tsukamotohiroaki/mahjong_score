@@ -6,7 +6,8 @@
       <div class="form-error" role="alert"><%= @error_message %></div>
     <% end %>
 
-    <%= form_with url: game_rounds_path(@game), method: :post, local: true, class: "rounds-form" do %>
+    <%= form_with url: game_rounds_path(@game), method: :post, local: true, class: "rounds-form",
+                  data: { controller: "score-input" } do %>
       <% if @round_number.present? %>
         <%= hidden_field_tag :round_number, @round_number %>
       <% end %>
@@ -35,7 +36,8 @@
                                      pattern: "-?[0-9]*",
                                      autocomplete: "off",
                                      maxlength: 5,
-                                     class: "score-input" %>
+                                     class: "score-input",
+                                     data: { score_input_target: "input", action: "input->score-input#onInput" } %>
                   <span class="score-unit score-unit--hundreds">00点</span>
                 </div>
               </td>
@@ -46,7 +48,7 @@
           <tr class="score-total">
             <th>合計</th>
             <td class="score-total-value">
-              <span data-total-output>0</span>
+              <span data-score-input-target="totalOutput">0</span>
               <span class="score-unit">点</span>
             </td>
           </tr>
@@ -54,8 +56,9 @@
       </table>
 
       <div class="form-actions">
-        <%= submit_tag "入力完了", class: "btn btn-primary rounds-submit" %>
-        <p class="validation-message" data-validation-message hidden>入力内容を確認してください</p>
+        <%= submit_tag "入力完了", class: "btn btn-primary rounds-submit",
+                       data: { score_input_target: "submitButton" } %>
+        <p class="validation-message" data-score-input-target="validationMessage" hidden>入力内容を確認してください</p>
       </div>
     <% end %>
   </div>
@@ -64,94 +67,3 @@
     <%= link_to "← スコア一覧に戻る", game_path(@game) %>
   </div>
 </div>
-
-<script>
-  (() => {
-    const form = document.querySelector(".rounds-form");
-    if (!form) return;
-
-    const inputs = Array.from(form.querySelectorAll(".score-input"));
-    const totalOutput = form.querySelector("[data-total-output]");
-    const submitButton = form.querySelector(".rounds-submit");
-    const validationMessage = form.querySelector("[data-validation-message]");
-    let hasInteracted = false;
-    if (inputs.length === 0 || !totalOutput) return;
-
-    const TARGET_TOTAL = 100000;
-    const UNIT_SCALE = 100;
-    const TARGET_UNITS = TARGET_TOTAL / UNIT_SCALE;
-    const MIN_UNIT = -1000;
-    const MAX_UNIT = 1000;
-
-    const parseValue = (value) => {
-      if (value == null) return null;
-      const trimmed = value.trim();
-      if (trimmed === "") return null;
-      const number = Number(trimmed);
-      if (!Number.isFinite(number)) return null;
-      return Math.trunc(number);
-    };
-
-    const sumUnits = (skipInput = null) =>
-      inputs.reduce((sum, input) => {
-        if (input === skipInput) return sum;
-        const value = parseValue(input.value);
-        return value == null ? sum : sum + value;
-      }, 0);
-
-    const countFilled = (skipInput = null) =>
-      inputs.filter((input) => input !== skipInput && parseValue(input.value) != null).length;
-
-    const update = () => {
-      const autoInput = inputs.find((input) => input.dataset.auto === "true");
-      let targetInput = null;
-
-      if (autoInput && countFilled(autoInput) === inputs.length - 1) {
-        targetInput = autoInput;
-      } else if (!autoInput && countFilled() === inputs.length - 1) {
-        const emptyInput = inputs.find((input) => parseValue(input.value) == null);
-        if (emptyInput && emptyInput.dataset.manual !== "true") {
-          targetInput = emptyInput;
-        }
-      }
-
-      if (targetInput) {
-        const remaining = TARGET_UNITS - sumUnits(targetInput);
-        targetInput.value = String(remaining);
-        targetInput.dataset.auto = "true";
-        delete targetInput.dataset.manual;
-      } else if (autoInput && autoInput.dataset.manual !== "true") {
-        autoInput.value = "";
-        delete autoInput.dataset.auto;
-      }
-
-      const totalUnits = sumUnits();
-      totalOutput.textContent = String(totalUnits * UNIT_SCALE);
-
-      if (submitButton) {
-        const allFilled = inputs.every((input) => parseValue(input.value) != null);
-        const inRange = inputs.every((input) => {
-          const value = parseValue(input.value);
-          return value == null || (value >= MIN_UNIT && value <= MAX_UNIT);
-        });
-        const isValid = allFilled && totalUnits === TARGET_UNITS && inRange;
-        submitButton.disabled = !isValid;
-        submitButton.classList.toggle("is-disabled", !isValid);
-        if (validationMessage) {
-          validationMessage.hidden = isValid || !hasInteracted;
-        }
-      }
-    };
-
-    inputs.forEach((input) => {
-      input.addEventListener("input", () => {
-        hasInteracted = true;
-        input.dataset.manual = "true";
-        if (input.dataset.auto === "true") delete input.dataset.auto;
-        update();
-      });
-    });
-
-    update();
-  })();
-</script>
