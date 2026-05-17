@@ -156,6 +156,17 @@ export default class extends Controller {
 }
 ```
 
+## API 仕様書（OpenAPI）
+
+`docs/openapi.yaml` に OpenAPI 3.0 形式の API 仕様書があります。
+6月の Rails API 化で実装する予定のエンドポイント設計を記載しています。
+
+### 構文チェック
+
+```bash
+npx @redocly/cli lint docs/openapi.yaml
+```
+
 ## ディレクトリ構成（主要部分）
 
 ```
@@ -171,6 +182,8 @@ mahjong_score/
 ├── db/
 │   ├── migrate/        # マイグレーションファイル
 │   └── schema.rb       # スキーマ定義
+├── docs/
+│   └── openapi.yaml    # API 仕様書（OpenAPI 3.0）
 ├── e2e/                # E2Eテスト（Playwright）
 ├── docker-compose.yml  # Docker Compose 設定
 └── Gemfile             # gem 定義
