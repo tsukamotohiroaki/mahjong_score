@@ -1,0 +1,436 @@
+openapi: 3.0.3
+info:
+  title: 麻雀スコア管理 API
+  description: |
+    麻雀の半荘結果を記録・集計する API。
+    LIFF 版フロントエンドから利用する想定。
+
+    ## 認証
+    現時点では認証なし（個人開発スコープ）。
+    将来的に LIFF の `getProfile()` で取得した `userId` をヘッダーで送信し、
+    ユーザー単位のデータ分離を行う想定。
+
+    ## 点数の単位
+    点数は全て「百点棒単位」で扱う（例: 250 = 25,000点）。
+    既存 UI と同じ単位で統一し、クライアント側での変換を不要にする。
+  version: 1.0.0
+
+security: []
+
+servers:
+  - url: http://localhost:3000
+    description: 開発環境
+  - url: https://mahjong.example.com
+    description: 本番環境（将来）
+
+paths:
+  /api/v1/games:
+    get:
+      summary: ゲーム一覧を取得する
+      operationId: listGames
+      tags:
+        - games
+      responses:
+        "200":
+          description: ゲーム一覧
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - games
+                properties:
+                  games:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/GameSummary"
+              example:
+                games:
+                  - id: 1
+                    mochi_ten: 25000
+                    kaeshi_ten: 30000
+                    players:
+                      - id: 1
+                        name: プレイヤー1
+                      - id: 2
+                        name: プレイヤー2
+                      - id: 3
+                        name: プレイヤー3
+                      - id: 4
+                        name: プレイヤー4
+                    rounds_count: 3
+                    created_at: "2026-05-17T10:00:00Z"
+
+    post:
+      summary: ゲームを新規作成する
+      operationId: createGame
+      tags:
+        - games
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateGameRequest"
+            example:
+              mochi_ten: 25000
+              kaeshi_ten: 30000
+              rank_1_bonus: 50
+              rank_2_bonus: 10
+              rank_3_bonus: -10
+              rank_4_bonus: -30
+              players:
+                - プレイヤー1
+                - プレイヤー2
+                - プレイヤー3
+                - プレイヤー4
+      responses:
+        "201":
+          description: ゲーム作成成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GameDetail"
+        "422":
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                errors:
+                  - "順位点の合計が正しくありません（現在: 0、期待値: 20）"
+
+  /api/v1/games/{game_id}:
+    get:
+      summary: ゲーム詳細を取得する
+      description: |
+        プレイヤー・全ラウンドのスコア・順位点を含むゲームの詳細情報を返す。
+      operationId: getGame
+      tags:
+        - games
+      parameters:
+        - $ref: "#/components/parameters/GameId"
+      responses:
+        "200":
+          description: ゲーム詳細
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GameDetail"
+        "404":
+          description: ゲームが見つからない
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                errors:
+                  - ゲームが見つかりません
+
+  /api/v1/games/{game_id}/rounds:
+    post:
+      summary: ラウンド（点数）を入力する
+      description: |
+        4人分の点数を百点棒単位で送信する。
+        合計が 1000（= 100,000点）になる必要がある。
+        既存のラウンド番号を指定した場合はスコアを上書きする。
+      operationId: createRound
+      tags:
+        - rounds
+      parameters:
+        - $ref: "#/components/parameters/GameId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRoundRequest"
+            example:
+              round_number: 1
+              scores:
+                - player_id: 1
+                  point: 350
+                - player_id: 2
+                  point: 250
+                - player_id: 3
+                  point: 200
+                - player_id: 4
+                  point: 200
+      responses:
+        "201":
+          description: ラウンド作成成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoundDetail"
+        "422":
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                errors:
+                  - 点数の合計が 1000 になりません
+        "404":
+          description: ゲームが見つからない
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                errors:
+                  - ゲームが見つかりません
+
+components:
+  parameters:
+    GameId:
+      name: game_id
+      in: path
+      required: true
+      description: ゲーム ID
+      schema:
+        type: integer
+        example: 1
+
+  schemas:
+    GameSummary:
+      type: object
+      required:
+        - id
+        - mochi_ten
+        - kaeshi_ten
+        - players
+        - rounds_count
+        - created_at
+      properties:
+        id:
+          type: integer
+        mochi_ten:
+          type: integer
+          description: "持ち点（例: 25000）"
+        kaeshi_ten:
+          type: integer
+          description: "返し点（例: 30000）"
+        players:
+          type: array
+          items:
+            $ref: "#/components/schemas/Player"
+        rounds_count:
+          type: integer
+          description: "登録済みラウンド数"
+        created_at:
+          type: string
+          format: date-time
+
+    GameDetail:
+      type: object
+      required:
+        - id
+        - mochi_ten
+        - kaeshi_ten
+        - rank_1_bonus
+        - rank_2_bonus
+        - rank_3_bonus
+        - rank_4_bonus
+        - players
+        - rounds
+        - created_at
+      properties:
+        id:
+          type: integer
+        mochi_ten:
+          type: integer
+          description: "持ち点（例: 25000）"
+        kaeshi_ten:
+          type: integer
+          description: "返し点（例: 30000）"
+        rank_1_bonus:
+          type: integer
+          description: "1着の順位点（例: 50）"
+        rank_2_bonus:
+          type: integer
+          description: "2着の順位点（例: 10）"
+        rank_3_bonus:
+          type: integer
+          description: "3着の順位点（例: -10）"
+        rank_4_bonus:
+          type: integer
+          description: "4着の順位点（例: -30）"
+        players:
+          type: array
+          items:
+            $ref: "#/components/schemas/Player"
+        rounds:
+          type: array
+          items:
+            $ref: "#/components/schemas/RoundDetail"
+        created_at:
+          type: string
+          format: date-time
+      example:
+        id: 1
+        mochi_ten: 25000
+        kaeshi_ten: 30000
+        rank_1_bonus: 50
+        rank_2_bonus: 10
+        rank_3_bonus: -10
+        rank_4_bonus: -30
+        players:
+          - id: 1
+            name: プレイヤー1
+          - id: 2
+            name: プレイヤー2
+          - id: 3
+            name: プレイヤー3
+          - id: 4
+            name: プレイヤー4
+        rounds:
+          - id: 1
+            round_number: 1
+            scores:
+              - player_id: 1
+                point: 350
+                ranking_score: 62.0
+                rank: 1
+              - player_id: 2
+                point: 250
+                ranking_score: 10.0
+                rank: 2
+              - player_id: 3
+                point: 200
+                ranking_score: -20.0
+                rank: 3
+              - player_id: 4
+                point: 200
+                ranking_score: -20.0
+                rank: 3
+        created_at: "2026-05-17T10:00:00Z"
+
+    Player:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          description: プレイヤー名
+
+    RoundDetail:
+      type: object
+      required:
+        - id
+        - round_number
+        - scores
+      properties:
+        id:
+          type: integer
+        round_number:
+          type: integer
+          description: ラウンド番号（半荘の通し番号）
+        scores:
+          type: array
+          items:
+            $ref: "#/components/schemas/ScoreDetail"
+
+    ScoreDetail:
+      type: object
+      required:
+        - player_id
+        - point
+        - ranking_score
+        - rank
+      properties:
+        player_id:
+          type: integer
+        point:
+          type: integer
+          description: "点数（百点棒単位、例: 350 = 35,000点）"
+        ranking_score:
+          type: number
+          format: float
+          description: "順位点（例: 62.0）"
+        rank:
+          type: integer
+          description: "順位（1〜4、同点の場合は同じ順位）"
+
+    CreateGameRequest:
+      type: object
+      required:
+        - mochi_ten
+        - kaeshi_ten
+        - rank_1_bonus
+        - rank_2_bonus
+        - rank_3_bonus
+        - rank_4_bonus
+        - players
+      properties:
+        mochi_ten:
+          type: integer
+          description: "持ち点（例: 25000）"
+        kaeshi_ten:
+          type: integer
+          description: "返し点（例: 30000）"
+        rank_1_bonus:
+          type: integer
+          description: "1着の順位点（例: 50）"
+        rank_2_bonus:
+          type: integer
+          description: "2着の順位点（例: 10）"
+        rank_3_bonus:
+          type: integer
+          description: "3着の順位点（例: -10）"
+        rank_4_bonus:
+          type: integer
+          description: "4着の順位点（例: -30）"
+        players:
+          type: array
+          description: "プレイヤー名の配列（4人固定）"
+          minItems: 4
+          maxItems: 4
+          items:
+            type: string
+
+    CreateRoundRequest:
+      type: object
+      required:
+        - scores
+      properties:
+        round_number:
+          type: integer
+          description: |
+            ラウンド番号。省略時は次のラウンド番号が自動採番される。
+            既存のラウンド番号を指定した場合はスコアを上書きする。
+        scores:
+          type: array
+          description: 4人分の点数（合計が 1000 になること）
+          minItems: 4
+          maxItems: 4
+          items:
+            type: object
+            required:
+              - player_id
+              - point
+            properties:
+              player_id:
+                type: integer
+              point:
+                type: integer
+                description: "点数（百点棒単位、-1000〜1000）"
+                minimum: -1000
+                maximum: 1000
+
+    Error:
+      type: object
+      required:
+        - errors
+      properties:
+        errors:
+          type: array
+          items:
+            type: string
+          description: エラーメッセージの配列
