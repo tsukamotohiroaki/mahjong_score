@@ -167,6 +167,16 @@ export default class extends Controller {
 npx @redocly/cli lint docs/openapi.yaml
 ```
 
+## CI（GitHub Actions）
+
+`main` ブランチへの push / PR で以下が自動実行されます：
+
+- **RSpec**: モデル・リクエストスペック
+- **Playwright E2E**: ブラウザでのユーザー操作テスト
+
+E2E テストが失敗した場合、スクリーンショットと動画が Artifacts として保存されます。
+GitHub の Actions タブ → 該当ワークフロー → `playwright-report` から確認できます。
+
 ## ディレクトリ構成（主要部分）
 
 ```

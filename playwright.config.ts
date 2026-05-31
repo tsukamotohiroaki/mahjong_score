@@ -4,6 +4,8 @@ export default defineConfig({
   testDir: "./e2e",
   use: {
     baseURL: process.env.BASE_URL || "http://localhost:3000",
+    screenshot: "only-on-failure",
+    video: "retain-on-failure",
   },
   projects: [
     {
