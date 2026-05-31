@@ -256,6 +256,14 @@ docker compose down
 docker compose up --build
 ```
 
+## TDAD（Test-Driven Agentic Development）
+
+AI エージェント（Claude Code）との協働開発で、変更時のデグレを防ぐために依存マップを運用しています。
+
+- `.claude/dependencies.md` に、ソースコードとテストの依存関係を記載
+- コード変更前にこのファイルを確認し、影響を受けるテストを把握してから作業する
+- 「気をつける」ではなく「気をつけなくても壊れない仕組み」で品質を守る
+
 ## 開発メモ
 - `chore/initial-setup` ブランチ: Rails + Docker + PostgreSQL の初期構成保存用（以後更新しない）
 
