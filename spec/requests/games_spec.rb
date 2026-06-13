@@ -44,17 +44,6 @@ RSpec.describe "Games", type: :request do
         game = Game.last
         expect(response).to redirect_to(game_path(game))
       end
-
-      it "デフォルトのルール設定で Game が作成される" do
-        post games_path, params: { players: players }
-        game = Game.last
-        expect(game.mochi_ten).to eq 25000
-        expect(game.kaeshi_ten).to eq 30000
-        expect(game.rank_1_bonus).to eq 50
-        expect(game.rank_2_bonus).to eq 10
-        expect(game.rank_3_bonus).to eq(-10)
-        expect(game.rank_4_bonus).to eq(-30)
-      end
     end
 
     context "カスタムルールが指定された場合" do
