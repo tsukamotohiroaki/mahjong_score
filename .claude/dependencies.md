@@ -13,6 +13,8 @@ Game は Player・Round の親モデルであり、順位点計算ロジック�
 - `spec/models/score_spec.rb`（calculate_ranking_scores が Score を参照）
 - `spec/requests/games_spec.rb`（Game の CRUD）
 - `spec/requests/rounds_spec.rb`（Round 作成時に Game のルール設定を使用）
+- `spec/requests/api/v1/games_spec.rb`（JSON API。一覧・詳細・作成、順位点計算を含む）
+- `spec/requests/api/v1/rounds_spec.rb`（JSON API。Round 作成時に Game のルール設定を使用）
 - `e2e/home.spec.ts`（トップページからゲーム作成への導線）
 - `e2e/score_input.spec.ts`（点数入力は Game 配下の Round/Score に依存）
 
@@ -24,6 +26,7 @@ Player は Game に従属し、Score と紐づく。
 - `spec/models/game_spec.rb`（has_many :players）
 - `spec/models/score_spec.rb`（belongs_to :player）
 - `spec/requests/games_spec.rb`（ゲーム作成時に Player も作成）
+- `spec/requests/api/v1/games_spec.rb`（JSON API のゲーム詳細に Player をネストして返す）
 - `e2e/score_input.spec.ts`（点数入力画面に Player 名が表示される）
 
 ## app/models/round.rb
@@ -34,6 +37,8 @@ Round は Game に従属し、Score を持つ。
 - `spec/models/game_spec.rb`（has_many :rounds、calculate_ranking_scores）
 - `spec/models/score_spec.rb`（belongs_to :round）
 - `spec/requests/rounds_spec.rb`（Round の CRUD）
+- `spec/requests/api/v1/rounds_spec.rb`（JSON API。Round 作成・スコア上書き）
+- `spec/requests/api/v1/games_spec.rb`（JSON API のゲーム詳細に Round をネストして返す）
 - `e2e/score_input.spec.ts`（点数入力 → Round/Score 作成）
 
 ## app/models/score.rb
@@ -45,4 +50,27 @@ Score は Round・Player に従属する。
 - `spec/models/player_spec.rb`（has_many :scores）
 - `spec/models/game_spec.rb`（calculate_ranking_scores が Score を使用）
 - `spec/requests/rounds_spec.rb`（Round 作成時に Score も作成）
+- `spec/requests/api/v1/rounds_spec.rb`（JSON API。Round 作成時に Score も作成）
+- `spec/requests/api/v1/games_spec.rb`（JSON API のスコアを順位点としてネストして返す）
 - `e2e/score_input.spec.ts`（点数入力 → Score 作成）
+
+## app/controllers/api/v1/application_controller.rb
+
+LIFF 版 JSON API の基底コントローラー。共通のシリアライズ（`round_detail`）と RecordNotFound 時の 404 応答を持つ。
+
+- `spec/requests/api/v1/games_spec.rb`（直接。一覧・詳細・作成）
+- `spec/requests/api/v1/rounds_spec.rb`（直接。Round 作成）
+
+## app/controllers/api/v1/games_controller.rb
+
+ゲームの一覧・詳細・作成を JSON で返す。詳細は Player・Round・順位点をネストして返す。
+
+- `spec/requests/api/v1/games_spec.rb`（直接）
+- `spec/models/game_spec.rb`（順位点計算 calculate_ranking_scores を使用）
+
+## app/controllers/api/v1/rounds_controller.rb
+
+ラウンド（点数）入力を JSON で受け付ける。入力は百点棒単位、保存時に 100 倍する。
+
+- `spec/requests/api/v1/rounds_spec.rb`（直接）
+- `spec/requests/api/v1/games_spec.rb`（作成したラウンドはゲーム詳細に反映される）

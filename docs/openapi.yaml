@@ -11,8 +11,9 @@ info:
     ユーザー単位のデータ分離を行う想定。
 
     ## 点数の単位
-    点数は全て「百点棒単位」で扱う（例: 250 = 25,000点）。
-    既存 UI と同じ単位で統一し、クライアント側での変換を不要にする。
+    - ラウンド入力の点数（`scores[].point`）は「百点棒単位」で扱う（例: 350 = 35,000点）。
+    - 持ち点（`mochi_ten`）・返し点（`kaeshi_ten`）は「実点数」で扱う（例: 25000）。
+    - スコアの集計結果は「順位点」（`ranking_score`）として返す。生の点数は返さない。
   version: 1.0.0
 
 security: []
@@ -291,19 +292,15 @@ components:
             round_number: 1
             scores:
               - player_id: 1
-                point: 350
                 ranking_score: 62.0
                 rank: 1
               - player_id: 2
-                point: 250
                 ranking_score: 10.0
                 rank: 2
               - player_id: 3
-                point: 200
                 ranking_score: -20.0
                 rank: 3
               - player_id: 4
-                point: 200
                 ranking_score: -20.0
                 rank: 3
         created_at: "2026-05-17T10:00:00Z"
@@ -341,15 +338,11 @@ components:
       type: object
       required:
         - player_id
-        - point
         - ranking_score
         - rank
       properties:
         player_id:
           type: integer
-        point:
-          type: integer
-          description: "点数（百点棒単位、例: 350 = 35,000点）"
         ranking_score:
           type: number
           format: float

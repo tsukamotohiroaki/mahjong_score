@@ -11,4 +11,13 @@ Rails.application.routes.draw do
   resources :games, only: [:new, :create, :show] do
     resources :rounds, only: [:new, :create]
   end
+
+  # LIFF 版向け JSON API（OpenAPI 仕様書 docs/openapi.yaml に準拠）
+  namespace :api do
+    namespace :v1 do
+      resources :games, only: [:index, :show, :create] do
+        resources :rounds, only: [:create]
+      end
+    end
+  end
 end
