@@ -75,4 +75,7 @@ Rails.application.configure do
   config.action_controller.raise_on_missing_callback_actions = true
 
   config.hosts << "web"
+
+  # LIFF 実機確認時、Next.js のプロキシが ngrok の Host ヘッダーを転送してくるため許可する
+  config.hosts << /.*\.ngrok-free\.(dev|app)/
 end
