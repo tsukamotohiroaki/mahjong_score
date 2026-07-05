@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import liff from "@line/liff";
-import HelloWorld from "./components/HelloWorld";
+import GameList from "./components/GameList";
+import { getGames, type GameSummary } from "./lib/api";
 
 type Status = "loading" | "ready" | "error";
 
 export default function Page() {
   const [status, setStatus] = useState<Status>("loading");
-  const [displayName, setDisplayName] = useState("");
+  const [games, setGames] = useState<GameSummary[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
@@ -29,13 +30,20 @@ export default function Page() {
           liff.login();
           return;
         }
-
-        const profile = await liff.getProfile();
-        setDisplayName(profile.displayName);
-        setStatus("ready");
       } catch (error) {
         const detail = error instanceof Error ? error.message : String(error);
         setErrorMessage(`LIFF の初期化に失敗しました: ${detail}`);
+        setStatus("error");
+        return;
+      }
+
+      try {
+        setGames(await getGames());
+        setStatus("ready");
+      } catch {
+        setErrorMessage(
+          "ゲーム一覧の取得に失敗しました。時間をおいて再読み込みしてください"
+        );
         setStatus("error");
       }
     };
@@ -59,5 +67,5 @@ export default function Page() {
     );
   }
 
-  return <HelloWorld displayName={displayName} />;
+  return <GameList games={games} />;
 }
