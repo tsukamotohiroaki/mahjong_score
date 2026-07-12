@@ -58,7 +58,7 @@ describe("NewGamePage (ゲーム作成フォーム)", () => {
     expect(screen.getByLabelText("4位")).toHaveValue(-30);
   });
 
-  it("入力した値で createGame を呼び、成功したら一覧へ戻る", async () => {
+  it("入力した値で createGame を呼び、成功したらスコア一覧へ遷移する", async () => {
     mockedCreateGame.mockResolvedValue(createdGame);
     render(<NewGamePage />);
 
@@ -75,7 +75,8 @@ describe("NewGamePage (ゲーム作成フォーム)", () => {
       players: ["東", "南", "西", "北"],
     });
     await vi.waitFor(() => {
-      expect(pushMock).toHaveBeenCalledWith("/");
+      // MPA 版と同じく、作成したゲームのスコア一覧へ遷移する
+      expect(pushMock).toHaveBeenCalledWith("/games/10");
     });
   });
 

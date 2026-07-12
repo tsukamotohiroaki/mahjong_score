@@ -53,8 +53,9 @@ export default function NewGamePage() {
     setSubmitting(true);
     setErrors([]);
     try {
-      await createGame({ ...rules, players });
-      router.push("/");
+      const created = await createGame({ ...rules, players });
+      // MPA 版と同じく、作成したゲームのスコア一覧へ遷移する
+      router.push(`/games/${created.id}`);
     } catch (error) {
       if (error instanceof ApiError) {
         setErrors(error.messages);
