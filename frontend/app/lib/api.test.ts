@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { ApiError, createGame, getGame, getGames } from "./api";
+import { ApiError, createGame, createRound, getGame, getGames } from "./api";
 
 const gameSummary = {
   id: 1,
@@ -126,6 +126,53 @@ describe("api クライアント", () => {
 
       await expect(createGame(params)).rejects.toMatchObject({
         messages: ["順位点の合計が正しくありません（現在: 0、期待値: 20）"],
+      });
+    });
+  });
+
+  describe("createRound", () => {
+    // point は百点棒単位（350 = 35,000点）
+    const params = {
+      round_number: 3,
+      scores: [
+        { player_id: 1, point: 350 },
+        { player_id: 2, point: 300 },
+        { player_id: 3, point: 250 },
+        { player_id: 4, point: 100 },
+      ],
+    };
+
+    const roundDetail = {
+      id: 5,
+      round_number: 3,
+      scores: [
+        { player_id: 1, ranking_score: 62.0, rank: 1 },
+        { player_id: 2, ranking_score: 10.0, rank: 2 },
+        { player_id: 3, ranking_score: -20.0, rank: 3 },
+        { player_id: 4, ranking_score: -52.0, rank: 4 },
+      ],
+    };
+
+    it("点数を JSON で POST し、作成された局を返す", async () => {
+      mockedFetch().mockResolvedValue(jsonResponse(roundDetail, 201));
+
+      const round = await createRound(1, params);
+
+      expect(mockedFetch()).toHaveBeenCalledWith("/api/v1/games/1/rounds", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(params),
+      });
+      expect(round.round_number).toBe(3);
+    });
+
+    it("422 のときはバリデーションメッセージを持つ ApiError を投げる", async () => {
+      mockedFetch().mockResolvedValue(
+        jsonResponse({ errors: ["点数の合計が 1000 になりません"] }, 422)
+      );
+
+      await expect(createRound(1, params)).rejects.toMatchObject({
+        messages: ["点数の合計が 1000 になりません"],
       });
     });
   });
