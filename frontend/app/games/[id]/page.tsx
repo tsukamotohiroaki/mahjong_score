@@ -5,9 +5,12 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ApiError, getGame, type GameDetail } from "../../lib/api";
 
+// MPA 版 games#show と同じく 12 局分の枠を表示する
+const ROUND_COUNT = 12;
+
 type Status = "loading" | "ready" | "error";
 
-// ゲーム詳細（プレイヤー・ルールの確認）。点数入力機能は #158 で追加する。
+// スコア一覧（MPA 版 games#show の移植）。局番号から点数入力画面へ遷移する。
 export default function GameDetailPage() {
   const params = useParams<{ id: string }>();
   const [status, setStatus] = useState<Status>("loading");
@@ -51,28 +54,65 @@ export default function GameDetailPage() {
     );
   }
 
+  const findRankingScore = (roundNumber: number, playerId: number) => {
+    const round = game.rounds.find((r) => r.round_number === roundNumber);
+    const score = round?.scores.find((s) => s.player_id === playerId);
+    return score?.ranking_score ?? null;
+  };
+
+  const totalRankingScore = (playerId: number) =>
+    game.rounds.reduce((sum, round) => {
+      const score = round.scores.find((s) => s.player_id === playerId);
+      return sum + (score?.ranking_score ?? 0);
+    }, 0);
+
   return (
     <main style={{ padding: "1.5rem" }}>
-      <h1>ゲーム詳細</h1>
+      <h1>スコア一覧</h1>
 
-      <h2>メンバー</h2>
-      <ul>
-        {game.players.map((player) => (
-          <li key={player.id}>{player.name}</li>
-        ))}
-      </ul>
+      <p>{new Date(game.created_at).toLocaleDateString("ja-JP")}</p>
 
-      <h2>ルール</h2>
-      <ul>
-        <li>持ち点: {game.mochi_ten}</li>
-        <li>返し点: {game.kaeshi_ten}</li>
-        <li>
-          順位点: {game.rank_1_bonus} / {game.rank_2_bonus} /{" "}
-          {game.rank_3_bonus} / {game.rank_4_bonus}
-        </li>
-      </ul>
-
-      <p>点数入力機能は準備中です。</p>
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            {game.players.map((player) => (
+              <th key={player.id}>{player.name}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {Array.from({ length: ROUND_COUNT }, (_, i) => i + 1).map(
+            (roundNumber) => (
+              <tr key={roundNumber}>
+                <td>
+                  <Link
+                    href={`/games/${game.id}/rounds/new?round_number=${roundNumber}`}
+                  >
+                    {roundNumber}
+                  </Link>
+                </td>
+                {game.players.map((player) => {
+                  const score = findRankingScore(roundNumber, player.id);
+                  return (
+                    <td key={player.id}>
+                      {score != null ? score.toFixed(1) : ""}
+                    </td>
+                  );
+                })}
+              </tr>
+            )
+          )}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td>合計</td>
+            {game.players.map((player) => (
+              <td key={player.id}>{totalRankingScore(player.id).toFixed(1)}</td>
+            ))}
+          </tr>
+        </tfoot>
+      </table>
 
       <p>
         <Link href="/">← 一覧に戻る</Link>

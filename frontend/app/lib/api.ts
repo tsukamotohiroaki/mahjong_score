@@ -40,6 +40,12 @@ export type GameDetail = {
   created_at: string;
 };
 
+export type CreateRoundParams = {
+  round_number: number;
+  // point は百点棒単位（350 = 35,000点）
+  scores: { player_id: number; point: number }[];
+};
+
 export type CreateGameParams = {
   mochi_ten: number;
   kaeshi_ten: number;
@@ -105,6 +111,17 @@ export async function createGame(
   params: CreateGameParams
 ): Promise<GameDetail> {
   return request<GameDetail>("/api/v1/games", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(params),
+  });
+}
+
+export async function createRound(
+  gameId: number,
+  params: CreateRoundParams
+): Promise<Round> {
+  return request<Round>(`/api/v1/games/${gameId}/rounds`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(params),

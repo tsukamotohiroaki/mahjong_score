@@ -33,12 +33,39 @@ const game = {
   created_at: "2026-07-01T10:00:00Z",
 };
 
-describe("GameDetailPage (ゲーム詳細)", () => {
+// 2局分入力済みのゲーム（合計: 東75.0 / 南60.0 / 西-45.0 / 北-90.0）
+const gameWithRounds = {
+  ...game,
+  rounds: [
+    {
+      id: 1,
+      round_number: 1,
+      scores: [
+        { player_id: 1, ranking_score: 62.0, rank: 1 },
+        { player_id: 2, ranking_score: 10.0, rank: 2 },
+        { player_id: 3, ranking_score: -20.0, rank: 3 },
+        { player_id: 4, ranking_score: -52.0, rank: 4 },
+      ],
+    },
+    {
+      id: 2,
+      round_number: 2,
+      scores: [
+        { player_id: 1, ranking_score: 13.0, rank: 2 },
+        { player_id: 2, ranking_score: 50.0, rank: 1 },
+        { player_id: 3, ranking_score: -25.0, rank: 3 },
+        { player_id: 4, ranking_score: -38.0, rank: 4 },
+      ],
+    },
+  ],
+};
+
+describe("GameDetailPage (スコア一覧)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("プレイヤー名とルールを表示する", async () => {
+  it("プレイヤー名を表示する", async () => {
     mockedGetGame.mockResolvedValue(game);
 
     render(<GameDetailPage />);
@@ -47,9 +74,37 @@ describe("GameDetailPage (ゲーム詳細)", () => {
     expect(screen.getByText("南")).toBeInTheDocument();
     expect(screen.getByText("西")).toBeInTheDocument();
     expect(screen.getByText("北")).toBeInTheDocument();
-    expect(screen.getByText(/25000/)).toBeInTheDocument();
-    expect(screen.getByText(/30000/)).toBeInTheDocument();
     expect(mockedGetGame).toHaveBeenCalledWith(1);
+  });
+
+  it("入力済みの局の順位点と合計を表示する", async () => {
+    mockedGetGame.mockResolvedValue(gameWithRounds);
+
+    render(<GameDetailPage />);
+
+    // 各局の順位点
+    expect(await screen.findByText("62.0")).toBeInTheDocument();
+    expect(screen.getByText("-52.0")).toBeInTheDocument();
+    expect(screen.getByText("50.0")).toBeInTheDocument();
+    // プレイヤーごとの合計
+    expect(screen.getByText("75.0")).toBeInTheDocument();
+    expect(screen.getByText("-90.0")).toBeInTheDocument();
+  });
+
+  it("局番号から点数入力画面へのリンクを表示する（12局分）", async () => {
+    mockedGetGame.mockResolvedValue(gameWithRounds);
+
+    render(<GameDetailPage />);
+
+    expect(await screen.findByRole("link", { name: "1" })).toHaveAttribute(
+      "href",
+      "/games/1/rounds/new?round_number=1"
+    );
+    // 未入力の局にもリンクがある
+    expect(screen.getByRole("link", { name: "12" })).toHaveAttribute(
+      "href",
+      "/games/1/rounds/new?round_number=12"
+    );
   });
 
   it("一覧へ戻るリンクを表示する", async () => {
