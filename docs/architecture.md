@@ -1,0 +1,112 @@
+# アーキテクチャ構成図
+
+本プロジェクトの全体像（MPA 版 + JSON API + LIFF 版の併存構成）を1枚で掴むためのドキュメント。
+構成に影響する実装変更（画面・コントローラー・API の追加や削除）をしたときは、この図も更新する。
+
+## 移行戦略
+
+- MPA（Rails + ERB + Hotwire）で MVP を最短リリースし、動かしたまま LIFF 版（Next.js）へ段階的に移行する（ストラングラーフィグパターン）
+- 両版が併存する期間は、JSON API（`/api/v1`）と OpenAPI 仕様書（`docs/openapi.yaml`）を契約として橋渡しする
+- SPA・ネイティブアプリは当面スコープ外（CLAUDE.md の方針）
+
+## 全体構成図
+
+```mermaid
+flowchart TB
+    user(("ユーザー"))
+
+    subgraph MPA["MPA版（ERB + Stimulus）"]
+        home["home/index<br>トップ"]
+        gnew["games/new<br>ゲーム作成画面"]
+        gshow["games/show<br>スコア一覧画面"]
+        rnew["rounds/new<br>点数入力画面"]
+        stim["score_input_controller.js<br>（合計計算・自動補完）"]
+        rnew -.双方向.- stim
+    end
+
+    subgraph LIFF["LIFF版（Next.js / React）"]
+        lpage["page.tsx<br>トップ + LIFFログイン"]
+        glist["GameList.tsx"]
+        lnew["games/new/page.tsx<br>ゲーム作成画面"]
+        lshow["games/[id]/page.tsx<br>スコア一覧画面"]
+        lrnew["games/[id]/rounds/new/page.tsx<br>点数入力画面"]
+        sinput["lib/score-input.ts<br>（合計計算・自動補完）"]
+        apits["lib/api.ts<br>通信層"]
+        lpage --> glist
+        lrnew -.利用.- sinput
+        lpage & lnew & lshow & lrnew --> apits
+    end
+
+    subgraph Rails["Rails（サーバー）"]
+        hc["HomeController"]
+        gc["GamesController"]
+        rc["RoundsController<br>（点数バリデーション）"]
+        agc["Api::V1::GamesController"]
+        arc["Api::V1::RoundsController<br>（点数バリデーション）"]
+        model["Game モデル<br>calculate_ranking_scores<br>順位点計算・ゼロサム検証"]
+        db[("PostgreSQL<br>games / players<br>rounds / scores")]
+    end
+
+    user --> home & gnew & gshow & rnew
+    user --> lpage & lnew & lshow & lrnew
+
+    home --> hc
+    gnew & gshow --> gc
+    rnew --> rc
+    apits -- "JSON<br>（docs/openapi.yaml が契約）" --> agc & arc
+
+    gc & rc & agc & arc --> model
+    model --> db
+```
+
+## 二重実装マップ
+
+MPA 版と LIFF 版で「同一仕様の別実装」になっているペアの一覧。
+仕様変更時は必ずペアの両方を修正する。
+
+```mermaid
+flowchart LR
+    subgraph M["MPA版"]
+        m1["games/new.html.erb"]
+        m2["games/show.html.erb"]
+        m3["rounds/new.html.erb"]
+        m4["score_input_controller.js<br>（JS: 合計・自動補完）"]
+        m5["RoundsController<br>（±1000・合計1000検証）"]
+    end
+    subgraph L["LIFF版"]
+        l1["games/new/page.tsx"]
+        l2["games/[id]/page.tsx"]
+        l3["games/[id]/rounds/new/page.tsx"]
+        l4["lib/score-input.ts<br>（TS: 合計・自動補完）"]
+        l5["Api::V1::RoundsController<br>（±1000・合計1000検証）"]
+    end
+    m1 <-. "同一仕様" .-> l1
+    m2 <-. "同一仕様" .-> l2
+    m3 <-. "同一仕様" .-> l3
+    m4 <-. "同一ロジック別言語" .-> l4
+    m5 <-. "同一検証の二重実装<br>（一本化予定 #193）" .-> l5
+
+    shared["Game モデル（順位点計算）<br>★ここだけは共有＝一重"]
+    m5 --> shared
+    l5 --> shared
+```
+
+- コントローラーの点数検証の一本化は [#193](https://github.com/tsukamotohiroaki/mahjong_score/issues/193) で対応予定
+- 同じ「二重実装を増やさない」設計方針のゲーム作成検証は [#192](https://github.com/tsukamotohiroaki/mahjong_score/issues/192) を参照
+
+## 読みどころ
+
+1. **すべての矢印が最終的に Game モデルに集まる** — 順位点計算・ゼロサム検証は Game モデル1箇所に集約されており、MPA・LIFF どちらの経路でも同じ計算結果になる。ここが壊れると全経路が同時に壊れるため、`spec/models/game_spec.rb` が最重要テスト
+2. **画面まわりは二重、計算とデータは一重** — 二重実装マップの点線ペアが「変更時に2箇所直す場所」の一覧。移行完了（MPA 引退）まで併存するコスト
+3. **`lib/api.ts` と API コントローラーの間が契約境界** — レスポンス構造を変えると LIFF 版だけが静かに壊れる。`docs/openapi.yaml` と `spec/requests/api/v1/` を同期させて守る
+
+## テスト戦略との対応
+
+| テスト | 守っている箱 |
+|---|---|
+| RSpec モデルスペック（`spec/models/`） | Game モデル（順位点計算・ゼロサム・一意性） |
+| RSpec リクエストスペック（`spec/requests/`） | MPA コントローラー + API コントローラー（画面表示・点数検証・API契約） |
+| Playwright E2E（`e2e/`） | MPA 版の画面 + `score_input_controller.js`（ブラウザ上の JS 動作） |
+| Vitest（`frontend/app/**/*.test.*`） | LIFF 版の React コンポーネント + `lib/api.ts` + `lib/score-input.ts` |
+
+詳細なテスト戦略（3層の役割分担・探索的テスト）は CLAUDE.md を参照。
