@@ -69,53 +69,60 @@ export default function NewGamePage() {
   };
 
   return (
-    <main style={{ padding: "1.5rem" }}>
-      <h1>新規ゲーム作成</h1>
+    <main className="games-new">
+      <h1>メンバー入力</h1>
 
       {errors.length > 0 && (
-        <ul role="alert" style={{ color: "red" }}>
-          {errors.map((message) => (
-            <li key={message}>{message}</li>
-          ))}
-        </ul>
+        <div className="form-error" role="alert">
+          <ul style={{ listStyle: "none" }}>
+            {errors.map((message) => (
+              <li key={message}>{message}</li>
+            ))}
+          </ul>
+        </div>
       )}
 
-      <form onSubmit={handleSubmit}>
-        <h2>メンバー</h2>
-        {players.map((name, i) => (
-          <div key={i}>
-            <label htmlFor={`player_${i + 1}`}>プレイヤー{i + 1}</label>
-            <input
-              type="text"
-              id={`player_${i + 1}`}
-              value={name}
-              required
-              onChange={(event) => updatePlayer(i, event.target.value)}
-            />
-          </div>
-        ))}
+      <form onSubmit={handleSubmit} className="member-form">
+        <div className="player-inputs">
+          {players.map((name, i) => (
+            <div key={i} className="player-input">
+              <label htmlFor={`player_${i + 1}`}>プレイヤー{i + 1}</label>
+              <input
+                type="text"
+                id={`player_${i + 1}`}
+                value={name}
+                required
+                onChange={(event) => updatePlayer(i, event.target.value)}
+              />
+            </div>
+          ))}
+        </div>
 
         <h2>ルール設定</h2>
-        {ruleFields.map(({ key, label }) => (
-          <div key={key}>
-            <label htmlFor={`rule_${key}`}>{label}</label>
-            <input
-              type="number"
-              id={`rule_${key}`}
-              value={rules[key]}
-              onChange={(event) => updateRule(key, event.target.value)}
-            />
-          </div>
-        ))}
+        <div className="rule-inputs">
+          {ruleFields.map(({ key, label }) => (
+            <div key={key} className="rule-input">
+              <label htmlFor={`rule_${key}`}>{label}</label>
+              <input
+                type="number"
+                id={`rule_${key}`}
+                value={rules[key]}
+                onChange={(event) => updateRule(key, event.target.value)}
+              />
+            </div>
+          ))}
+        </div>
 
-        <button type="submit" disabled={submitting}>
-          ゲーム開始
-        </button>
+        <div className="form-actions">
+          <button type="submit" className="btn btn-primary" disabled={submitting}>
+            ゲーム開始
+          </button>
+        </div>
       </form>
 
-      <p>
+      <div className="back-link">
         <Link href="/">← トップに戻る</Link>
-      </p>
+      </div>
     </main>
   );
 }

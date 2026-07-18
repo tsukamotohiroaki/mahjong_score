@@ -134,49 +134,84 @@ export default function NewRoundPage() {
   }
 
   return (
-    <main style={{ padding: "1.5rem" }}>
-      <h1>点数入力</h1>
-      <h2>{nextRoundNumber}回戦</h2>
+    <main className="rounds-new">
+      <div className="rounds-panel">
+        <h1>点数入力</h1>
 
-      {errors.length > 0 && (
-        <ul role="alert" style={{ color: "red" }}>
-          {errors.map((message) => (
-            <li key={message}>{message}</li>
-          ))}
-        </ul>
-      )}
-
-      <form onSubmit={handleSubmit}>
-        {game.players.map((player, i) => (
-          <div key={player.id}>
-            <label htmlFor={`score_${player.id}`}>{player.name}の点数</label>
-            <input
-              type="text"
-              id={`score_${player.id}`}
-              inputMode="numeric"
-              pattern="-?[0-9]*"
-              autoComplete="off"
-              maxLength={5}
-              value={values[i] ?? ""}
-              onChange={(event) => handleChange(i, event.target.value)}
-            />
-            <span>00点</span>
+        {errors.length > 0 && (
+          <div className="form-error" role="alert">
+            {errors.join("、")}
           </div>
-        ))}
+        )}
 
-        <p>
-          合計 <span>{totalUnits * UNIT_SCALE}</span> 点
-        </p>
+        <form onSubmit={handleSubmit} className="rounds-form">
+          <table className="scoreboard">
+            <caption className="scoreboard-caption">
+              {nextRoundNumber}回戦
+            </caption>
+            <thead>
+              <tr>
+                <th>プレイヤー</th>
+                <th>点数</th>
+              </tr>
+            </thead>
+            <tbody>
+              {game.players.map((player, i) => (
+                <tr key={player.id}>
+                  <td className="player-name">{player.name}</td>
+                  <td className="score-cell">
+                    <label htmlFor={`score_${player.id}`} className="sr-only">
+                      {player.name}の点数
+                    </label>
+                    <div className="score-field">
+                      <input
+                        type="text"
+                        id={`score_${player.id}`}
+                        className="score-input"
+                        inputMode="numeric"
+                        pattern="-?[0-9]*"
+                        autoComplete="off"
+                        maxLength={5}
+                        value={values[i] ?? ""}
+                        onChange={(event) => handleChange(i, event.target.value)}
+                      />
+                      <span className="score-unit score-unit--hundreds">
+                        00点
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr className="score-total">
+                <th>合計</th>
+                <td className="score-total-value">
+                  <span>{totalUnits * UNIT_SCALE}</span>
+                  <span className="score-unit">点</span>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
 
-        <button type="submit" disabled={!isValid || submitting}>
-          入力完了
-        </button>
-        {hasInteracted && !isValid && <p>入力内容を確認してください</p>}
-      </form>
+          <div className="form-actions">
+            <button
+              type="submit"
+              className="btn btn-primary rounds-submit"
+              disabled={!isValid || submitting}
+            >
+              入力完了
+            </button>
+            {hasInteracted && !isValid && (
+              <p className="validation-message">入力内容を確認してください</p>
+            )}
+          </div>
+        </form>
+      </div>
 
-      <p>
+      <div className="back-link">
         <Link href={`/games/${gameId}`}>← スコア一覧に戻る</Link>
-      </p>
+      </div>
     </main>
   );
 }

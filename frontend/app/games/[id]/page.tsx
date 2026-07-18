@@ -90,12 +90,21 @@ export default function GameDetailPage() {
   };
 
   return (
-    <main style={{ padding: "1.5rem" }}>
+    <main className="games-show">
       <h1>スコア一覧</h1>
 
-      <p>{new Date(game.created_at).toLocaleDateString("ja-JP")}</p>
+      <div
+        className="game-date"
+        style={{ width: "100%", maxWidth: 600, textAlign: "left" }}
+      >
+        {new Date(game.created_at).toLocaleDateString("ja-JP", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        })}
+      </div>
 
-      <table>
+      <table className="score-table">
         <thead>
           <tr>
             <th></th>
@@ -118,7 +127,12 @@ export default function GameDetailPage() {
                 {game.players.map((player) => {
                   const score = findRankingScore(roundNumber, player.id);
                   return (
-                    <td key={player.id}>
+                    <td
+                      key={player.id}
+                      className={
+                        score != null && score < 0 ? "negative" : undefined
+                      }
+                    >
                       {score != null ? score.toFixed(1) : ""}
                     </td>
                   );
@@ -130,22 +144,30 @@ export default function GameDetailPage() {
         <tfoot>
           <tr>
             <td>合計</td>
-            {game.players.map((player) => (
-              <td key={player.id}>{totalRankingScore(player.id).toFixed(1)}</td>
-            ))}
+            {game.players.map((player) => {
+              const total = totalRankingScore(player.id);
+              return (
+                <td
+                  key={player.id}
+                  className={total < 0 ? "negative" : undefined}
+                >
+                  {total.toFixed(1)}
+                </td>
+              );
+            })}
           </tr>
         </tfoot>
       </table>
 
-      <p>
-        <button type="button" onClick={handleShare}>
+      <div className="share-section">
+        <button type="button" className="share-button" onClick={handleShare}>
           {shareLabel}
         </button>
-      </p>
+      </div>
 
-      <p>
+      <div className="back-link">
         <Link href="/">← トップに戻る</Link>
-      </p>
+      </div>
     </main>
   );
 }
