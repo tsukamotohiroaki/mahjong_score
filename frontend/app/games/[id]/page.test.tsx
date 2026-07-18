@@ -1,5 +1,5 @@
-import { render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ApiError, getGame } from "../../lib/api";
 import GameDetailPage from "./page";
 
@@ -125,5 +125,98 @@ describe("GameDetailPage (スコア一覧)", () => {
     expect(
       await screen.findByText(/ゲームが見つかりません/)
     ).toBeInTheDocument();
+  });
+});
+
+describe("GameDetailPage (URLを共有する)", () => {
+  const shareUrl = "https://liff.line.me/test-liff-id/games/1";
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.stubEnv("NEXT_PUBLIC_LIFF_ID", "test-liff-id");
+    mockedGetGame.mockResolvedValue(game);
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    // テストごとに navigator へ生やしたモックを片付ける
+    Reflect.deleteProperty(window.navigator, "share");
+    Reflect.deleteProperty(window.navigator, "clipboard");
+  });
+
+  it("「URLを共有する」ボタンを表示する", async () => {
+    render(<GameDetailPage />);
+
+    expect(
+      await screen.findByRole("button", { name: "URLを共有する" })
+    ).toBeInTheDocument();
+  });
+
+  it("navigator.share が使える環境では LIFF リンク付きで共有シートを開く", async () => {
+    const share = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(window.navigator, "share", {
+      value: share,
+      configurable: true,
+    });
+
+    render(<GameDetailPage />);
+    fireEvent.click(
+      await screen.findByRole("button", { name: "URLを共有する" })
+    );
+
+    await vi.waitFor(() => {
+      expect(share).toHaveBeenCalledWith({
+        title: "麻雀スコア",
+        url: shareUrl,
+      });
+    });
+  });
+
+  it("navigator.share がない環境ではコピーして「コピーしました！」を2秒表示する", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(window.navigator, "clipboard", {
+      value: { writeText },
+      configurable: true,
+    });
+
+    render(<GameDetailPage />);
+    fireEvent.click(
+      await screen.findByRole("button", { name: "URLを共有する" })
+    );
+
+    expect(
+      await screen.findByRole("button", { name: "コピーしました！" })
+    ).toBeInTheDocument();
+    expect(writeText).toHaveBeenCalledWith(shareUrl);
+
+    // 2秒後に元の文言へ戻る
+    await vi.waitFor(
+      () => {
+        expect(
+          screen.getByRole("button", { name: "URLを共有する" })
+        ).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
+  });
+
+  it("共有シートをキャンセルしてもエラーにならない", async () => {
+    const share = vi
+      .fn()
+      .mockRejectedValue(new DOMException("Share canceled", "AbortError"));
+    Object.defineProperty(window.navigator, "share", {
+      value: share,
+      configurable: true,
+    });
+
+    render(<GameDetailPage />);
+    fireEvent.click(
+      await screen.findByRole("button", { name: "URLを共有する" })
+    );
+
+    await vi.waitFor(() => {
+      expect(share).toHaveBeenCalled();
+    });
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 });

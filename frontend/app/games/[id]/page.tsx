@@ -16,6 +16,7 @@ export default function GameDetailPage() {
   const [status, setStatus] = useState<Status>("loading");
   const [game, setGame] = useState<GameDetail | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
+  const [shareLabel, setShareLabel] = useState("URLを共有する");
 
   useEffect(() => {
     const load = async () => {
@@ -66,6 +67,28 @@ export default function GameDetailPage() {
       return sum + (score?.ranking_score ?? 0);
     }, 0);
 
+  // MPA 版 games#show と同挙動: 共有シートが使えなければクリップボードコピーにフォールバック
+  const handleShare = async () => {
+    const url = `https://liff.line.me/${process.env.NEXT_PUBLIC_LIFF_ID}/games/${game.id}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: "麻雀スコア", url });
+      } catch {
+        // 共有シートのキャンセルはエラー扱いしない
+      }
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(url);
+      setShareLabel("コピーしました！");
+      setTimeout(() => setShareLabel("URLを共有する"), 2000);
+    } catch {
+      // コピーできない環境では何もしない
+    }
+  };
+
   return (
     <main style={{ padding: "1.5rem" }}>
       <h1>スコア一覧</h1>
@@ -113,6 +136,12 @@ export default function GameDetailPage() {
           </tr>
         </tfoot>
       </table>
+
+      <p>
+        <button type="button" onClick={handleShare}>
+          {shareLabel}
+        </button>
+      </p>
 
       <p>
         <Link href="/">← トップに戻る</Link>
