@@ -91,6 +91,28 @@ describe("GameDetailPage (スコア一覧)", () => {
     expect(screen.getByText("-90.0")).toBeInTheDocument();
   });
 
+  it("日付を MPA 版と同じゼロ埋め形式で表示する", async () => {
+    mockedGetGame.mockResolvedValue(game);
+
+    render(<GameDetailPage />);
+
+    // created_at: 2026-07-01T10:00:00Z（JST 2026/07/01）
+    expect(await screen.findByText("2026/07/01")).toBeInTheDocument();
+  });
+
+  it("マイナスの順位点と合計に negative クラスを付ける（赤字表示）", async () => {
+    mockedGetGame.mockResolvedValue(gameWithRounds);
+
+    render(<GameDetailPage />);
+
+    // 各局のマイナス順位点
+    expect(await screen.findByText("-52.0")).toHaveClass("negative");
+    // マイナスの合計
+    expect(screen.getByText("-90.0")).toHaveClass("negative");
+    // プラスの値には付かない
+    expect(screen.getByText("62.0")).not.toHaveClass("negative");
+  });
+
   it("局番号から点数入力画面へのリンクを表示する（12局分）", async () => {
     mockedGetGame.mockResolvedValue(gameWithRounds);
 

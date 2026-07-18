@@ -59,11 +59,13 @@ export default function Page() {
   }
 
   return (
-    <main style={{ padding: "2rem", textAlign: "center" }}>
+    <main className="top-page">
       <h1>麻雀スコア管理アプリ</h1>
-      <p>
-        <Link href="/games/new">新しく始める</Link>
-      </p>
+      <div className="buttons">
+        <Link href="/games/new" className="btn btn-primary">
+          新しく始める
+        </Link>
+      </div>
     </main>
   );
 }
