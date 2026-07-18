@@ -1,7 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import liff from "@line/liff";
-import { getGames } from "./lib/api";
 import Page from "./page";
 
 vi.mock("@line/liff", () => ({
@@ -12,32 +11,9 @@ vi.mock("@line/liff", () => ({
   },
 }));
 
-// getGames だけモックし、ApiError などは実物をそのまま使う
-vi.mock("./lib/api", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("./lib/api")>()),
-  getGames: vi.fn(),
-}));
-
 const mockedLiff = vi.mocked(liff, true);
-const mockedGetGames = vi.mocked(getGames);
 
-const games = [
-  {
-    id: 1,
-    mochi_ten: 25000,
-    kaeshi_ten: 30000,
-    players: [
-      { id: 1, name: "東" },
-      { id: 2, name: "南" },
-      { id: 3, name: "西" },
-      { id: 4, name: "北" },
-    ],
-    rounds_count: 2,
-    created_at: "2026-07-01T10:00:00Z",
-  },
-];
-
-describe("Page (ゲーム一覧)", () => {
+describe("Page (トップ)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.stubEnv("NEXT_PUBLIC_LIFF_ID", "test-liff-id");
@@ -53,15 +29,29 @@ describe("Page (ゲーム一覧)", () => {
     expect(screen.getByText(/読み込み中/)).toBeInTheDocument();
   });
 
-  it("ログイン済みならゲーム一覧を取得して表示する", async () => {
+  it("ログイン済みならタイトルと「新しく始める」ボタンを表示する", async () => {
     mockedLiff.init.mockResolvedValue(undefined);
     mockedLiff.isLoggedIn.mockReturnValue(true);
-    mockedGetGames.mockResolvedValue(games);
 
     render(<Page />);
 
-    expect(await screen.findByText(/東、南、西、北/)).toBeInTheDocument();
+    expect(
+      await screen.findByRole("heading", { name: "麻雀スコア管理アプリ" })
+    ).toBeInTheDocument();
+    const startLink = screen.getByRole("link", { name: "新しく始める" });
+    expect(startLink).toHaveAttribute("href", "/games/new");
     expect(mockedLiff.init).toHaveBeenCalledWith({ liffId: "test-liff-id" });
+  });
+
+  it("ゲーム一覧と「つづきから」ボタンは表示しない", async () => {
+    mockedLiff.init.mockResolvedValue(undefined);
+    mockedLiff.isLoggedIn.mockReturnValue(true);
+
+    render(<Page />);
+
+    await screen.findByRole("heading", { name: "麻雀スコア管理アプリ" });
+    expect(screen.queryByText(/ゲーム一覧/)).not.toBeInTheDocument();
+    expect(screen.queryByText("つづきから")).not.toBeInTheDocument();
   });
 
   it("未ログイン時は liff.login() を呼んでログインへ誘導する", async () => {
@@ -73,8 +63,10 @@ describe("Page (ゲーム一覧)", () => {
     await vi.waitFor(() => {
       expect(mockedLiff.login).toHaveBeenCalled();
     });
-    // 未ログインでは一覧を取得しない
-    expect(mockedGetGames).not.toHaveBeenCalled();
+    // 未ログインではトップの内容を表示しない
+    expect(
+      screen.queryByRole("link", { name: "新しく始める" })
+    ).not.toBeInTheDocument();
   });
 
   it("liff.init 失敗時はエラーメッセージを表示する", async () => {
@@ -83,17 +75,5 @@ describe("Page (ゲーム一覧)", () => {
     render(<Page />);
 
     expect(await screen.findByText(/初期化に失敗/)).toBeInTheDocument();
-  });
-
-  it("一覧取得に失敗したらエラーメッセージを表示する", async () => {
-    mockedLiff.init.mockResolvedValue(undefined);
-    mockedLiff.isLoggedIn.mockReturnValue(true);
-    mockedGetGames.mockRejectedValue(new Error("fetch failed"));
-
-    render(<Page />);
-
-    expect(
-      await screen.findByText(/ゲーム一覧の取得に失敗/)
-    ).toBeInTheDocument();
   });
 });

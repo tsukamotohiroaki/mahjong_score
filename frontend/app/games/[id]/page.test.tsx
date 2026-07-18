@@ -107,13 +107,13 @@ describe("GameDetailPage (スコア一覧)", () => {
     );
   });
 
-  it("一覧へ戻るリンクを表示する", async () => {
+  it("トップへ戻るリンクを表示する", async () => {
     mockedGetGame.mockResolvedValue(game);
 
     render(<GameDetailPage />);
 
     expect(
-      await screen.findByRole("link", { name: /一覧に戻る/ })
+      await screen.findByRole("link", { name: /トップに戻る/ })
     ).toHaveAttribute("href", "/");
   });
 
