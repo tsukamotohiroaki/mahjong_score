@@ -127,7 +127,7 @@ export default function NewRoundPage() {
       <main style={{ padding: "2rem", textAlign: "center" }}>
         <p role="alert">{errors.join("、")}</p>
         <p>
-          <Link href="/">← 一覧に戻る</Link>
+          <Link href="/">← トップに戻る</Link>
         </p>
       </main>
     );

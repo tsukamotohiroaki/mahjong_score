@@ -48,7 +48,7 @@ export default function GameDetailPage() {
       <main style={{ padding: "2rem", textAlign: "center" }}>
         <p role="alert">{errorMessage}</p>
         <p>
-          <Link href="/">← 一覧に戻る</Link>
+          <Link href="/">← トップに戻る</Link>
         </p>
       </main>
     );
@@ -115,7 +115,7 @@ export default function GameDetailPage() {
       </table>
 
       <p>
-        <Link href="/">← 一覧に戻る</Link>
+        <Link href="/">← トップに戻る</Link>
       </p>
     </main>
   );

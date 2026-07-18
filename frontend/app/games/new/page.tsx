@@ -114,7 +114,7 @@ export default function NewGamePage() {
       </form>
 
       <p>
-        <Link href="/">← 一覧に戻る</Link>
+        <Link href="/">← トップに戻る</Link>
       </p>
     </main>
   );

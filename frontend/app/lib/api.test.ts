@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { ApiError, createGame, createRound, getGame, getGames } from "./api";
+import { ApiError, createGame, createRound, getGame } from "./api";
 
 const gameSummary = {
   id: 1,
@@ -42,35 +42,6 @@ describe("api クライアント", () => {
 
   const mockedFetch = () => vi.mocked(fetch);
 
-  describe("getGames", () => {
-    it("ゲーム一覧を配列で返す", async () => {
-      mockedFetch().mockResolvedValue(jsonResponse({ games: [gameSummary] }));
-
-      const games = await getGames();
-
-      expect(mockedFetch()).toHaveBeenCalledWith("/api/v1/games");
-      expect(games).toHaveLength(1);
-      expect(games[0].players.map((p) => p.name)).toEqual([
-        "東",
-        "南",
-        "西",
-        "北",
-      ]);
-    });
-
-    it("サーバーエラー時は ApiError を投げる", async () => {
-      mockedFetch().mockResolvedValue(jsonResponse({}, 500));
-
-      await expect(getGames()).rejects.toBeInstanceOf(ApiError);
-    });
-
-    it("ネットワークエラー時も ApiError を投げる", async () => {
-      mockedFetch().mockRejectedValue(new TypeError("Failed to fetch"));
-
-      await expect(getGames()).rejects.toBeInstanceOf(ApiError);
-    });
-  });
-
   describe("getGame", () => {
     it("ゲーム詳細を返す", async () => {
       mockedFetch().mockResolvedValue(jsonResponse(gameDetail));
@@ -89,6 +60,18 @@ describe("api クライアント", () => {
       await expect(getGame(999)).rejects.toMatchObject({
         messages: ["ゲームが見つかりません"],
       });
+    });
+
+    it("errors のないサーバーエラー時は汎用メッセージの ApiError を投げる", async () => {
+      mockedFetch().mockResolvedValue(jsonResponse({}, 500));
+
+      await expect(getGame(1)).rejects.toBeInstanceOf(ApiError);
+    });
+
+    it("ネットワークエラー時も ApiError を投げる", async () => {
+      mockedFetch().mockRejectedValue(new TypeError("Failed to fetch"));
+
+      await expect(getGame(1)).rejects.toBeInstanceOf(ApiError);
     });
   });
 

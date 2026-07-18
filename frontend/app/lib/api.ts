@@ -6,15 +6,6 @@ export type Player = {
   name: string;
 };
 
-export type GameSummary = {
-  id: number;
-  mochi_ten: number;
-  kaeshi_ten: number;
-  players: Player[];
-  rounds_count: number;
-  created_at: string;
-};
-
 export type RoundScore = {
   player_id: number;
   ranking_score: number | null;
@@ -96,11 +87,6 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   }
 
   return (await response.json()) as T;
-}
-
-export async function getGames(): Promise<GameSummary[]> {
-  const body = await request<{ games: GameSummary[] }>("/api/v1/games");
-  return body.games;
 }
 
 export async function getGame(id: number): Promise<GameDetail> {

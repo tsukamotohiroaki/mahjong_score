@@ -1,15 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import liff from "@line/liff";
-import GameList from "./components/GameList";
-import { getGames, type GameSummary } from "./lib/api";
 
 type Status = "loading" | "ready" | "error";
 
+// トップ画面（MPA 版 home#index の移植）。タイトルと「新しく始める」ボタンだけを表示する。
 export default function Page() {
   const [status, setStatus] = useState<Status>("loading");
-  const [games, setGames] = useState<GameSummary[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
@@ -37,15 +36,7 @@ export default function Page() {
         return;
       }
 
-      try {
-        setGames(await getGames());
-        setStatus("ready");
-      } catch {
-        setErrorMessage(
-          "ゲーム一覧の取得に失敗しました。時間をおいて再読み込みしてください"
-        );
-        setStatus("error");
-      }
+      setStatus("ready");
     };
 
     initialize();
@@ -67,5 +58,12 @@ export default function Page() {
     );
   }
 
-  return <GameList games={games} />;
+  return (
+    <main style={{ padding: "2rem", textAlign: "center" }}>
+      <h1>麻雀スコア管理アプリ</h1>
+      <p>
+        <Link href="/games/new">新しく始める</Link>
+      </p>
+    </main>
+  );
 }
