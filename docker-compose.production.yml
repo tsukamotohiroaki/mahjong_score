@@ -9,7 +9,8 @@ services:
 
   # LIFF版（Next.js）。本番のみ常時稼働させるため production 側に定義する（#203）
   frontend:
-    image: node:22
+    # slim版を使用: 通常版(1.13GB)はEC2のディスク(8GB)を圧迫するため
+    image: node:22-slim
     depends_on:
       - web
     working_dir: /app/frontend
