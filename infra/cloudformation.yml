@@ -170,6 +170,11 @@ Resources:
           ToPort: 3000
           CidrIp: 0.0.0.0/0
           Description: "Rails"
+        - IpProtocol: tcp
+          FromPort: 3001
+          ToPort: 3001
+          CidrIp: 0.0.0.0/0
+          Description: "Next.js (LIFF) - CloudFront origin"
       Tags:
         - Key: Name
           Value: mahjong-score-ec2-sg
@@ -389,6 +394,80 @@ Resources:
           echo "=== 完了 ==="
 
   # ----------------------------------------------------------
+  # 8.5. CloudFront — HTTPS化（#202）
+  # ----------------------------------------------------------
+  # デフォルトドメイン(*.cloudfront.net)の証明書を使うため ACM 不要。
+  # オリジンには IP を指定できないため、Elastic IP のパブリック DNS 名を使う。
+  # キャッシュ方針: 動的コンテンツ(HTML・/api/*)はキャッシュ無効、静的アセットのみ許可
+  # （古いスコア表示などのキャッシュ事故防止）。
+  # CloudFront は X-Forwarded-Proto を自動付与しないため、カスタムオリジンヘッダーで
+  # https を明示し、Rails/Next.js に HTTPS アクセスだと伝える。
+
+  # LIFF用: LINEアプリからのアクセスを Next.js(3001) へ
+  CloudFrontLIFFDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Comment: "mahjong-score LIFF (Next.js:3001)"
+        Enabled: true
+        HttpVersion: http2
+        PriceClass: PriceClass_200  # 日本のエッジを含む最安クラス
+        Origins:
+          - Id: ec2-nextjs
+            DomainName: ec2-3-114-238-160.ap-northeast-1.compute.amazonaws.com
+            CustomOriginConfig:
+              HTTPPort: 3001
+              OriginProtocolPolicy: http-only
+            OriginCustomHeaders:
+              - HeaderName: X-Forwarded-Proto
+                HeaderValue: https
+        DefaultCacheBehavior:
+          TargetOriginId: ec2-nextjs
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: [GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE]
+          CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad  # Managed-CachingDisabled
+          OriginRequestPolicyId: 216adef6-5c7f-47e4-b989-5492eafa07d3  # Managed-AllViewer
+        CacheBehaviors:
+          # ビルド成果物はファイル名にハッシュ付き＝不変なのでキャッシュ許可
+          - PathPattern: "/_next/static/*"
+            TargetOriginId: ec2-nextjs
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods: [GET, HEAD]
+            CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6  # Managed-CachingOptimized
+
+  # MPA用: ブラウザからのアクセスを Rails(3000) へ（navigator.share の HTTPS 制約も解消）
+  CloudFrontMPADistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Comment: "mahjong-score MPA (Rails:3000)"
+        Enabled: true
+        HttpVersion: http2
+        PriceClass: PriceClass_200
+        Origins:
+          - Id: ec2-rails
+            DomainName: ec2-3-114-238-160.ap-northeast-1.compute.amazonaws.com
+            CustomOriginConfig:
+              HTTPPort: 3000
+              OriginProtocolPolicy: http-only
+            OriginCustomHeaders:
+              - HeaderName: X-Forwarded-Proto
+                HeaderValue: https
+        DefaultCacheBehavior:
+          TargetOriginId: ec2-rails
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: [GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE]
+          CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad  # Managed-CachingDisabled
+          OriginRequestPolicyId: 216adef6-5c7f-47e4-b989-5492eafa07d3  # Managed-AllViewer
+        CacheBehaviors:
+          # Sprocketsのアセットはダイジェスト付きファイル名＝不変なのでキャッシュ許可
+          - PathPattern: "/assets/*"
+            TargetOriginId: ec2-rails
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods: [GET, HEAD]
+            CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6  # Managed-CachingOptimized
+
+  # ----------------------------------------------------------
   # 9. SNS — アラーム通知先
   # ----------------------------------------------------------
   SNSAlarmTopic:
@@ -498,3 +577,11 @@ Outputs:
   SSHCommand:
     Description: "SSH接続コマンド"
     Value: !Sub "ssh -i <キーペア>.pem ec2-user@${EC2Instance.PublicIp}"
+
+  CloudFrontLIFFURL:
+    Description: "LIFF版のHTTPS URL（LINE DevelopersのエンドポイントURLに設定する）"
+    Value: !Sub "https://${CloudFrontLIFFDistribution.DomainName}"
+
+  CloudFrontMPAURL:
+    Description: "MPA版のHTTPS URL"
+    Value: !Sub "https://${CloudFrontMPADistribution.DomainName}"
