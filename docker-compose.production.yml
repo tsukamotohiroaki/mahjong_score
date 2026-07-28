@@ -6,3 +6,21 @@ services:
         awslogs-region: ap-northeast-1
         awslogs-group: /mahjong-score/rails/production
         awslogs-create-group: "true"
+
+  # LIFF版（Next.js）。本番のみ常時稼働させるため production 側に定義する（#203）
+  frontend:
+    image: node:22
+    depends_on:
+      - web
+    working_dir: /app/frontend
+    volumes:
+      - .:/app
+    ports:
+      - "3001:3001"
+    environment:
+      API_BASE_URL: http://web:3000
+      NEXT_PUBLIC_LIFF_ID: ${NEXT_PUBLIC_LIFF_ID:-}
+    # ビルドはデプロイ時のみ実行する（クラッシュ復帰・EC2再起動を速くするため）:
+    #   docker-compose -f docker-compose.yml -f docker-compose.production.yml run --rm frontend bash -lc "npm ci && npm run build"
+    command: bash -lc "npm run start -- -p 3001"
+    restart: unless-stopped
