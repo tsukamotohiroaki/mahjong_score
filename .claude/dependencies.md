@@ -5,13 +5,13 @@
 
 ## app/models/game.rb
 
-Game は Player・Round の親モデルであり、順位点計算ロジックを持つ。
+Game は Player・Round の親モデルであり、順位点計算ロジックと、ゲーム作成の入口となる `create_with_players!`（プレイヤーちょうど4人の検証を含む）を持つ。
 
 - `spec/models/game_spec.rb`（直接）
 - `spec/models/player_spec.rb`（has_many :players）
 - `spec/models/round_spec.rb`（has_many :rounds）
 - `spec/models/score_spec.rb`（calculate_ranking_scores が Score を参照）
-- `spec/requests/games_spec.rb`（Game の CRUD）
+- `spec/requests/games_spec.rb`（Game の CRUD。create は create_with_players! を呼ぶ）
 - `spec/requests/rounds_spec.rb`（Round 作成時に Game のルール設定を使用）
 - `spec/requests/api/v1/games_spec.rb`（JSON API。一覧・詳細・作成、順位点計算を含む）
 - `spec/requests/api/v1/rounds_spec.rb`（JSON API。Round 作成時に Game のルール設定を使用）
@@ -61,12 +61,22 @@ LIFF 版 JSON API の基底コントローラー。共通のシリアライズ�
 - `spec/requests/api/v1/games_spec.rb`（直接。一覧・詳細・作成）
 - `spec/requests/api/v1/rounds_spec.rb`（直接。Round 作成）
 
+## app/controllers/games_controller.rb
+
+MPA 版のゲーム作成・スコア一覧表示。作成は `Game.create_with_players!` に委譲し、失敗時はメンバー入力画面へリダイレクトする。
+
+- `spec/requests/games_spec.rb`（直接）
+- `spec/models/game_spec.rb`（create_with_players! と順位点計算 calculate_ranking_scores を使用）
+- `spec/models/player_spec.rb`（ゲーム作成時に Player も作成）
+- `e2e/home.spec.ts`（トップページからゲーム作成への導線）
+
 ## app/controllers/api/v1/games_controller.rb
 
-ゲームの一覧・詳細・作成を JSON で返す。詳細は Player・Round・順位点をネストして返す。
+ゲームの一覧・詳細・作成を JSON で返す。詳細は Player・Round・順位点をネストして返す。作成は `Game.create_with_players!` に委譲する。
 
 - `spec/requests/api/v1/games_spec.rb`（直接）
-- `spec/models/game_spec.rb`（順位点計算 calculate_ranking_scores を使用）
+- `spec/models/game_spec.rb`（create_with_players! と順位点計算 calculate_ranking_scores を使用）
+- `spec/requests/games_spec.rb`（MPA 版と同じ create_with_players! を共有するため、片方の変更が両経路に影響する）
 
 ## app/controllers/api/v1/rounds_controller.rb
 

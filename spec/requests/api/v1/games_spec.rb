@@ -114,5 +114,55 @@ RSpec.describe "Api::V1::Games", type: :request do
         expect(response).to have_http_status(422)
       end
     end
+
+    context "プレイヤーが3人の場合" do
+      it "422とエラーJSONを返し、GameもPlayerも作成しない" do
+        params = valid_params.merge(players: %w[Alice Bob Carol])
+
+        expect {
+          post "/api/v1/games", params: params, as: :json
+        }.to change(Game, :count).by(0).and change(Player, :count).by(0)
+
+        expect(response).to have_http_status(422)
+        json = JSON.parse(response.body)
+        expect(json["errors"]).to include(a_string_including("4人"))
+      end
+    end
+
+    context "プレイヤーが5人の場合" do
+      it "422を返し、GameもPlayerも作成しない" do
+        params = valid_params.merge(players: %w[Alice Bob Carol Dave Eve])
+
+        expect {
+          post "/api/v1/games", params: params, as: :json
+        }.to change(Game, :count).by(0).and change(Player, :count).by(0)
+
+        expect(response).to have_http_status(422)
+      end
+    end
+
+    context "players が空配列の場合" do
+      it "422を返し、GameもPlayerも作成しない" do
+        params = valid_params.merge(players: [])
+
+        expect {
+          post "/api/v1/games", params: params, as: :json
+        }.to change(Game, :count).by(0).and change(Player, :count).by(0)
+
+        expect(response).to have_http_status(422)
+      end
+    end
+
+    context "players パラメータがない場合" do
+      it "422を返し、GameもPlayerも作成しない" do
+        params = valid_params.except(:players)
+
+        expect {
+          post "/api/v1/games", params: params, as: :json
+        }.to change(Game, :count).by(0).and change(Player, :count).by(0)
+
+        expect(response).to have_http_status(422)
+      end
+    end
   end
 end

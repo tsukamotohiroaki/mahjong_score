@@ -12,11 +12,8 @@ class GamesController < ApplicationController
   end
 
   def create
-    ActiveRecord::Base.transaction do
-      game = Game.create!(game_params)
-      params[:players].each { |name| game.players.create!(name: name) }
-      redirect_to game_path(game)
-    end
+    game = Game.create_with_players!(game_params, params[:players])
+    redirect_to game_path(game)
   rescue ActiveRecord::RecordInvalid
     redirect_to new_game_path
   end
