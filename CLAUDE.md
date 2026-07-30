@@ -42,7 +42,7 @@
 
 ### 開発ツール
 
-- VSCode
+- Cursor エディタ
 - GitHub CLI（イシュー管理）
 - pry-rails / amazing_print（Rails コンソール）
 
