@@ -1,6 +1,9 @@
 services:
   db:
-    image: postgres:16
+    # イメージは Docker Hub の公開ミラー（Google 運営）から取得する。中身は Docker Hub と同一。
+    # クラウド環境から Docker Hub の配信元が遮断されているため（詳細は docs/docker-compose.md）。
+    # バージョンはパッチまで固定する（浮動タグだと予告なく中身が変わり起動不能になるため）。
+    image: mirror.gcr.io/library/postgres:16.13
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
@@ -11,7 +14,8 @@ services:
       - "5432:5432"
 
   web:
-    image: ruby:3.3
+    # Ruby のバージョンは .ruby-version / Gemfile / ci.yml と揃える（不一致だと bundler が停止する）。
+    image: mirror.gcr.io/library/ruby:3.3.10
     depends_on:
       - db
     working_dir: /app
