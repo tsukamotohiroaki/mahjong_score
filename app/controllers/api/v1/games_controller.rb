@@ -12,11 +12,7 @@ module Api
       end
 
       def create
-        game = nil
-        ActiveRecord::Base.transaction do
-          game = Game.create!(game_params)
-          player_names.each { |name| game.players.create!(name: name) }
-        end
+        game = Game.create_with_players!(game_params, player_names)
         render json: game_detail(game), status: :created
       rescue ActiveRecord::RecordInvalid => e
         render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity

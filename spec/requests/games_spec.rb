@@ -87,6 +87,49 @@ RSpec.describe "Games", type: :request do
       end
     end
 
+    context "プレイヤーが3人の場合" do
+      let(:players) { ["Player1", "Player2", "Player3"] }
+
+      it "Game と Player が作成されない" do
+        expect {
+          post games_path, params: { players: players }
+        }.to change(Game, :count).by(0).and change(Player, :count).by(0)
+      end
+
+      it "メンバー入力画面にリダイレクトする" do
+        post games_path, params: { players: players }
+        expect(response).to redirect_to(new_game_path)
+      end
+    end
+
+    context "プレイヤーが5人の場合" do
+      let(:players) { ["Player1", "Player2", "Player3", "Player4", "Player5"] }
+
+      it "Game と Player が作成されない" do
+        expect {
+          post games_path, params: { players: players }
+        }.to change(Game, :count).by(0).and change(Player, :count).by(0)
+      end
+
+      it "メンバー入力画面にリダイレクトする" do
+        post games_path, params: { players: players }
+        expect(response).to redirect_to(new_game_path)
+      end
+    end
+
+    context "players パラメータがない場合" do
+      it "Game と Player が作成されない" do
+        expect {
+          post games_path, params: {}
+        }.to change(Game, :count).by(0).and change(Player, :count).by(0)
+      end
+
+      it "メンバー入力画面にリダイレクトする" do
+        post games_path, params: {}
+        expect(response).to redirect_to(new_game_path)
+      end
+    end
+
     context "ゼロサム条件を満たさないルール設定の場合" do
       let(:players) { ["Player1", "Player2", "Player3", "Player4"] }
       let(:invalid_rule_params) do

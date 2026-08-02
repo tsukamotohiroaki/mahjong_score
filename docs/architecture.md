@@ -43,7 +43,7 @@ flowchart TB
         rc["RoundsController<br>（点数バリデーション）"]
         agc["Api::V1::GamesController"]
         arc["Api::V1::RoundsController<br>（点数バリデーション）"]
-        model["Game モデル<br>calculate_ranking_scores<br>順位点計算・ゼロサム検証"]
+        model["Game モデル<br>create_with_players!（プレイヤー4人検証）<br>calculate_ranking_scores<br>順位点計算・ゼロサム検証"]
         db[("PostgreSQL<br>games / players<br>rounds / scores")]
     end
 
@@ -92,7 +92,7 @@ flowchart LR
 ```
 
 - コントローラーの点数検証の一本化は [#193](https://github.com/tsukamotohiroaki/mahjong_score/issues/193) で対応予定
-- 同じ「二重実装を増やさない」設計方針のゲーム作成検証は [#192](https://github.com/tsukamotohiroaki/mahjong_score/issues/192) を参照
+- ゲーム作成の「プレイヤーちょうど4人」検証は `Game.create_with_players!` に集約済み（[#192](https://github.com/tsukamotohiroaki/mahjong_score/issues/192)）。MPA・LIFF 両経路がこれを呼ぶため、上図の二重実装ペアには含まれない
 
 ## 読みどころ
 

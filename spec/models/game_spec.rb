@@ -62,6 +62,87 @@ RSpec.describe Game, type: :model do
     end
   end
 
+  describe '.create_with_players!' do
+    let(:four_names) { %w[Alice Bob Carol Dave] }
+
+    context 'プレイヤーが4人の場合' do
+      it 'Game が1件、Player が4件作成されること' do
+        expect {
+          Game.create_with_players!({}, four_names)
+        }.to change(Game, :count).by(1).and change(Player, :count).by(4)
+      end
+
+      it '作成した Game を返し、プレイヤーが入力順に紐づくこと' do
+        game = Game.create_with_players!({}, four_names)
+        expect(game).to be_a(Game)
+        expect(game.players.map(&:name)).to eq(four_names)
+      end
+
+      it '指定したルール設定が反映されること' do
+        game = Game.create_with_players!({ mochi_ten: 30000, kaeshi_ten: 30000,
+                                           rank_1_bonus: 30, rank_2_bonus: 10,
+                                           rank_3_bonus: -10, rank_4_bonus: -30 }, four_names)
+        expect(game.mochi_ten).to eq 30000
+        expect(game.rank_1_bonus).to eq 30
+      end
+    end
+
+    context 'プレイヤーが3人の場合' do
+      it 'ActiveRecord::RecordInvalid が発生し、Game と Player が作成されないこと' do
+        expect {
+          expect { Game.create_with_players!({}, %w[Alice Bob Carol]) }
+            .to raise_error(ActiveRecord::RecordInvalid)
+        }.to change(Game, :count).by(0).and change(Player, :count).by(0)
+      end
+    end
+
+    context 'プレイヤーが5人の場合' do
+      it 'ActiveRecord::RecordInvalid が発生し、Game と Player が作成されないこと' do
+        expect {
+          expect { Game.create_with_players!({}, %w[Alice Bob Carol Dave Eve]) }
+            .to raise_error(ActiveRecord::RecordInvalid)
+        }.to change(Game, :count).by(0).and change(Player, :count).by(0)
+      end
+    end
+
+    context 'プレイヤーが0人の場合' do
+      it 'ActiveRecord::RecordInvalid が発生し、Game と Player が作成されないこと' do
+        expect {
+          expect { Game.create_with_players!({}, []) }
+            .to raise_error(ActiveRecord::RecordInvalid)
+        }.to change(Game, :count).by(0).and change(Player, :count).by(0)
+      end
+    end
+
+    context 'プレイヤーが配列で渡されなかった場合' do
+      it 'nil なら ActiveRecord::RecordInvalid が発生し、Game と Player が作成されないこと' do
+        expect {
+          expect { Game.create_with_players!({}, nil) }
+            .to raise_error(ActiveRecord::RecordInvalid)
+        }.to change(Game, :count).by(0).and change(Player, :count).by(0)
+      end
+
+      it '文字列なら ActiveRecord::RecordInvalid が発生し、Game と Player が作成されないこと' do
+        expect {
+          expect { Game.create_with_players!({}, 'Alic') }
+            .to raise_error(ActiveRecord::RecordInvalid)
+        }.to change(Game, :count).by(0).and change(Player, :count).by(0)
+      end
+    end
+
+    context 'ルール設定が不正な場合' do
+      it 'ActiveRecord::RecordInvalid が発生し、Game と Player が作成されないこと' do
+        invalid_rule = { mochi_ten: 25000, kaeshi_ten: 30000,
+                         rank_1_bonus: 50, rank_2_bonus: 10,
+                         rank_3_bonus: -10, rank_4_bonus: -10 }
+        expect {
+          expect { Game.create_with_players!(invalid_rule, four_names) }
+            .to raise_error(ActiveRecord::RecordInvalid)
+        }.to change(Game, :count).by(0).and change(Player, :count).by(0)
+      end
+    end
+  end
+
   describe '#calculate_ranking_scores' do
     let(:game) { create(:game) }
     let(:players) do
