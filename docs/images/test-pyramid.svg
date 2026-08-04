@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 340" font-family="'Hiragino Sans', 'Noto Sans JP', 'Yu Gothic', sans-serif">
+  <style>
+    .label { fill: #24292f; font-size: 14px; }
+    .label-bold { fill: #24292f; font-size: 17px; font-weight: bold; }
+    .guide { stroke: #8b949e; stroke-dasharray: 3 3; stroke-width: 1; }
+    @media (prefers-color-scheme: dark) {
+      .label { fill: #c9d1d9; }
+      .label-bold { fill: #c9d1d9; }
+    }
+  </style>
+
+  <!-- ピラミッド本体（上ほど少なく、下ほど厚く） -->
+  <polygon points="250,20 324,110 176,110" fill="#4a90d9"/>
+  <polygon points="171,116 329,116 404,208 96,208" fill="#3572b0"/>
+  <polygon points="91,214 409,214 480,300 20,300" fill="#2b5a8c"/>
+
+  <!-- 引き出し線 -->
+  <line class="guide" x1="330" y1="65" x2="505" y2="65"/>
+  <line class="guide" x1="400" y1="162" x2="505" y2="162"/>
+  <line class="guide" x1="470" y1="257" x2="505" y2="257"/>
+
+  <!-- E2E -->
+  <text class="label-bold" x="515" y="50">E2E（Playwright）</text>
+  <text class="label" x="515" y="73">JS挙動・ユーザー操作フロー</text>
+  <text class="label" x="515" y="94">= お客さんの席を守る門番</text>
+
+  <!-- リクエストスペック -->
+  <text class="label-bold" x="515" y="147">リクエストスペック（RSpec）</text>
+  <text class="label" x="515" y="170">HTTP入出力・バリデーション</text>
+  <text class="label" x="515" y="191">= 注文の受け渡しを守る門番</text>
+
+  <!-- モデルスペック -->
+  <text class="label-bold" x="515" y="242">モデルスペック（RSpec）</text>
+  <text class="label" x="515" y="265">計算ロジック・不変条件</text>
+  <text class="label" x="515" y="286">= 厨房の裏側を守る門番</text>
+</svg>
