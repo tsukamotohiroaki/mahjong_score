@@ -1,26 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 860" font-family="'Hiragino Sans', 'Noto Sans JP', 'Yu Gothic', sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 730" font-family="'Hiragino Sans', 'Noto Sans JP', 'Yu Gothic', sans-serif">
   <style>
     .bg    { fill: #ffffff; stroke: #d0d7de; }
     .card  { fill: #eef4fc; }
     .inner { fill: #ffffff; }
-    .point { fill: #e9f6ec; }
     .title { fill: #2f6fc4; font-weight: bold; font-size: 20px; }
     .text  { fill: #24292f; font-size: 16px; }
     .small { fill: #24292f; font-size: 15px; }
-    .ptitle{ fill: #1a7f37; font-weight: bold; font-size: 20px; }
     .pyr   { fill: #ffffff; text-anchor: middle; }
     .guide { stroke: #5b8fd4; stroke-dasharray: 2 5; stroke-width: 2.5; stroke-linecap: round; }
     @media (prefers-color-scheme: dark) {
       .bg    { fill: #0d1117; stroke: #30363d; }
       .card  { fill: #182635; }
       .inner { fill: #0d1117; }
-      .point { fill: #122117; }
       .text, .small { fill: #c9d1d9; }
-      .ptitle{ fill: #3fb950; }
     }
   </style>
 
-  <rect class="bg" x="1" y="1" width="998" height="858" rx="16"/>
+  <rect class="bg" x="1" y="1" width="998" height="728" rx="16"/>
 
   <!-- ピラミッド -->
   <polygon points="280,80 367,280 193,280" fill="#85b8ea"/>
@@ -76,11 +72,4 @@
   <rect class="inner" x="687" y="616" width="272" height="66" rx="8"/>
   <text class="small" x="700" y="642">データの整合性や順位点計算の</text>
   <text class="small" x="700" y="666">ロジックが正しいかを確認</text>
-
-  <!-- ポイント -->
-  <rect class="point" x="30" y="730" width="940" height="105" rx="14"/>
-  <text x="60" y="795" font-size="30">💡</text>
-  <text class="ptitle" x="110" y="775">ポイント</text>
-  <text class="text" x="110" y="805">下のレイヤーで土台（計算ロジック）を厚く固め、上のレイヤーでユーザーの体験を守る。</text>
-  <text class="text" x="110" y="828">どの層で何を保証するかの役割分担を明確にする。</text>
 </svg>
