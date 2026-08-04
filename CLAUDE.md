@@ -86,6 +86,9 @@
 - MVPに不要な機能は「今回はやらない」と明言する
 - git push は絶対にユーザーの明示的な許可なく実行しない
 - git push する際はリリースタグ（gh release create）を作成するか確認する
+- イシューを作成したら、必ず GitHub Projects の「麻雀スコア管理アプリ」プロジェクトに追加する
+  - GitHub CLI が使える環境: `gh project list --owner tsukamotohiroaki` でプロジェクト番号を確認し、`gh project item-add <番号> --owner tsukamotohiroaki --url <イシューのURL>` で追加する
+  - プロジェクト操作ができない環境（リモートセッション等）: 追加できなかったイシュー番号を明示的に報告し、手動での追加を依頼する
 
 ## 期待する振る舞い
 
