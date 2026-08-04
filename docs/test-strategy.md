@@ -40,7 +40,7 @@ flowchart LR
 
 ### レイヤーごとの役割
 
-![テストピラミッド。上から順に、E2E（Playwright）= JS挙動・ユーザー操作フロー・お客さんの席を守る門番、リクエストスペック（RSpec）= HTTP入出力・バリデーション・注文の受け渡しを守る門番、モデルスペック（RSpec）= 計算ロジック・不変条件・厨房の裏側を守る門番](images/test-pyramid.svg)
+![テストピラミッド。上から順に、E2E（Playwright）= JS挙動・ユーザー操作フロー、リクエストスペック（RSpec）= HTTP入出力・バリデーション、モデルスペック（RSpec）= 計算ロジック・不変条件](images/test-pyramid.svg)
 
 ### 対象ごとの配分
 

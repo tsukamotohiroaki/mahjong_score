@@ -44,32 +44,29 @@
   <rect class="card" x="600" y="80" width="380" height="195" rx="12"/>
   <text class="title" x="625" y="120">🛡️ E2E（Playwright）</text>
   <text class="text" x="625" y="152">JS挙動・ユーザー操作フロー</text>
-  <text class="text" x="625" y="176">= お客さんの席を守る門番</text>
-  <rect x="625" y="200" width="52" height="30" rx="6" fill="#2f6fc4"/>
-  <text x="651" y="221" font-size="15" fill="#ffffff" text-anchor="middle">目的</text>
-  <rect class="inner" x="687" y="196" width="272" height="66" rx="8"/>
-  <text class="small" x="700" y="222">ユーザー目線で主要な操作が</text>
-  <text class="small" x="700" y="246">正しく動くかを確認</text>
+  <rect x="625" y="184" width="52" height="30" rx="6" fill="#2f6fc4"/>
+  <text x="651" y="205" font-size="15" fill="#ffffff" text-anchor="middle">目的</text>
+  <rect class="inner" x="687" y="180" width="272" height="66" rx="8"/>
+  <text class="small" x="700" y="206">ユーザー目線で主要な操作が</text>
+  <text class="small" x="700" y="230">正しく動くかを確認</text>
 
   <!-- カード2: リクエストスペック -->
   <rect class="card" x="600" y="290" width="380" height="195" rx="12"/>
   <text class="title" x="625" y="330">🌐 リクエストスペック（RSpec）</text>
   <text class="text" x="625" y="362">HTTP入出力・バリデーション</text>
-  <text class="text" x="625" y="386">= 注文の受け渡しを守る門番</text>
-  <rect x="625" y="410" width="52" height="30" rx="6" fill="#2f6fc4"/>
-  <text x="651" y="431" font-size="15" fill="#ffffff" text-anchor="middle">目的</text>
-  <rect class="inner" x="687" y="406" width="272" height="66" rx="8"/>
-  <text class="small" x="700" y="432">APIのリクエスト・レスポンスや</text>
-  <text class="small" x="700" y="456">バリデーションが正しいかを確認</text>
+  <rect x="625" y="394" width="52" height="30" rx="6" fill="#2f6fc4"/>
+  <text x="651" y="415" font-size="15" fill="#ffffff" text-anchor="middle">目的</text>
+  <rect class="inner" x="687" y="390" width="272" height="66" rx="8"/>
+  <text class="small" x="700" y="416">APIのリクエスト・レスポンスや</text>
+  <text class="small" x="700" y="440">バリデーションが正しいかを確認</text>
 
   <!-- カード3: モデルスペック -->
   <rect class="card" x="600" y="500" width="380" height="195" rx="12"/>
   <text class="title" x="625" y="540">🗄️ モデルスペック（RSpec）</text>
   <text class="text" x="625" y="572">計算ロジック・不変条件</text>
-  <text class="text" x="625" y="596">= 厨房の裏側を守る門番</text>
-  <rect x="625" y="620" width="52" height="30" rx="6" fill="#2f6fc4"/>
-  <text x="651" y="641" font-size="15" fill="#ffffff" text-anchor="middle">目的</text>
-  <rect class="inner" x="687" y="616" width="272" height="66" rx="8"/>
-  <text class="small" x="700" y="642">データの整合性や順位点計算の</text>
-  <text class="small" x="700" y="666">ロジックが正しいかを確認</text>
+  <rect x="625" y="604" width="52" height="30" rx="6" fill="#2f6fc4"/>
+  <text x="651" y="625" font-size="15" fill="#ffffff" text-anchor="middle">目的</text>
+  <rect class="inner" x="687" y="600" width="272" height="66" rx="8"/>
+  <text class="small" x="700" y="626">データの整合性や順位点計算の</text>
+  <text class="small" x="700" y="650">ロジックが正しいかを確認</text>
 </svg>
