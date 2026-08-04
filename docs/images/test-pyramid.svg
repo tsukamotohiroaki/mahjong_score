@@ -1,36 +1,86 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 340" font-family="'Hiragino Sans', 'Noto Sans JP', 'Yu Gothic', sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 860" font-family="'Hiragino Sans', 'Noto Sans JP', 'Yu Gothic', sans-serif">
   <style>
-    .label { fill: #24292f; font-size: 14px; }
-    .label-bold { fill: #24292f; font-size: 17px; font-weight: bold; }
-    .guide { stroke: #8b949e; stroke-dasharray: 3 3; stroke-width: 1; }
+    .bg    { fill: #ffffff; stroke: #d0d7de; }
+    .card  { fill: #eef4fc; }
+    .inner { fill: #ffffff; }
+    .point { fill: #e9f6ec; }
+    .title { fill: #2f6fc4; font-weight: bold; font-size: 20px; }
+    .text  { fill: #24292f; font-size: 16px; }
+    .small { fill: #24292f; font-size: 15px; }
+    .ptitle{ fill: #1a7f37; font-weight: bold; font-size: 20px; }
+    .pyr   { fill: #ffffff; text-anchor: middle; }
+    .guide { stroke: #5b8fd4; stroke-dasharray: 2 5; stroke-width: 2.5; stroke-linecap: round; }
     @media (prefers-color-scheme: dark) {
-      .label { fill: #c9d1d9; }
-      .label-bold { fill: #c9d1d9; }
+      .bg    { fill: #0d1117; stroke: #30363d; }
+      .card  { fill: #182635; }
+      .inner { fill: #0d1117; }
+      .point { fill: #122117; }
+      .text, .small { fill: #c9d1d9; }
+      .ptitle{ fill: #3fb950; }
     }
   </style>
 
-  <!-- ピラミッド本体（上ほど少なく、下ほど厚く） -->
-  <polygon points="250,20 324,110 176,110" fill="#4a90d9"/>
-  <polygon points="171,116 329,116 404,208 96,208" fill="#3572b0"/>
-  <polygon points="91,214 409,214 480,300 20,300" fill="#2b5a8c"/>
+  <rect class="bg" x="1" y="1" width="998" height="858" rx="16"/>
+
+  <!-- ピラミッド -->
+  <polygon points="280,80 367,280 193,280" fill="#85b8ea"/>
+  <polygon points="188,290 372,290 458,490 102,490" fill="#3579c8"/>
+  <polygon points="97,500 463,500 550,700 10,700" fill="#1d4f8c"/>
+
+  <text class="pyr" x="280" y="160" font-size="34">🎭</text>
+  <text class="pyr" x="280" y="205" font-size="26" font-weight="bold">E2E</text>
+  <text class="pyr" x="280" y="232" font-size="15">（Playwright）</text>
+
+  <text class="pyr" x="280" y="350" font-size="34">📋</text>
+  <text class="pyr" x="280" y="398" font-size="24" font-weight="bold">リクエストスペック</text>
+  <text class="pyr" x="280" y="426" font-size="16">（RSpec）</text>
+
+  <text class="pyr" x="280" y="570" font-size="34">⚙️</text>
+  <text class="pyr" x="280" y="618" font-size="24" font-weight="bold">モデルスペック</text>
+  <text class="pyr" x="280" y="646" font-size="16">（RSpec）</text>
 
   <!-- 引き出し線 -->
-  <line class="guide" x1="330" y1="65" x2="505" y2="65"/>
-  <line class="guide" x1="400" y1="162" x2="505" y2="162"/>
-  <line class="guide" x1="470" y1="257" x2="505" y2="257"/>
+  <line class="guide" x1="340" y1="180" x2="588" y2="180"/>
+  <line class="guide" x1="428" y1="390" x2="588" y2="390"/>
+  <line class="guide" x1="516" y1="600" x2="588" y2="600"/>
 
-  <!-- E2E -->
-  <text class="label-bold" x="515" y="50">E2E（Playwright）</text>
-  <text class="label" x="515" y="73">JS挙動・ユーザー操作フロー</text>
-  <text class="label" x="515" y="94">= お客さんの席を守る門番</text>
+  <!-- カード1: E2E -->
+  <rect class="card" x="600" y="80" width="380" height="195" rx="12"/>
+  <text class="title" x="625" y="120">🛡️ E2E（Playwright）</text>
+  <text class="text" x="625" y="152">JS挙動・ユーザー操作フロー</text>
+  <text class="text" x="625" y="176">= お客さんの席を守る門番</text>
+  <rect x="625" y="200" width="52" height="30" rx="6" fill="#2f6fc4"/>
+  <text x="651" y="221" font-size="15" fill="#ffffff" text-anchor="middle">目的</text>
+  <rect class="inner" x="687" y="196" width="272" height="66" rx="8"/>
+  <text class="small" x="700" y="222">ユーザー目線で主要な操作が</text>
+  <text class="small" x="700" y="246">正しく動くかを確認</text>
 
-  <!-- リクエストスペック -->
-  <text class="label-bold" x="515" y="147">リクエストスペック（RSpec）</text>
-  <text class="label" x="515" y="170">HTTP入出力・バリデーション</text>
-  <text class="label" x="515" y="191">= 注文の受け渡しを守る門番</text>
+  <!-- カード2: リクエストスペック -->
+  <rect class="card" x="600" y="290" width="380" height="195" rx="12"/>
+  <text class="title" x="625" y="330">🌐 リクエストスペック（RSpec）</text>
+  <text class="text" x="625" y="362">HTTP入出力・バリデーション</text>
+  <text class="text" x="625" y="386">= 注文の受け渡しを守る門番</text>
+  <rect x="625" y="410" width="52" height="30" rx="6" fill="#2f6fc4"/>
+  <text x="651" y="431" font-size="15" fill="#ffffff" text-anchor="middle">目的</text>
+  <rect class="inner" x="687" y="406" width="272" height="66" rx="8"/>
+  <text class="small" x="700" y="432">APIのリクエスト・レスポンスや</text>
+  <text class="small" x="700" y="456">バリデーションが正しいかを確認</text>
 
-  <!-- モデルスペック -->
-  <text class="label-bold" x="515" y="242">モデルスペック（RSpec）</text>
-  <text class="label" x="515" y="265">計算ロジック・不変条件</text>
-  <text class="label" x="515" y="286">= 厨房の裏側を守る門番</text>
+  <!-- カード3: モデルスペック -->
+  <rect class="card" x="600" y="500" width="380" height="195" rx="12"/>
+  <text class="title" x="625" y="540">🗄️ モデルスペック（RSpec）</text>
+  <text class="text" x="625" y="572">計算ロジック・不変条件</text>
+  <text class="text" x="625" y="596">= 厨房の裏側を守る門番</text>
+  <rect x="625" y="620" width="52" height="30" rx="6" fill="#2f6fc4"/>
+  <text x="651" y="641" font-size="15" fill="#ffffff" text-anchor="middle">目的</text>
+  <rect class="inner" x="687" y="616" width="272" height="66" rx="8"/>
+  <text class="small" x="700" y="642">データの整合性や順位点計算の</text>
+  <text class="small" x="700" y="666">ロジックが正しいかを確認</text>
+
+  <!-- ポイント -->
+  <rect class="point" x="30" y="730" width="940" height="105" rx="14"/>
+  <text x="60" y="795" font-size="30">💡</text>
+  <text class="ptitle" x="110" y="775">ポイント</text>
+  <text class="text" x="110" y="805">下のレイヤーで土台（計算ロジック）を厚く固め、上のレイヤーでユーザーの体験を守る。</text>
+  <text class="text" x="110" y="828">どの層で何を保証するかの役割分担を明確にする。</text>
 </svg>
