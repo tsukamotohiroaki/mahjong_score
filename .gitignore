@@ -41,3 +41,6 @@
 /node_modules/
 /test-results/
 /playwright-report/
+
+# ローカル環境専用の Docker Compose 上書き設定（環境ごとに異なるためコミットしない）
+/docker-compose.override.yml
