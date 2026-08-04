@@ -61,6 +61,7 @@
 - 必ずテストを先に書き、失敗を確認してから実装する
 - Red → Green → Refactor のサイクルを守る
 - コード変更前に `.claude/dependencies.md` を確認し、影響を受けるテストを把握する
+- テストケースを追加・削除したら `bin/update_test_counts` を実行して docs/test-strategy.md の表を更新する（ユーザーに実行させない）
 
 ## テスト戦略
 
