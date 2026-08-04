@@ -35,8 +35,8 @@ flowchart TB
     w2["不正データは入った瞬間に<br>以後の全計算を汚染する<br>→ 入口で止めるのが最も安い"]
     w3["ユーザーが毎回通る導線で<br>不正値の唯一の入口"]
 
-    t1["game_spec: 21ケース<br>同点分配・境界値（3/5/0人・配列以外）"]
-    t2["リクエストスペック: 23ケース（MPA + API）<br>+ E2E: 8ケース（JS挙動）"]
+    t1["game_spec<br>同点分配・境界値（3/5/0人・配列以外）"]
+    t2["リクエストスペック（MPA + API）<br>+ E2E（JS挙動）"]
 
     k1 --- w1 --> t1
     k2 --- w2 --> t1
@@ -51,12 +51,14 @@ flowchart TB
 ## テストの厚み配分
 
 急所には厚く、単純な箇所は浅く。ケース数の偏りは意図的なもの。
+以下の表は `bin/update_test_counts` が実測から自動生成する（数字を手で直さない）。
 
+<!-- test-counts:start -->
 ### レイヤーごとの役割
 
 | レイヤー | ツール | ケース数 | 守るもの | 例え |
 |---|---|---|---|---|
-| E2E（End-to-End） | Playwright | 9 | JS挙動・ユーザー操作フロー | お客さんの席を守る門番 |
+| E2E（End-to-End） | Playwright | 8 | JS挙動・ユーザー操作フロー | お客さんの席を守る門番 |
 | リクエストスペック | RSpec | 61 | HTTP入出力・バリデーション | 注文の受け渡しを守る門番 |
 | モデルスペック | RSpec | 36 | 計算ロジック・不変条件 | 厨房の裏側を守る門番 |
 
@@ -66,10 +68,11 @@ flowchart TB
 |---|---|---|
 | 急所①② 計算・不変条件 | `spec/models/game_spec.rb` | 21 |
 | 急所③ 点数入力（MPA / API） | `spec/requests/**/rounds_spec.rb` | 16 + 7 |
-| 急所③ の JS 挙動 | `e2e/score_input.spec.ts` | 8 |
+| 急所③ の JS 挙動 | `e2e/score_input.spec.ts` | 7 |
 | ゲーム作成・一覧（MPA / API） | `spec/requests/**/games_spec.rb` | 28 + 10 |
 | 周辺モデル（Player / Round / Score） | 各モデルスペック | 各5 |
 | トップページ（スモーク） | `e2e/home.spec.ts` | 1 |
+<!-- test-counts:end -->
 
 ### E2E を薄く保つ理由
 
