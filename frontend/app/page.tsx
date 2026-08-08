@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import liff from "@line/liff";
 
-type Status = "loading" | "ready" | "error";
+type Status = "loading" | "error";
 
-// トップ画面（MPA 版 home#index の移植）。タイトルと「新しく始める」ボタンだけを表示する。
+// トップページは廃止し、メンバー入力画面へ直行させる（#216）。
+// LIFF の初期化とログイン誘導だけをここで行い、成功したら /games/new へリダイレクトする。
 export default function Page() {
+  const router = useRouter();
   const [status, setStatus] = useState<Status>("loading");
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -36,19 +38,11 @@ export default function Page() {
         return;
       }
 
-      setStatus("ready");
+      router.replace("/games/new");
     };
 
     initialize();
-  }, []);
-
-  if (status === "loading") {
-    return (
-      <main style={{ padding: "2rem", textAlign: "center" }}>
-        <p>読み込み中…</p>
-      </main>
-    );
-  }
+  }, [router]);
 
   if (status === "error") {
     return (
@@ -59,13 +53,8 @@ export default function Page() {
   }
 
   return (
-    <main className="top-page">
-      <h1>麻雀スコア管理アプリ</h1>
-      <div className="buttons">
-        <Link href="/games/new" className="btn btn-primary">
-          新しく始める
-        </Link>
-      </div>
+    <main style={{ padding: "2rem", textAlign: "center" }}>
+      <p>読み込み中…</p>
     </main>
   );
 }

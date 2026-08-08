@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ApiError, createGame } from "../../lib/api";
 
@@ -132,9 +131,6 @@ export default function NewGamePage() {
         </div>
       </form>
 
-      <div className="back-link">
-        <Link href="/">← トップに戻る</Link>
-      </div>
     </main>
   );
 }

@@ -24,6 +24,16 @@ RSpec.describe "Games", type: :request do
       expect(response.body).to include('<details class="rule-settings">')
       expect(response.body).to include("<summary>ルール設定</summary>")
     end
+
+    it "バージョン番号が表示される（トップページ廃止に伴い移設）" do
+      get new_game_path
+      expect(response.body).to include("v#{APP_VERSION}")
+    end
+
+    it "「トップに戻る」リンクを表示しない（トップは本画面へのリダイレクトになったため）" do
+      get new_game_path
+      expect(response.body).not_to include("トップに戻る")
+    end
   end
 
   describe "POST /games" do
