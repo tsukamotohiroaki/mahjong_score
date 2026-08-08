@@ -33,6 +33,8 @@ export default function NewGamePage() {
     Array(PLAYER_COUNT).fill("")
   );
   const [rules, setRules] = useState(defaultRules);
+  // ルール設定はデフォルト値のまま使うことが多いため、初期表示では折りたたむ（#217）
+  const [rulesOpen, setRulesOpen] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
 
@@ -98,20 +100,30 @@ export default function NewGamePage() {
           ))}
         </div>
 
-        <h2>ルール設定</h2>
-        <div className="rule-inputs">
-          {ruleFields.map(({ key, label }) => (
-            <div key={key} className="rule-input">
-              <label htmlFor={`rule_${key}`}>{label}</label>
-              <input
-                type="number"
-                id={`rule_${key}`}
-                value={rules[key]}
-                onChange={(event) => updateRule(key, event.target.value)}
-              />
-            </div>
-          ))}
-        </div>
+        {/* MPA 版（details/summary）と見た目を揃えるため、同じマークアップを state で制御する */}
+        <details className="rule-settings" open={rulesOpen}>
+          <summary
+            onClick={(event) => {
+              event.preventDefault();
+              setRulesOpen((current) => !current);
+            }}
+          >
+            ルール設定
+          </summary>
+          <div className="rule-inputs">
+            {ruleFields.map(({ key, label }) => (
+              <div key={key} className="rule-input">
+                <label htmlFor={`rule_${key}`}>{label}</label>
+                <input
+                  type="number"
+                  id={`rule_${key}`}
+                  value={rules[key]}
+                  onChange={(event) => updateRule(key, event.target.value)}
+                />
+              </div>
+            ))}
+          </div>
+        </details>
 
         <div className="form-actions">
           <button type="submit" className="btn btn-primary" disabled={submitting}>

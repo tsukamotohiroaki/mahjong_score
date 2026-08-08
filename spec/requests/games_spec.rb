@@ -18,6 +18,12 @@ RSpec.describe "Games", type: :request do
       expect(response.body).to include('name="game[kaeshi_ten]"')
       expect(response.body).to include('name="game[rank_1_bonus]"')
     end
+
+    it "ルール設定が折りたたみ（details/summary）で表示される" do
+      get new_game_path
+      expect(response.body).to include('<details class="rule-settings">')
+      expect(response.body).to include("<summary>ルール設定</summary>")
+    end
   end
 
   describe "POST /games" do

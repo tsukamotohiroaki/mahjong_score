@@ -58,6 +58,48 @@ describe("NewGamePage (ゲーム作成フォーム)", () => {
     expect(screen.getByLabelText("4位")).toHaveValue(-30);
   });
 
+  it("初期表示ではルール設定が折りたたまれている", () => {
+    render(<NewGamePage />);
+
+    const details = screen.getByText("ルール設定").closest("details");
+    expect(details).not.toHaveAttribute("open");
+  });
+
+  it("トグルをタップするとルール設定が開き、もう一度タップすると閉じる", async () => {
+    render(<NewGamePage />);
+    const user = userEvent.setup();
+    const summary = screen.getByText("ルール設定");
+
+    await user.click(summary);
+    expect(summary.closest("details")).toHaveAttribute("open");
+
+    await user.click(summary);
+    expect(summary.closest("details")).not.toHaveAttribute("open");
+  });
+
+  it("トグルを開いて変更した値で createGame を呼ぶ", async () => {
+    mockedCreateGame.mockResolvedValue(createdGame);
+    render(<NewGamePage />);
+
+    const user = await fillPlayerNames(["東", "南", "西", "北"]);
+    await user.click(screen.getByText("ルール設定"));
+    const mochiTen = screen.getByLabelText("持ち点");
+    await user.clear(mochiTen);
+    await user.type(mochiTen, "30000");
+    await user.click(screen.getByRole("button", { name: "ゲーム開始" }));
+
+    expect(mockedCreateGame).toHaveBeenCalledWith({
+      mochi_ten: 30000,
+      kaeshi_ten: 30000,
+      rank_1_bonus: 50,
+      rank_2_bonus: 10,
+      rank_3_bonus: -10,
+      rank_4_bonus: -30,
+      players: ["東", "南", "西", "北"],
+    });
+  });
+
+  // ルール設定のトグルを開かない（デフォルト値のまま）でも作成できることの確認を兼ねる
   it("入力した値で createGame を呼び、成功したらスコア一覧へ遷移する", async () => {
     mockedCreateGame.mockResolvedValue(createdGame);
     render(<NewGamePage />);
