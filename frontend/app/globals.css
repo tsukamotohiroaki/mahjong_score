@@ -127,6 +127,44 @@ body {
   border-color: #007bff;
 }
 
+/* ルール設定の折りたたみ（#217）。デフォルト値のまま使うことが多いため控えめに表示する */
+.rule-settings {
+  margin-bottom: 2rem;
+}
+
+.rule-settings summary {
+  cursor: pointer;
+  font-weight: bold;
+  color: #666;
+  padding: 0.5rem 0;
+}
+
+.rule-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.rule-input {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.rule-input label {
+  color: #333;
+}
+
+.rule-input input {
+  width: 8rem;
+  padding: 8px 10px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
 .form-actions {
   margin-bottom: 2rem;
 }
