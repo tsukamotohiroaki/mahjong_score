@@ -12,28 +12,12 @@ class RoundsController < ApplicationController
     @score_values = params.fetch(:scores, {})
     requested_round_number = params[:round_number].presence&.to_i
     @round_number = requested_round_number || @game.rounds.maximum(:round_number).to_i + 1
-    min_unit = -1000
-    max_unit = 1000
+    form = RoundScoreForm.new(
+      players: @players,
+      raw_scores: @players.to_h { |player| [player.id, @score_values[player.id.to_s]] }
+    )
 
-    score_units = @players.map do |player|
-      raw = @score_values[player.id.to_s]
-      next if raw.blank?
-      next unless raw.match?(/\A-?\d+\z/)
-
-      raw.to_i
-    end
-
-    if score_units.any?(&:nil?)
-      @error_message = "入力内容を確認してください"
-      return render :new, status: 422
-    end
-
-    if score_units.any? { |unit| unit < min_unit || unit > max_unit }
-      @error_message = "入力内容を確認してください"
-      return render :new, status: 422
-    end
-
-    if score_units.sum != 1000
+    if form.invalid?
       @error_message = "入力内容を確認してください"
       return render :new, status: 422
     end
@@ -42,9 +26,9 @@ class RoundsController < ApplicationController
 
     ActiveRecord::Base.transaction do
       round.save! if round.new_record?
-      @players.each_with_index do |player, index|
+      @players.each do |player|
         score = round.scores.find_or_initialize_by(player: player)
-        score.update!(point: score_units[index] * 100)
+        score.update!(point: form.units_by_player_id[player.id] * 100)
       end
     end
 
