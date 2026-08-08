@@ -28,19 +28,33 @@ if [ "$(uname)" = "Linux" ] && command -v dockerd >/dev/null 2>&1; then
   if docker info >/dev/null 2>&1; then
     echo "起動済み"
   else
-    setsid dockerd >/var/log/dockerd.log 2>&1 < /dev/null &
+    # 非 root など /var/log に書けない環境では /tmp に逃がす（案内するパスと実際の出力先を一致させる）
+    DOCKERD_LOG=/var/log/dockerd.log
+    # 2>/dev/null を先に置く（リダイレクトは左から処理されるため、後ろだとエラーが漏れる）
+    : 2>/dev/null >"$DOCKERD_LOG" || DOCKERD_LOG=/tmp/dockerd.log
+    setsid dockerd >"$DOCKERD_LOG" 2>&1 < /dev/null &
+    # 起動は実測で1〜2秒。序盤を細かく見て成功を早く拾い、待ち続けても10秒で打ち切る
     STARTED=false
-    for _ in $(seq 1 30); do
+    for _ in $(seq 1 10); do
       if docker info >/dev/null 2>&1; then
         STARTED=true
         break
       fi
-      sleep 1
+      sleep 0.2
     done
+    if [ "$STARTED" = "false" ]; then
+      for _ in $(seq 1 8); do
+        if docker info >/dev/null 2>&1; then
+          STARTED=true
+          break
+        fi
+        sleep 1
+      done
+    fi
     if [ "$STARTED" = "true" ]; then
       echo "停止していたため自動起動しました"
     else
-      echo "起動に失敗しました（ログ: /var/log/dockerd.log）"
+      echo "10秒以内に起動を確認できませんでした（起動途中の可能性があります。ログ: $DOCKERD_LOG）"
     fi
   fi
 fi
