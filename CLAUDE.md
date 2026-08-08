@@ -61,6 +61,7 @@
 - 必ずテストを先に書き、失敗を確認してから実装する
 - Red → Green → Refactor のサイクルを守る
 - コード変更前に `.claude/dependencies.md` を確認し、影響を受けるテストを把握する
+- 調査・デバッグの初動は `docs/debugging-guide.md`（症状起点のログ逆引き表）を参照する
 
 ## テスト戦略
 
