@@ -80,7 +80,25 @@ MPA 版のゲーム作成・スコア一覧表示。作成は `Game.create_with_
 
 ## app/controllers/api/v1/rounds_controller.rb
 
-ラウンド（点数）入力を JSON で受け付ける。入力は百点棒単位、保存時に 100 倍する。
+ラウンド（点数）入力を JSON で受け付ける。検証は `RoundScoreForm` に委譲し、保存時に百点棒単位を 100 倍する。
 
 - `spec/requests/api/v1/rounds_spec.rb`（直接）
 - `spec/requests/api/v1/games_spec.rb`（作成したラウンドはゲーム詳細に反映される）
+- `spec/forms/round_score_form_spec.rb`（検証ロジックの実体）
+
+## app/controllers/rounds_controller.rb
+
+MPA 版のラウンド（点数）入力。検証は `RoundScoreForm` に委譲し、失敗時は一律メッセージで入力画面を再表示する。
+
+- `spec/requests/rounds_spec.rb`（直接）
+- `spec/forms/round_score_form_spec.rb`（検証ロジックの実体）
+- `e2e/score_input.spec.ts`（点数入力フロー）
+
+## app/forms/round_score_form.rb
+
+点数入力（整数・±1000・合計1000。百点棒単位）の検証を MPA / API 共通で担うフォームオブジェクト。ここを変更すると両経路の受け付け条件が同時に変わる。
+
+- `spec/forms/round_score_form_spec.rb`（直接）
+- `spec/requests/rounds_spec.rb`（MPA 経路の配線。エラー時 422 / 再表示）
+- `spec/requests/api/v1/rounds_spec.rb`（API 経路の配線。エラー時 422 / 原因別メッセージ）
+- `e2e/score_input.spec.ts`（点数入力 → バリデーションエラー表示）
