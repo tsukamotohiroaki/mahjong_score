@@ -694,6 +694,15 @@ Resources:
                   "${AlarmDiskHigh.Arn}"
                 ]
               }
+            },
+            {
+              "type": "log", "x": 0, "y": 24, "width": 24, "height": 6,
+              "properties": {
+                "title": "Rails レスポンスタイム（平均・p95、ログから集計）",
+                "region": "${AWS::Region}",
+                "view": "timeSeries", "stacked": false,
+                "query": "SOURCE '/mahjong-score/rails/production' | filter @message like /Completed/ | parse @message /Completed (?<status>\\d{3}) .* in (?<latency>\\d+)ms/ | filter ispresent(latency) | stats avg(latency) as avg_ms, pct(latency, 95) as p95_ms by bin(1h)"
+              }
             }
           ]
         }
