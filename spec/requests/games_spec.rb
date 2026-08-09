@@ -179,6 +179,19 @@ RSpec.describe "Games", type: :request do
       end
     end
 
+    context "新しいゲームへの導線（#216: トップページ廃止に伴う変更）" do
+      it "「新しいゲームを始める」リンクが /games/new を直接指す" do
+        get game_path(game)
+        expect(response.body).to include("新しいゲームを始める")
+        expect(response.body).to include('href="/games/new"')
+      end
+
+      it "「トップに戻る」リンクを表示しない" do
+        get game_path(game)
+        expect(response.body).not_to include("トップに戻る")
+      end
+    end
+
     context "ゲームの日付表示" do
       it "Game#created_at が YYYY/MM/DD 形式で表示される" do
         travel_to Time.zone.local(2026, 3, 5, 12, 0, 0) do
