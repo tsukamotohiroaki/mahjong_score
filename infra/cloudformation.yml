@@ -558,6 +558,155 @@ Resources:
       OKActions:
         - !Ref SNSAlarmTopic
 
+  # ----------------------------------------------------------
+  # 11. CloudWatch Dashboard — インフラの現状を1画面で把握（#253）
+  # ----------------------------------------------------------
+  # ディスク使用率の推移は #215（EBS拡張の見極め）の判断材料。
+  # ダッシュボードは3個・50メトリクスまで無料枠内（本ダッシュボードは約12メトリクス）。
+  MonitoringDashboard:
+    Type: AWS::CloudWatch::Dashboard
+    Properties:
+      DashboardName: mahjong-score
+      DashboardBody: !Sub |
+        {
+          "widgets": [
+            {
+              "type": "metric", "x": 0, "y": 0, "width": 12, "height": 6,
+              "properties": {
+                "title": "ディスク使用率 / （#215 EBS拡張の判断材料）",
+                "region": "${AWS::Region}", "view": "timeSeries", "stat": "Average", "period": 300,
+                "metrics": [
+                  ["CWAgent", "disk_used_percent", "path", "/", "InstanceId", "${EC2Instance}", "device", "xvda1", "fstype", "xfs", {"label": "ディスク使用率(%)"}]
+                ],
+                "yAxis": {"left": {"min": 0, "max": 100}},
+                "annotations": {"horizontal": [{"label": "アラーム閾値 80%", "value": 80}]}
+              }
+            },
+            {
+              "type": "metric", "x": 12, "y": 0, "width": 12, "height": 6,
+              "properties": {
+                "title": "メモリ使用率",
+                "region": "${AWS::Region}", "view": "timeSeries", "stat": "Average", "period": 300,
+                "metrics": [
+                  ["CWAgent", "mem_used_percent", "InstanceId", "${EC2Instance}", {"label": "メモリ使用率(%)"}]
+                ],
+                "yAxis": {"left": {"min": 0, "max": 100}},
+                "annotations": {"horizontal": [{"label": "アラーム閾値 80%", "value": 80}]}
+              }
+            },
+            {
+              "type": "metric", "x": 0, "y": 6, "width": 8, "height": 6,
+              "properties": {
+                "title": "EC2 CPU使用率",
+                "region": "${AWS::Region}", "view": "timeSeries", "stat": "Average", "period": 300,
+                "metrics": [
+                  ["AWS/EC2", "CPUUtilization", "InstanceId", "${EC2Instance}", {"label": "CPU使用率(%)"}]
+                ],
+                "yAxis": {"left": {"min": 0, "max": 100}},
+                "annotations": {"horizontal": [{"label": "アラーム閾値 80%", "value": 80}]}
+              }
+            },
+            {
+              "type": "metric", "x": 8, "y": 6, "width": 8, "height": 6,
+              "properties": {
+                "title": "EC2 CPUクレジット残高（バースト枯渇の検知）",
+                "region": "${AWS::Region}", "view": "timeSeries", "stat": "Average", "period": 300,
+                "metrics": [
+                  ["AWS/EC2", "CPUCreditBalance", "InstanceId", "${EC2Instance}", {"label": "クレジット残高"}]
+                ],
+                "yAxis": {"left": {"min": 0}}
+              }
+            },
+            {
+              "type": "metric", "x": 16, "y": 6, "width": 8, "height": 6,
+              "properties": {
+                "title": "EC2 ネットワーク In/Out",
+                "region": "${AWS::Region}", "view": "timeSeries", "stat": "Sum", "period": 300,
+                "metrics": [
+                  ["AWS/EC2", "NetworkIn", "InstanceId", "${EC2Instance}", {"label": "受信(バイト)"}],
+                  ["AWS/EC2", "NetworkOut", "InstanceId", "${EC2Instance}", {"label": "送信(バイト)"}]
+                ],
+                "yAxis": {"left": {"min": 0}}
+              }
+            },
+            {
+              "type": "metric", "x": 0, "y": 12, "width": 8, "height": 6,
+              "properties": {
+                "title": "RDS CPU使用率",
+                "region": "${AWS::Region}", "view": "timeSeries", "stat": "Average", "period": 300,
+                "metrics": [
+                  ["AWS/RDS", "CPUUtilization", "DBInstanceIdentifier", "${RDSInstance}", {"label": "CPU使用率(%)"}]
+                ],
+                "yAxis": {"left": {"min": 0, "max": 100}}
+              }
+            },
+            {
+              "type": "metric", "x": 8, "y": 12, "width": 8, "height": 6,
+              "properties": {
+                "title": "RDS 空きストレージ",
+                "region": "${AWS::Region}", "view": "timeSeries", "stat": "Average", "period": 300,
+                "metrics": [
+                  ["AWS/RDS", "FreeStorageSpace", "DBInstanceIdentifier", "${RDSInstance}", {"label": "空きストレージ(バイト)"}]
+                ],
+                "yAxis": {"left": {"min": 0}}
+              }
+            },
+            {
+              "type": "metric", "x": 16, "y": 12, "width": 8, "height": 6,
+              "properties": {
+                "title": "RDS 空きメモリ",
+                "region": "${AWS::Region}", "view": "timeSeries", "stat": "Average", "period": 300,
+                "metrics": [
+                  ["AWS/RDS", "FreeableMemory", "DBInstanceIdentifier", "${RDSInstance}", {"label": "空きメモリ(バイト)"}]
+                ],
+                "yAxis": {"left": {"min": 0}}
+              }
+            },
+            {
+              "type": "metric", "x": 0, "y": 18, "width": 8, "height": 6,
+              "properties": {
+                "title": "RDS 接続数",
+                "region": "${AWS::Region}", "view": "timeSeries", "stat": "Average", "period": 300,
+                "metrics": [
+                  ["AWS/RDS", "DatabaseConnections", "DBInstanceIdentifier", "${RDSInstance}", {"label": "接続数"}]
+                ],
+                "yAxis": {"left": {"min": 0}}
+              }
+            },
+            {
+              "type": "metric", "x": 8, "y": 18, "width": 8, "height": 6,
+              "properties": {
+                "title": "EC2 ステータスチェック失敗",
+                "region": "${AWS::Region}", "view": "timeSeries", "stat": "Maximum", "period": 300,
+                "metrics": [
+                  ["AWS/EC2", "StatusCheckFailed", "InstanceId", "${EC2Instance}", {"label": "失敗数(0が正常)"}]
+                ],
+                "yAxis": {"left": {"min": 0}}
+              }
+            },
+            {
+              "type": "alarm", "x": 16, "y": 18, "width": 8, "height": 6,
+              "properties": {
+                "title": "アラーム状態（CPU・メモリ・ディスク）",
+                "alarms": [
+                  "${AlarmCPUHigh.Arn}",
+                  "${AlarmMemoryHigh.Arn}",
+                  "${AlarmDiskHigh.Arn}"
+                ]
+              }
+            },
+            {
+              "type": "log", "x": 0, "y": 24, "width": 24, "height": 6,
+              "properties": {
+                "title": "Rails レスポンスタイム（平均・p95、ログから集計）",
+                "region": "${AWS::Region}",
+                "view": "timeSeries", "stacked": false,
+                "query": "SOURCE '/mahjong-score/rails/production' | filter @message like /Completed/ | parse @message /Completed (?<status>\\d{3}) .* in (?<latency>\\d+)ms/ | filter ispresent(latency) | stats avg(latency) as avg_ms, pct(latency, 95) as p95_ms by bin(1h)"
+              }
+            }
+          ]
+        }
+
 # ==============================================================
 # Outputs: スタック作成後に表示する情報
 # ==============================================================
@@ -585,3 +734,7 @@ Outputs:
   CloudFrontMPAURL:
     Description: "MPA版のHTTPS URL"
     Value: !Sub "https://${CloudFrontMPADistribution.DomainName}"
+
+  DashboardURL:
+    Description: "CloudWatch ダッシュボードのURL"
+    Value: !Sub "https://${AWS::Region}.console.aws.amazon.com/cloudwatch/home?region=${AWS::Region}#dashboards:name=${MonitoringDashboard}"
