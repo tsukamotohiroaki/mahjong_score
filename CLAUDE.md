@@ -26,7 +26,7 @@
 ## 開発プロセス
 
 - Issue駆動開発（実装前にIssueを作成し、Issueを起点にブランチを切る）
-- イシューは極力日本語で書く
+- イシューは極力日本語で書き、`.github/ISSUE_TEMPLATE/task.md` のフォーマットに従う
 - TDDで開発する: テストを先に書き、失敗を確認してから実装する。Red → Green → Refactor を守り、リファクタリングフェーズを省略しない
 - コード変更前に `.claude/dependencies.md` で影響を受けるテストを把握する
 - 調査・デバッグの初動は `docs/debugging-guide.md`（症状起点のログ逆引き表）を参照する
