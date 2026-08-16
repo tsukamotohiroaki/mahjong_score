@@ -53,6 +53,11 @@ group :development, :test do
   gem "amazing_print"
 end
 
+group :test do
+  # テスト中の外部への実HTTP通信を遮断・スタブ化する
+  gem "webmock"
+end
+
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
