@@ -16,6 +16,8 @@
 
 MPA（Rails + ERB + Hotwire）で MVP を最短リリースし、動かしたまま LIFF 版（Next.js）へ段階的に移行しています（ストラングラーフィグパターン）。
 
+> 面倒で間違えやすい計算作業を自動化して、人が本来やりたいこと（対局を楽しむ・ルールを学ぶ）に集中できるようにする——このアプリが解決する課題は [`docs/value-proposition.md`](docs/value-proposition.md) にまとめています。
+
 ## Try it on LINE
 
 LINE 公式アカウントを友だち追加すると、リッチメニューから LIFF 版アプリをすぐに試せます。
@@ -305,4 +307,4 @@ Issue 駆動 + TDD（テスト駆動開発）で進めます。
 
 ---
 
-関連ドキュメント: [アーキテクチャ構成図](docs/architecture.md) · [API 仕様書（OpenAPI）](docs/openapi.yaml) · [LIFF 版 frontend](frontend/README.md) · [CLAUDE.md](CLAUDE.md)
+関連ドキュメント: [価値提案（なぜ作ったか）](docs/value-proposition.md) · [アーキテクチャ構成図](docs/architecture.md) · [API 仕様書（OpenAPI）](docs/openapi.yaml) · [LIFF 版 frontend](frontend/README.md) · [CLAUDE.md](CLAUDE.md)
