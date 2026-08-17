@@ -10,9 +10,9 @@
 - バックエンド: Ruby 3.3.10 / Rails 7.1.3 / PostgreSQL 16
 - フロントエンド: Hotwire (Turbo + Stimulus) / ERB / Sprockets
 - インフラ: Docker Compose（開発）/ AWS EC2 + RDS（本番）/ CloudFormation
-- テスト: RSpec + FactoryBot / Playwright（E2E、4月〜導入予定）
+- テスト: RSpec + FactoryBot / Playwright（E2E）
 - CI/CD: GitHub Actions（3月〜導入予定）
-- AI支援: Claude Code（実装・テスト生成・リファクタリング）/ Claude in Chrome（探索的テスト・ビジュアル確認、ベータ）
+- AI支援: Claude Code（実装・テスト生成・リファクタリング）
 - 開発ツール: VSCode / GitHub CLI（イシュー管理）/ pry-rails / amazing_print
 
 ## コマンド
@@ -34,7 +34,7 @@
 ## テスト戦略
 
 - RSpec（単体・リクエスト）: サーバー側の品質保証（モデル・コントローラー）
-- Playwright（E2E）: ブラウザ側の品質保証（JS動作・ユーザー操作フロー）。Stimulusリファクタリング時（4月予定）に導入し、書き換え前に現在の動作をE2Eテストで固める
+- Playwright（E2E）: ブラウザ側の品質保証（JS動作・ユーザー操作フロー）。リファクタリング前に現在の動作をE2Eテストで固める
 - Claude in Chrome: 探索的テストの補助（ビジュアル確認・仕様の抜け漏れ発見）。ベータのため正式な品質保証プロセスへの組み込みは時期を見て判断
 - テストコード生成・実行はAIで効率化しつつ、テストシナリオの設計は人間が握る
 
@@ -58,14 +58,16 @@
 
 ## コーディング規約
 
-- 1関数1責務。エラーは明示的にハンドリングする
+- 1関数1責務
+- エラーは明示的にハンドリングする
 - RESTfulなAPI設計に従う（リソース単位のURL設計、HTTPメソッドの適切な使い分け）
 - コミットメッセージは日本語でわかりやすく残す
 - テストデータの作成にはFactoryBotを使う
 
 ## Git運用
 
-- mainブランチで直接開発しない。ブランチはissue単位で切る（プレフィックスは feature/ fix/ chore/ の最小構成）
+- mainブランチで直接開発しない
+- ブランチはissue単位で切る（プレフィックスは feature/ fix/ chore/ の最小構成）
 - PRのベースブランチは main にする（VSCode拡張の自動検出値より本設定を優先すること）
 - PR作成後はCI結果を監視する（`gh pr checks --watch`）
 
