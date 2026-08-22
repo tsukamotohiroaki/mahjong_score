@@ -23,7 +23,6 @@ flowchart TB
     user(("ユーザー"))
 
     subgraph MPA["MPA版（ERB + Stimulus）"]
-        home["home/index<br>トップ"]
         gnew["games/new<br>ゲーム作成画面"]
         gshow["games/show<br>スコア一覧画面"]
         rnew["rounds/new<br>点数入力画面"]
@@ -32,36 +31,37 @@ flowchart TB
     end
 
     subgraph LIFF["LIFF版（Next.js / React）"]
-        lpage["page.tsx<br>トップ + LIFFログイン"]
-        glist["GameList.tsx"]
+        lpage["page.tsx<br>LIFFログイン"]
         lnew["games/new/page.tsx<br>ゲーム作成画面"]
         lshow["games/[id]/page.tsx<br>スコア一覧画面"]
         lrnew["games/[id]/rounds/new/page.tsx<br>点数入力画面"]
         sinput["lib/score-input.ts<br>（合計計算・自動補完）"]
         apits["lib/api.ts<br>通信層"]
-        lpage --> glist
         lrnew -.利用.- sinput
-        lpage & lnew & lshow & lrnew --> apits
+        lpage -.リダイレクト.-> lnew
+        lnew & lshow & lrnew --> apits
     end
 
     subgraph Rails["Rails（サーバー）"]
-        hc["HomeController"]
+        root["/ → /games/new<br>（routes.rb の 302 リダイレクト）"]
         gc["GamesController"]
-        rc["RoundsController<br>（点数バリデーション）"]
+        rc["RoundsController"]
         agc["Api::V1::GamesController"]
-        arc["Api::V1::RoundsController<br>（点数バリデーション）"]
+        arc["Api::V1::RoundsController"]
+        form["RoundScoreForm<br>点数バリデーション（±1000・合計1000）"]
         model["Game モデル<br>create_with_players!（プレイヤー4人検証）<br>calculate_ranking_scores<br>順位点計算・ゼロサム検証"]
         db[("PostgreSQL<br>games / players<br>rounds / scores")]
     end
 
-    user --> home & gnew & gshow & rnew
+    user --> root & gnew & gshow & rnew
     user --> lpage & lnew & lshow & lrnew
 
-    home --> hc
+    root -.リダイレクト.-> gnew
     gnew & gshow --> gc
     rnew --> rc
     apits -- "JSON<br>（docs/openapi.yaml が契約）" --> agc & arc
 
+    rc & arc --> form
     gc & rc & agc & arc --> model
     model --> db
 ```
@@ -109,7 +109,8 @@ flowchart LR
 
 1. **すべての矢印が最終的に Game モデルに集まる** — 順位点計算・ゼロサム検証は Game モデル1箇所に集約されており、MPA・LIFF どちらの経路でも同じ計算結果になる。ここが壊れると全経路が同時に壊れるため、`spec/models/game_spec.rb` が最重要テスト
 2. **画面まわりは二重、計算とデータは一重** — 二重実装マップの点線ペアが「変更時に2箇所直す場所」の一覧。MPA 版を維持する方針（[ADR-0001](adr/0001-mpa-%E7%89%88%E3%82%92%E6%AE%8B%E3%81%99.md)）のため、これは一時的な負債ではなく恒久的な管理対象になる。現状は Playwright が MPA 版、Vitest が LIFF 版と検証が分かれており、「2つが同一の挙動か」を検証する手段がない（[#175](https://github.com/tsukamotohiroaki/mahjong_score/issues/175) で対応）
-3. **`lib/api.ts` と API コントローラーの間が契約境界** — レスポンス構造を変えると LIFF 版だけが静かに壊れる。`docs/openapi.yaml` と `spec/requests/api/v1/` を同期させて守る。この区間の通信経路（Next.js が `/api/*` を Rails にプロキシする仕組みと CORS を回避する意図）は `docs/api-proxy.md` を参照
+3. **仕様書にあるが誰も呼んでいない API がある** — `docs/openapi.yaml` に定義された `GET /api/v1/games`（ゲーム一覧）は Rails 側に実装があるものの、`lib/api.ts` に対応する関数がなく、MPA・LIFF いずれの画面からも呼ばれていない。画面操作では到達しないため、ブラウザでの動作確認では検証できない
+4. **`lib/api.ts` と API コントローラーの間が契約境界** — レスポンス構造を変えると LIFF 版だけが静かに壊れる。`docs/openapi.yaml` と `spec/requests/api/v1/` を同期させて守る。この区間の通信経路（Next.js が `/api/*` を Rails にプロキシする仕組みと CORS を回避する意図）は `docs/api-proxy.md` を参照
 
 ## テスト戦略との対応
 
