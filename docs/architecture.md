@@ -126,6 +126,8 @@ flowchart LR
 
 ## テスト戦略との対応
 
+本表は**上図の箱と自動テストの対応**に限定する。手段ごとの守備範囲・境界の引き方（Claude in Chrome と実機を含む5手段）は [`docs/test-strategy.md`](test-strategy.md) が正。
+
 | テスト | 守っている箱 |
 |---|---|
 | RSpec モデルスペック（`spec/models/`） | Game モデル（順位点計算・ゼロサム・一意性） |
@@ -133,4 +135,4 @@ flowchart LR
 | Playwright E2E（`e2e/`） | MPA 版の画面 + `score_input_controller.js`（ブラウザ上の JS 動作） |
 | Vitest（`frontend/app/**/*.test.*`） | LIFF 版の React コンポーネント + `lib/api.ts` + `lib/score-input.ts` |
 
-詳細なテスト戦略（3層の役割分担・探索的テスト）は CLAUDE.md を参照。
+厚みの配分・急所マップ・確認手段の分担は [`docs/test-strategy.md`](test-strategy.md) を参照。
