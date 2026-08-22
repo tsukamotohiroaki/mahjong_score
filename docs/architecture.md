@@ -29,7 +29,11 @@ flowchart TB
         rnew["rounds/new<br>点数入力画面"]
         stim["score_input_controller.js<br>（合計計算・自動補完）"]
         rnew -.双方向.- stim
-        root -.リダイレクト.-> gnew
+        root -.302リダイレクト.-> gnew
+        gnew -.ゲーム開始.-> gshow
+        gshow -.局番号リンク.-> rnew
+        rnew -.入力完了・戻る.-> gshow
+        gshow -.新しいゲーム.-> gnew
     end
 
     subgraph LIFF["LIFF版（Next.js / React）"]
@@ -40,7 +44,11 @@ flowchart TB
         sinput["lib/score-input.ts<br>（合計計算・自動補完）"]
         apits["lib/api.ts<br>通信層"]
         lrnew -.利用.- sinput
-        lpage -.リダイレクト.-> lnew
+        lpage -.ログイン後.-> lnew
+        lnew -.ゲーム開始.-> lshow
+        lshow -.局番号リンク.-> lrnew
+        lrnew -.送信・戻る.-> lshow
+        lshow -.新しいゲーム.-> lnew
         lnew & lshow & lrnew --> apits
     end
 
@@ -54,8 +62,10 @@ flowchart TB
         db[("PostgreSQL<br>games / players<br>rounds / scores")]
     end
 
-    user --> root & gnew & gshow & rnew
-    user --> lpage & lnew & lshow & lrnew
+    user -- 通常 --> root
+    user -- 共有URL --> gshow
+    user -- LIFFURL --> lpage
+    user -- 共有URL --> lshow
 
     gnew & gshow --> gc
     rnew --> rc
@@ -104,13 +114,15 @@ flowchart LR
 - 点線ペア（m1〜m4）が「変更時に2箇所直す場所」。**実線の先（RoundScoreForm / Game モデル）は共有されており、二重実装ではない**
 - コントローラーの点数検証は `RoundScoreForm` に一本化済み（[#193](https://github.com/tsukamotohiroaki/mahjong_score/issues/193)）。MPA・LIFF 両経路がこれを呼ぶため、二重実装ペアには含まれない
 - ゲーム作成の「プレイヤーちょうど4人」検証は `Game.create_with_players!` に集約済み（[#192](https://github.com/tsukamotohiroaki/mahjong_score/issues/192)）。同上
+- **「同一仕様」のはずが食い違っている箇所**: LIFF 版のエラー画面（`games/[id]/page.tsx` と `games/[id]/rounds/new/page.tsx`）には「← トップに戻る」リンクが残っており `/` へ遷移する。MPA 版は [#216](https://github.com/tsukamotohiroaki/mahjong_score/issues/216) でトップページを廃止した際にこのリンクを削除済み。LIFF 版で `/` に戻ると `liff.login()` が走るため、エラーからの復帰導線として妥当かを含めて要検討
 
 ## 読みどころ
 
-1. **すべての矢印が最終的に Game モデルに集まる** — 順位点計算・ゼロサム検証は Game モデル1箇所に集約されており、MPA・LIFF どちらの経路でも同じ計算結果になる。ここが壊れると全経路が同時に壊れるため、`spec/models/game_spec.rb` が最重要テスト
-2. **画面まわりは二重、計算とデータは一重** — 二重実装マップの点線ペアが「変更時に2箇所直す場所」の一覧。MPA 版を維持する方針（[ADR-0001](adr/0001-mpa-%E7%89%88%E3%82%92%E6%AE%8B%E3%81%99.md)）のため、これは一時的な負債ではなく恒久的な管理対象になる。現状は Playwright が MPA 版、Vitest が LIFF 版と検証が分かれており、「2つが同一の挙動か」を検証する手段がない（[#175](https://github.com/tsukamotohiroaki/mahjong_score/issues/175) で対応）
-3. **仕様書にあるが誰も呼んでいない API がある** — `docs/openapi.yaml` に定義された `GET /api/v1/games`（ゲーム一覧）は Rails 側に実装があるものの、`lib/api.ts` に対応する関数がなく、MPA・LIFF いずれの画面からも呼ばれていない。画面操作では到達しないため、ブラウザでの動作確認では検証できない
-4. **`lib/api.ts` と API コントローラーの間が契約境界** — レスポンス構造を変えると LIFF 版だけが静かに壊れる。`docs/openapi.yaml` と `spec/requests/api/v1/` を同期させて守る。この区間の通信経路（Next.js が `/api/*` を Rails にプロキシする仕組みと CORS を回避する意図）は `docs/api-proxy.md` を参照
+1. **利用者の入口は各版2つずつしかない** — 通常の入口（MPA は `/`、LIFF は LIFF URL）と、共有された URL で直接スコア一覧に着地する経路の2つ。それ以外の画面には画面遷移でしか到達しない。共有 URL は「あとから直接開かれる」ことを前提とした設計上の入口であり、単なる内部リンクではない
+2. **すべての矢印が最終的に Game モデルに集まる** — 順位点計算・ゼロサム検証は Game モデル1箇所に集約されており、MPA・LIFF どちらの経路でも同じ計算結果になる。ここが壊れると全経路が同時に壊れるため、`spec/models/game_spec.rb` が最重要テスト
+3. **画面まわりは二重、計算とデータは一重** — 二重実装マップの点線ペアが「変更時に2箇所直す場所」の一覧。MPA 版を維持する方針（[ADR-0001](adr/0001-mpa-%E7%89%88%E3%82%92%E6%AE%8B%E3%81%99.md)）のため、これは一時的な負債ではなく恒久的な管理対象になる。現状は Playwright が MPA 版、Vitest が LIFF 版と検証が分かれており、「2つが同一の挙動か」を検証する手段がない（[#175](https://github.com/tsukamotohiroaki/mahjong_score/issues/175) で対応）
+4. **仕様書にあるが誰も呼んでいない API がある** — `docs/openapi.yaml` に定義された `GET /api/v1/games`（ゲーム一覧）は Rails 側に実装があるものの、`lib/api.ts` に対応する関数がなく、MPA・LIFF いずれの画面からも呼ばれていない。画面操作では到達しないため、ブラウザでの動作確認では検証できない
+5. **`lib/api.ts` と API コントローラーの間が契約境界** — レスポンス構造を変えると LIFF 版だけが静かに壊れる。`docs/openapi.yaml` と `spec/requests/api/v1/` を同期させて守る。この区間の通信経路（Next.js が `/api/*` を Rails にプロキシする仕組みと CORS を回避する意図）は `docs/api-proxy.md` を参照
 
 ## テスト戦略との対応
 
