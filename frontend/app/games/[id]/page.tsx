@@ -166,7 +166,8 @@ export default function GameDetailPage() {
       </div>
 
       <div className="back-link">
-        <Link href="/">← トップに戻る</Link>
+        {/* トップページ廃止（#216）。リダイレクト1ホップと LIFF 初期化待ちを避けるため /games/new を直接指す */}
+        <Link href="/games/new">← 新しいゲームを始める</Link>
       </div>
     </main>
   );

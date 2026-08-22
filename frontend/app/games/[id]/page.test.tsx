@@ -129,14 +129,16 @@ describe("GameDetailPage (スコア一覧)", () => {
     );
   });
 
-  it("トップへ戻るリンクを表示する", async () => {
+  // トップページ廃止（#216）に伴い、導線は「新しいゲームを始める」に変更。
+  // `/` 経由のリダイレクト1ホップと LIFF 初期化待ちを避けるため /games/new を直接指す
+  it("「新しいゲームを始める」リンクが /games/new を指す", async () => {
     mockedGetGame.mockResolvedValue(game);
 
     render(<GameDetailPage />);
 
     expect(
-      await screen.findByRole("link", { name: /トップに戻る/ })
-    ).toHaveAttribute("href", "/");
+      await screen.findByRole("link", { name: /新しいゲームを始める/ })
+    ).toHaveAttribute("href", "/games/new");
   });
 
   it("取得に失敗したらエラーメッセージを表示する", async () => {

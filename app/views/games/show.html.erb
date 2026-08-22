@@ -50,7 +50,8 @@
   </div>
 
   <div class="back-link">
-    <%= link_to "← トップに戻る", root_path %>
+    <%# トップページ廃止（#216）。リダイレクト1ホップを避けるため /games/new を直接指す %>
+    <%= link_to "← 新しいゲームを始める", new_game_path %>
   </div>
 </div>
 

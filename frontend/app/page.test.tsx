@@ -11,6 +11,12 @@ vi.mock("@line/liff", () => ({
   },
 }));
 
+const { replaceMock } = vi.hoisted(() => ({ replaceMock: vi.fn() }));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace: replaceMock }),
+}));
+
 const mockedLiff = vi.mocked(liff, true);
 
 describe("Page (トップ)", () => {
@@ -29,32 +35,19 @@ describe("Page (トップ)", () => {
     expect(screen.getByText(/読み込み中/)).toBeInTheDocument();
   });
 
-  it("ログイン済みならタイトルと「新しく始める」ボタンを表示する", async () => {
+  it("ログイン済みならメンバー入力画面（/games/new）へリダイレクトする", async () => {
     mockedLiff.init.mockResolvedValue(undefined);
     mockedLiff.isLoggedIn.mockReturnValue(true);
 
     render(<Page />);
 
-    expect(
-      await screen.findByRole("heading", { name: "麻雀スコア管理アプリ" })
-    ).toBeInTheDocument();
-    const startLink = screen.getByRole("link", { name: "新しく始める" });
-    expect(startLink).toHaveAttribute("href", "/games/new");
+    await vi.waitFor(() => {
+      expect(replaceMock).toHaveBeenCalledWith("/games/new");
+    });
     expect(mockedLiff.init).toHaveBeenCalledWith({ liffId: "test-liff-id" });
   });
 
-  it("ゲーム一覧と「つづきから」ボタンは表示しない", async () => {
-    mockedLiff.init.mockResolvedValue(undefined);
-    mockedLiff.isLoggedIn.mockReturnValue(true);
-
-    render(<Page />);
-
-    await screen.findByRole("heading", { name: "麻雀スコア管理アプリ" });
-    expect(screen.queryByText(/ゲーム一覧/)).not.toBeInTheDocument();
-    expect(screen.queryByText("つづきから")).not.toBeInTheDocument();
-  });
-
-  it("未ログイン時は liff.login() を呼んでログインへ誘導する", async () => {
+  it("未ログイン時は liff.login() を呼んでログインへ誘導し、リダイレクトしない", async () => {
     mockedLiff.init.mockResolvedValue(undefined);
     mockedLiff.isLoggedIn.mockReturnValue(false);
 
@@ -63,17 +56,15 @@ describe("Page (トップ)", () => {
     await vi.waitFor(() => {
       expect(mockedLiff.login).toHaveBeenCalled();
     });
-    // 未ログインではトップの内容を表示しない
-    expect(
-      screen.queryByRole("link", { name: "新しく始める" })
-    ).not.toBeInTheDocument();
+    expect(replaceMock).not.toHaveBeenCalled();
   });
 
-  it("liff.init 失敗時はエラーメッセージを表示する", async () => {
+  it("liff.init 失敗時はエラーメッセージを表示し、リダイレクトしない", async () => {
     mockedLiff.init.mockRejectedValue(new Error("init failed"));
 
     render(<Page />);
 
     expect(await screen.findByText(/初期化に失敗/)).toBeInTheDocument();
+    expect(replaceMock).not.toHaveBeenCalled();
   });
 });

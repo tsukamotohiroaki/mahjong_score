@@ -24,6 +24,16 @@ RSpec.describe "Games", type: :request do
       expect(response.body).to include('<details class="rule-settings">')
       expect(response.body).to include("<summary>ルール設定</summary>")
     end
+
+    it "バージョン番号が表示される（トップページ廃止に伴い移設）" do
+      get new_game_path
+      expect(response.body).to include("v#{APP_VERSION}")
+    end
+
+    it "「トップに戻る」リンクを表示しない（トップは本画面へのリダイレクトになったため）" do
+      get new_game_path
+      expect(response.body).not_to include("トップに戻る")
+    end
   end
 
   describe "POST /games" do
@@ -166,6 +176,19 @@ RSpec.describe "Games", type: :request do
       it "URLを共有するボタンが表示される" do
         get game_path(game)
         expect(response.body).to include('data-share-url')
+      end
+    end
+
+    context "新しいゲームへの導線（#216: トップページ廃止に伴う変更）" do
+      it "「新しいゲームを始める」リンクが /games/new を直接指す" do
+        get game_path(game)
+        expect(response.body).to include("新しいゲームを始める")
+        expect(response.body).to include('href="/games/new"')
+      end
+
+      it "「トップに戻る」リンクを表示しない" do
+        get game_path(game)
+        expect(response.body).not_to include("トップに戻る")
       end
     end
 

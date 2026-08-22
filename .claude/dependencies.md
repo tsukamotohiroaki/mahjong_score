@@ -15,7 +15,7 @@ Game は Player・Round の親モデルであり、順位点計算ロジック�
 - `spec/requests/rounds_spec.rb`（Round 作成時に Game のルール設定を使用）
 - `spec/requests/api/v1/games_spec.rb`（JSON API。一覧・詳細・作成、順位点計算を含む）
 - `spec/requests/api/v1/rounds_spec.rb`（JSON API。Round 作成時に Game のルール設定を使用）
-- `e2e/home.spec.ts`（トップページからゲーム作成への導線）
+- `e2e/home.spec.ts`（`/` からメンバー入力画面への直行導線。#216）
 - `e2e/score_input.spec.ts`（点数入力は Game 配下の Round/Score に依存）
 
 ## app/models/player.rb
@@ -68,7 +68,7 @@ MPA 版のゲーム作成・スコア一覧表示。作成は `Game.create_with_
 - `spec/requests/games_spec.rb`（直接）
 - `spec/models/game_spec.rb`（create_with_players! と順位点計算 calculate_ranking_scores を使用）
 - `spec/models/player_spec.rb`（ゲーム作成時に Player も作成）
-- `e2e/home.spec.ts`（トップページからゲーム作成への導線）
+- `e2e/home.spec.ts`（`/` からメンバー入力画面への直行導線。#216）
 
 ## app/controllers/api/v1/games_controller.rb
 
