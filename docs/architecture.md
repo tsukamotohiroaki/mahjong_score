@@ -3,11 +3,18 @@
 本プロジェクトの全体像（MPA 版 + JSON API + LIFF 版の併存構成）を1枚で掴むためのドキュメント。
 構成に影響する実装変更（画面・コントローラー・API の追加や削除）をしたときは、この図も更新する。
 
-## 移行戦略
+## クライアント構成の方針
 
-- MPA（Rails + ERB + Hotwire）で MVP を最短リリースし、動かしたまま LIFF 版（Next.js）へ段階的に移行する（ストラングラーフィグパターン）
-- 両版が併存する期間は、JSON API（`/api/v1`）と OpenAPI 仕様書（`docs/openapi.yaml`）を契約として橋渡しする
+- **MPA 版（ブラウザ）と LIFF 版（LINE）は、どちらも正式なクライアント**とする（マルチクライアント構成）
+- MPA 版は LIFF 版へ移行するための足場ではない。撤去予定はない
+- 両版の橋渡しは、JSON API（`/api/v1`）と OpenAPI 仕様書（`docs/openapi.yaml`）を契約として行う
 - SPA・ネイティブアプリは当面スコープ外（CLAUDE.md の方針）
+
+### この方針に至った経緯
+
+当初は MPA で MVP を最短リリースし、LIFF 版へ段階的に移行して MPA を引退させる方針だった（ストラングラーフィグパターン）。2026-08-22 に、最終段階の MPA 撤去は実行しないことを決定した。
+
+主な理由は、LIFF 版が `liff.login()` を必要とするため、MPA を撤去すると LINE がアプリ全体の単一障害点になること。詳細な理由・検討した選択肢・引き受けるコストは [ADR-0001: MPA 版を残す](adr/0001-mpa-%E7%89%88%E3%82%92%E6%AE%8B%E3%81%99.md) を参照。
 
 ## 全体構成図
 
@@ -16,45 +23,55 @@ flowchart TB
     user(("ユーザー"))
 
     subgraph MPA["MPA版（ERB + Stimulus）"]
-        home["home/index<br>トップ"]
+        root["/<br>（routes.rb で 302 リダイレクト）"]
         gnew["games/new<br>ゲーム作成画面"]
         gshow["games/show<br>スコア一覧画面"]
         rnew["rounds/new<br>点数入力画面"]
         stim["score_input_controller.js<br>（合計計算・自動補完）"]
         rnew -.双方向.- stim
+        root -.302リダイレクト.-> gnew
+        gnew -.ゲーム開始.-> gshow
+        gshow -.局番号リンク.-> rnew
+        rnew -.入力完了・戻る.-> gshow
+        gshow -.新しいゲーム.-> gnew
     end
 
     subgraph LIFF["LIFF版（Next.js / React）"]
-        lpage["page.tsx<br>トップ + LIFFログイン"]
-        glist["GameList.tsx"]
+        lpage["page.tsx<br>LIFFログイン"]
         lnew["games/new/page.tsx<br>ゲーム作成画面"]
         lshow["games/[id]/page.tsx<br>スコア一覧画面"]
         lrnew["games/[id]/rounds/new/page.tsx<br>点数入力画面"]
         sinput["lib/score-input.ts<br>（合計計算・自動補完）"]
         apits["lib/api.ts<br>通信層"]
-        lpage --> glist
         lrnew -.利用.- sinput
-        lpage & lnew & lshow & lrnew --> apits
+        lpage -.ログイン後.-> lnew
+        lnew -.ゲーム開始.-> lshow
+        lshow -.局番号リンク.-> lrnew
+        lrnew -.送信・戻る.-> lshow
+        lshow -.新しいゲーム.-> lnew
+        lnew & lshow & lrnew --> apits
     end
 
     subgraph Rails["Rails（サーバー）"]
-        hc["HomeController"]
         gc["GamesController"]
-        rc["RoundsController<br>（点数バリデーション）"]
+        rc["RoundsController"]
         agc["Api::V1::GamesController"]
-        arc["Api::V1::RoundsController<br>（点数バリデーション）"]
+        arc["Api::V1::RoundsController"]
+        form["RoundScoreForm<br>点数バリデーション（±1000・合計1000）"]
         model["Game モデル<br>create_with_players!（プレイヤー4人検証）<br>calculate_ranking_scores<br>順位点計算・ゼロサム検証"]
         db[("PostgreSQL<br>games / players<br>rounds / scores")]
     end
 
-    user --> home & gnew & gshow & rnew
-    user --> lpage & lnew & lshow & lrnew
+    user -- 通常 --> root
+    user -- 共有URL --> gshow
+    user -- LIFFURL --> lpage
+    user -- 共有URL --> lshow
 
-    home --> hc
     gnew & gshow --> gc
     rnew --> rc
     apits -- "JSON<br>（docs/openapi.yaml が契約）" --> agc & arc
 
+    rc & arc --> form
     gc & rc & agc & arc --> model
     model --> db
 ```
@@ -71,34 +88,41 @@ flowchart LR
         m2["games/show.html.erb"]
         m3["rounds/new.html.erb"]
         m4["score_input_controller.js<br>（JS: 合計・自動補完）"]
-        m5["RoundsController<br>（±1000・合計1000検証）"]
+        m5["RoundsController"]
     end
     subgraph L["LIFF版"]
         l1["games/new/page.tsx"]
         l2["games/[id]/page.tsx"]
         l3["games/[id]/rounds/new/page.tsx"]
         l4["lib/score-input.ts<br>（TS: 合計・自動補完）"]
-        l5["Api::V1::RoundsController<br>（±1000・合計1000検証）"]
+        l5["Api::V1::RoundsController"]
     end
     m1 <-. "同一仕様" .-> l1
     m2 <-. "同一仕様" .-> l2
     m3 <-. "同一仕様" .-> l3
     m4 <-. "同一ロジック別言語" .-> l4
-    m5 <-. "同一検証の二重実装<br>（一本化予定 #193）" .-> l5
 
-    shared["Game モデル（順位点計算）<br>★ここだけは共有＝一重"]
+    form["RoundScoreForm<br>（±1000・合計1000検証）<br>★共有＝一重"]
+    m5 --> form
+    l5 --> form
+
+    shared["Game モデル（順位点計算）<br>★共有＝一重"]
     m5 --> shared
     l5 --> shared
 ```
 
-- コントローラーの点数検証の一本化は [#193](https://github.com/tsukamotohiroaki/mahjong_score/issues/193) で対応予定
-- ゲーム作成の「プレイヤーちょうど4人」検証は `Game.create_with_players!` に集約済み（[#192](https://github.com/tsukamotohiroaki/mahjong_score/issues/192)）。MPA・LIFF 両経路がこれを呼ぶため、上図の二重実装ペアには含まれない
+- 点線ペア（m1〜m4）が「変更時に2箇所直す場所」。**実線の先（RoundScoreForm / Game モデル）は共有されており、二重実装ではない**
+- コントローラーの点数検証は `RoundScoreForm` に一本化済み（[#193](https://github.com/tsukamotohiroaki/mahjong_score/issues/193)）。MPA・LIFF 両経路がこれを呼ぶため、二重実装ペアには含まれない
+- ゲーム作成の「プレイヤーちょうど4人」検証は `Game.create_with_players!` に集約済み（[#192](https://github.com/tsukamotohiroaki/mahjong_score/issues/192)）。同上
+- **「同一仕様」のはずが食い違っている箇所**: LIFF 版のエラー画面（`games/[id]/page.tsx` と `games/[id]/rounds/new/page.tsx`）には「← トップに戻る」リンクが残っており `/` へ遷移する。MPA 版は [#216](https://github.com/tsukamotohiroaki/mahjong_score/issues/216) でトップページを廃止した際にこのリンクを削除済み。LIFF 版で `/` に戻ると `liff.login()` が走るため、エラーからの復帰導線として妥当かを含めて要検討
 
 ## 読みどころ
 
-1. **すべての矢印が最終的に Game モデルに集まる** — 順位点計算・ゼロサム検証は Game モデル1箇所に集約されており、MPA・LIFF どちらの経路でも同じ計算結果になる。ここが壊れると全経路が同時に壊れるため、`spec/models/game_spec.rb` が最重要テスト
-2. **画面まわりは二重、計算とデータは一重** — 二重実装マップの点線ペアが「変更時に2箇所直す場所」の一覧。移行完了（MPA 引退）まで併存するコスト
-3. **`lib/api.ts` と API コントローラーの間が契約境界** — レスポンス構造を変えると LIFF 版だけが静かに壊れる。`docs/openapi.yaml` と `spec/requests/api/v1/` を同期させて守る。この区間の通信経路（Next.js が `/api/*` を Rails にプロキシする仕組みと CORS を回避する意図）は `docs/api-proxy.md` を参照
+1. **利用者の入口は各版2つずつしかない** — 通常の入口（MPA は `/`、LIFF は LIFF URL）と、共有された URL で直接スコア一覧に着地する経路の2つ。それ以外の画面には画面遷移でしか到達しない。共有 URL は「あとから直接開かれる」ことを前提とした設計上の入口であり、単なる内部リンクではない
+2. **すべての矢印が最終的に Game モデルに集まる** — 順位点計算・ゼロサム検証は Game モデル1箇所に集約されており、MPA・LIFF どちらの経路でも同じ計算結果になる。ここが壊れると全経路が同時に壊れるため、`spec/models/game_spec.rb` が最重要テスト
+3. **画面まわりは二重、計算とデータは一重** — 二重実装マップの点線ペアが「変更時に2箇所直す場所」の一覧。MPA 版を維持する方針（[ADR-0001](adr/0001-mpa-%E7%89%88%E3%82%92%E6%AE%8B%E3%81%99.md)）のため、これは一時的な負債ではなく恒久的な管理対象になる。現状は Playwright が MPA 版、Vitest が LIFF 版と検証が分かれており、「2つが同一の挙動か」を検証する手段がない（[#175](https://github.com/tsukamotohiroaki/mahjong_score/issues/175) で対応）
+4. **仕様書にあるが誰も呼んでいない API がある** — `docs/openapi.yaml` に定義された `GET /api/v1/games`（ゲーム一覧）は Rails 側に実装があるものの、`lib/api.ts` に対応する関数がなく、MPA・LIFF いずれの画面からも呼ばれていない。画面操作では到達しないため、ブラウザでの動作確認では検証できない
+5. **`lib/api.ts` と API コントローラーの間が契約境界** — レスポンス構造を変えると LIFF 版だけが静かに壊れる。`docs/openapi.yaml` と `spec/requests/api/v1/` を同期させて守る。この区間の通信経路（Next.js が `/api/*` を Rails にプロキシする仕組みと CORS を回避する意図）は `docs/api-proxy.md` を参照
 
 ## テスト戦略との対応
 
