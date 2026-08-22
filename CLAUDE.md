@@ -13,7 +13,6 @@
 - テスト: RSpec + FactoryBot / Playwright（E2E）
 - CI/CD: GitHub Actions（3月〜導入予定）
 - AI支援: Claude Code（実装・テスト生成・リファクタリング）
-- 開発ツール: VSCode / GitHub CLI（イシュー管理）/ pry-rails / amazing_print
 
 ## コマンド
 
