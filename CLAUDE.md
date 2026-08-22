@@ -73,10 +73,12 @@
 
 ## リリース手順
 
-1. PRをmainにマージし、ローカルのmainを更新する（`git pull`）
-2. EC2にデプロイし、本番環境で動作確認する
-3. `config/initializers/version.rb` の `APP_VERSION` を更新する
-4. `gh release create` でタグを作成する
+1. PRをmainにマージする
+2. ローカルのmainを更新する（`git pull`）
+3. EC2にデプロイする
+4. 本番環境で動作確認する
+5. `config/initializers/version.rb` の `APP_VERSION` を更新する
+6. `gh release create` でタグを作成する
 
 ## 品質保証の考え方
 
