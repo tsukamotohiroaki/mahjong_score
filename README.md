@@ -307,4 +307,4 @@ Issue 駆動 + TDD（テスト駆動開発）で進めます。
 
 ---
 
-関連ドキュメント: [価値提案（なぜ作ったか）](docs/value-proposition.md) · [アーキテクチャ構成図](docs/architecture.md) · [API 仕様書（OpenAPI）](docs/openapi.yaml) · [LIFF 版のローカル実機確認手順](docs/liff-device-testing.md) · [LIFF 版 frontend](frontend/README.md) · [CLAUDE.md](CLAUDE.md)
+関連ドキュメント: [価値提案（なぜ作ったか）](docs/value-proposition.md) · [アーキテクチャ構成図](docs/architecture.md) · [API 仕様書（OpenAPI）](docs/openapi.yaml) · [LIFF 版 frontend](frontend/README.md) · [CLAUDE.md](CLAUDE.md)
