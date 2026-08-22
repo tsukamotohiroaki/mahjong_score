@@ -23,11 +23,13 @@ flowchart TB
     user(("ユーザー"))
 
     subgraph MPA["MPA版（ERB + Stimulus）"]
+        root["/<br>（routes.rb で 302 リダイレクト）"]
         gnew["games/new<br>ゲーム作成画面"]
         gshow["games/show<br>スコア一覧画面"]
         rnew["rounds/new<br>点数入力画面"]
         stim["score_input_controller.js<br>（合計計算・自動補完）"]
         rnew -.双方向.- stim
+        root -.リダイレクト.-> gnew
     end
 
     subgraph LIFF["LIFF版（Next.js / React）"]
@@ -43,7 +45,6 @@ flowchart TB
     end
 
     subgraph Rails["Rails（サーバー）"]
-        root["/ → /games/new<br>（routes.rb の 302 リダイレクト）"]
         gc["GamesController"]
         rc["RoundsController"]
         agc["Api::V1::GamesController"]
@@ -56,7 +57,6 @@ flowchart TB
     user --> root & gnew & gshow & rnew
     user --> lpage & lnew & lshow & lrnew
 
-    root -.リダイレクト.-> gnew
     gnew & gshow --> gc
     rnew --> rc
     apits -- "JSON<br>（docs/openapi.yaml が契約）" --> agc & arc
