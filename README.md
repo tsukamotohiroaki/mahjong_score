@@ -1,4 +1,4 @@
-# Mahjong Score
+# 楽雀（らくじゃん）
 
 <p>
   <a href="https://github.com/tsukamotohiroaki/mahjong_score/actions/workflows/ci.yml">
@@ -26,8 +26,8 @@ LINE 公式アカウントを友だち追加すると、リッチメニューか
 
 <img src="docs/images/line-add-friend-qr.png" alt="LINE友だち追加QRコード" width="240">
 
-1. QR コード（または [友だち追加リンク](https://line.me/R/ti/p/@165fpsbq)）から「麻雀スコア帳」を友だち追加する
-2. トーク画面下部のリッチメニュー「麻雀スコア帳を開く」をタップする
+1. QR コード（または [友だち追加リンク](https://line.me/R/ti/p/@165fpsbq)）から「楽雀」を友だち追加する
+2. トーク画面下部のリッチメニューから楽雀を開く
 3. LIFF 版アプリが起動し、そのままゲームを作成できる
 
 > **Note**: デモ環境（AWS EC2）はコスト節約のため停止していることがあります。動かない場合はイシューでお知らせください。
