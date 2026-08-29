@@ -127,7 +127,7 @@ config/
 | 単体・リクエスト | RSpec + FactoryBot | サーバー側の品質保証（モデル・コントローラー） |
 | フロントエンド単体 | Vitest + Testing Library | LIFF 版（Next.js）のコンポーネント・API クライアント |
 | E2E | Playwright | ブラウザ側の品質保証（JS 動作・ユーザー操作フロー） |
-| 経験ベース | 探索的テスト | Claude in Chrome | ビジュアル確認・仕様の抜け漏れ発見（ベータ） |
+| | 探索的テスト | Claude in Chrome | ビジュアル確認・仕様の抜け漏れ発見（ベータ） |
 
 `main` ブランチへの push / PR で GitHub Actions により **RSpec**・**Vitest**・**Playwright E2E** が自動実行されます。
 
@@ -138,14 +138,14 @@ config/
 | 分類 | テスト技法 | このアプリでの実例 | 実行レイヤー |
 |---|---|---|---|
 | ブラックボックス | 同値分割 | 点数入力の値クラス: 整数 / 整数以外 / 未入力（[`RoundScoreForm`](app/forms/round_score_form.rb) の正規化） | RSpec |
-| ブラックボックス | 境界値分析 | 点数の上下限 −1000 / +1000（百点棒単位）、合計 1000 ちょうど、持ち点 > 0 | RSpec |
-| ブラックボックス | デシジョンテーブル | 順位点のゼロサム検証: 持ち点 × 返し点 × 順位点4つの組み合わせ（[`Game#rank_bonuses_must_be_zero_sum`](app/models/game.rb)） | RSpec |
-| ブラックボックス | 状態遷移 | ユーザーフロー: メンバー入力 → ゲーム開始 → 点数入力 → 結果表示 | Playwright |
+| | 境界値分析 | 点数の上下限 −1000 / +1000（百点棒単位）、合計 1000 ちょうど、持ち点 > 0 | RSpec |
+| | デシジョンテーブル | 順位点のゼロサム検証: 持ち点 × 返し点 × 順位点4つの組み合わせ（[`Game#rank_bonuses_must_be_zero_sum`](app/models/game.rb)） | RSpec |
+| | 状態遷移 | ユーザーフロー: メンバー入力 → ゲーム開始 → 点数入力 → 結果表示 | Playwright |
 | ホワイトボックス | ステートメントテスト | 順位点計算 [`Game#calculate_ranking_scores`](app/models/game.rb) の各行を通すケース | RSpec ※網羅率は未計測（カバレッジ計測の導入はバックログ） |
-| ホワイトボックス | ブランチテスト | 同点時の分岐: 同順位の引き継ぎ・ボーナス均等分配の有無 | RSpec ※同上 |
+| | ブランチテスト | 同点時の分岐: 同順位の引き継ぎ・ボーナス均等分配の有無 | RSpec ※同上 |
 | 経験ベース | エラー推測 | 事故りやすい入力: 全員同点・マイナス点・合計不一致・プレイヤー名重複 | RSpec |
-| 経験ベース | 探索的テスト | 画面を自由に操作して仕様の抜け漏れ・見た目の崩れを発見 | 人間 + Claude in Chrome（補助） |
-| 経験ベース | チェックリストベース | LINE 実機でしか確認できない項目の消し込み（[`docs/manual-test-checklist.md`](docs/manual-test-checklist.md)） | 人間（実機） |
+| | 探索的テスト | 画面を自由に操作して仕様の抜け漏れ・見た目の崩れを発見 | 人間 + Claude in Chrome（補助） |
+| | チェックリストベース | LINE 実機でしか確認できない項目の消し込み（[`docs/manual-test-checklist.md`](docs/manual-test-checklist.md)） | 人間（実機） |
 
 どこに厚くテストを張り、どこを浅くしたかの判断は [`docs/test-strategy.md`](docs/test-strategy.md) に言語化しています。
 
