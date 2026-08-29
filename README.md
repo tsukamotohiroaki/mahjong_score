@@ -52,7 +52,11 @@ http://localhost:3000 にアクセスする 🎉
 
 MPA 版 + JSON API + LIFF 版の併存構成です。全体像は [`docs/architecture.md`](docs/architecture.md) を参照してください。
 
-本番は AWS（EC2 + RDS）で運用し、構成は [`infra/cloudformation.yml`](infra/cloudformation.yml) でコード化しています。
+本番環境（AWS）:
+
+- EC2（t2.micro）+ RDS（PostgreSQL 16）
+- CloudFormation でインフラをコード化（[`infra/cloudformation.yml`](infra/cloudformation.yml)）
+- Docker Compose で Rails アプリを起動
 
 ```
 mahjong_score/
