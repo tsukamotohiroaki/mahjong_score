@@ -18,7 +18,11 @@ MPA（Rails + ERB + Hotwire）で MVP を最短リリースし、動かしたま
 
 > 面倒で間違えやすい計算作業を自動化して、人が本来やりたいこと（対局を楽しむ・ルールを学ぶ）に集中できるようにする——このアプリが解決する課題は [`docs/value-proposition.md`](docs/value-proposition.md) にまとめています。
 
-<!-- #146: ここにデモ動画（GIF）を掲載する -->
+## Demo
+
+メンバー入力からゲーム開始、点数入力（リアルタイム合計）、順位点の自動計算までの流れです。
+
+<img src="docs/images/demo.gif" alt="デモ: メンバー入力 → 点数入力 → 順位点の自動計算" width="300">
 
 ## Try it on LINE
 
