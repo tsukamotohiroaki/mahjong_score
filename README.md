@@ -18,13 +18,13 @@ MPA（Rails + ERB + Hotwire）で MVP を最短リリースし、動かしたま
 
 > 面倒で間違えやすい計算作業を自動化して、人が本来やりたいこと（対局を楽しむ・ルールを学ぶ）に集中できるようにする——このアプリが解決する課題は [`docs/value-proposition.md`](docs/value-proposition.md) にまとめています。
 
-## Demo
+## デモ
 
 メンバー入力からゲーム開始、点数入力（リアルタイム合計）、順位点の自動計算までの流れです。
 
 <img src="docs/images/demo.gif" alt="デモ: メンバー入力 → 点数入力 → 順位点の自動計算" width="300">
 
-## Try it on LINE
+## LINE で試す
 
 LINE 公式アカウントを友だち追加すると、リッチメニューから LIFF 版アプリをすぐに試せます。
 
@@ -36,118 +36,27 @@ LINE 公式アカウントを友だち追加すると、リッチメニューか
 
 > **Note**: デモ環境（AWS EC2）はコスト節約のため停止していることがあります。動かない場合はイシューでお知らせください。
 
-## Features
+## セットアップ
 
-**対局の記録** — 4人固定のゲームを作成し、半荘（ラウンド）ごとに素点を入力。ゲーム作成とプレイヤー登録はトランザクションでまとめて行い、不整合を防ぎます。
-
-**順位点の自動計算** — 持ち点・返し点・順位点（ウマ）をゲームごとのルールとして設定。順位点はゼロサム検証つきで、同点時は該当順位のボーナスを均等分配します。
-
-**JSON API** — LIFF 版（Next.js）向けの `/api/v1` エンドポイント。OpenAPI 3.0 仕様書（[`docs/openapi.yaml`](docs/openapi.yaml)）を MPA 版と LIFF 版の「契約」として運用しています。
-
-**Hotwire スタック** — importmap-rails + Turbo + Stimulus。バンドラー不要の Rails 標準構成です。
-
-**TDAD（Test-Driven Agentic Development）** — AI エージェント（Claude Code）との協働開発で、依存マップ（`.claude/dependencies.md`）を起点にデグレを防ぐ運用をしています。
-
-## Quick Start
-
-### 必要なもの
-
-- Docker Desktop（または Docker Engine + Docker Compose）
-
-### 起動手順
-
-1. リポジトリをクローンする:
-
-   ```bash
-   git clone <repository-url>
-   cd mahjong_score
-   ```
-
-2. コンテナを起動する（初回は gem のインストールが自動で走ります）:
-
-   ```bash
-   docker compose up
-   ```
-
-3. データベースを作成する（初回のみ、別ターミナルで）:
-
-   ```bash
-   docker compose exec web bin/rails db:create db:migrate
-   ```
-
-4. http://localhost:3000 にアクセスする 🎉
-
-## Commands
-
-よく使うコマンドの早見表です。
-
-| やりたいこと | コマンド |
-|---|---|
-| サーバー起動 | `docker compose up` |
-| Rails コンソール | `docker compose exec web bin/rails console` |
-| マイグレーション実行 | `docker compose exec web bin/rails db:migrate` |
-| ルーティング確認 | `docker compose exec web bin/rails routes` |
-| RSpec 実行 | `docker compose run --rm -e RAILS_ENV=test web bash -lc "bundle install && bundle exec rspec"` |
-| E2E テスト（ホスト） | `npx playwright test` ※事前に `docker compose up` でアプリを起動 |
-| E2E テスト（Docker） | `docker compose run --rm playwright` |
-
-<details>
-<summary><b>コンテナ操作</b></summary>
+Docker Desktop（または Docker Engine + Docker Compose）があれば動きます。
 
 ```bash
-# 起動（フォアグラウンド）
-docker compose up
-
-# 起動（バックグラウンド）
-docker compose up -d
-
-# 停止
-docker compose down
-
-# 停止 + ボリューム削除（DBデータも消える）
-docker compose down -v
+git clone <repository-url> && cd mahjong_score
+docker compose up                                        # 初回は gem のインストールが自動で走ります
+docker compose exec web bin/rails db:create db:migrate   # 初回のみ、別ターミナルで
 ```
 
-</details>
+http://localhost:3000 にアクセスする 🎉
 
-<details>
-<summary><b>Rails ジェネレーター</b></summary>
-
-```bash
-# マイグレーション作成
-docker compose exec web bin/rails generate migration AddColumnToTable
-
-# モデル生成
-docker compose exec web bin/rails generate model ModelName field:type
-
-# Stimulus コントローラー生成
-docker compose exec web bin/rails generate stimulus controller_name
-```
-
-</details>
-
-<details>
-<summary><b>その他</b></summary>
-
-```bash
-# コンテナ内でシェルを開く
-docker compose exec web bash
-
-# ログ確認
-docker compose logs -f web
-
-# gem 追加後の反映
-docker compose exec web bundle install
-
-# OpenAPI 仕様書の構文チェック
-npx @redocly/cli lint docs/openapi.yaml
-```
-
-</details>
-
-## Architecture
+## アーキテクチャ
 
 MPA 版 + JSON API + LIFF 版の併存構成です。全体像は [`docs/architecture.md`](docs/architecture.md) を参照してください。
+
+本番環境（AWS）:
+
+- EC2（t2.micro）+ RDS（PostgreSQL 16）
+- CloudFormation でインフラをコード化（[`infra/cloudformation.yml`](infra/cloudformation.yml)）
+- Docker Compose で Rails アプリを起動
 
 ```
 mahjong_score/
@@ -179,50 +88,14 @@ mahjong_score/
 - **Turbo** — ページ遷移の高速化（Turbo Drive）
 - **Stimulus** — HTML 属性ベースの軽量 JS フレームワーク
 
-<details>
-<summary><b>Stimulus コントローラーの使い方</b></summary>
-
-`bin/rails generate stimulus controller_name` で `app/javascript/controllers/` にファイルが生成されます。
-
-```erb
-<!-- ビューで data-controller 属性を指定 -->
-<div data-controller="hello">
-  <!-- connect() 時に "Hello World!" に置き換わる -->
-</div>
-```
-
-```javascript
-// app/javascript/controllers/hello_controller.js
-import { Controller } from "@hotwired/stimulus"
-
-export default class extends Controller {
-  connect() {
-    this.element.textContent = "Hello World!"
-  }
-}
-```
-
-```
-app/javascript/
-├── application.js                 # エントリーポイント（Turbo + Stimulus を読み込み）
-└── controllers/
-    ├── application.js             # Stimulus アプリケーション設定
-    ├── index.js                   # コントローラーの自動読み込み
-    └── hello_controller.js        # サンプルコントローラー
-config/
-└── importmap.rb                   # JS モジュールのピン定義
-```
-
-</details>
-
-## Testing & CI
+## テストと CI
 
 | レイヤー | ツール | 役割 |
 |---|---|---|
 | 単体・リクエスト | RSpec + FactoryBot | サーバー側の品質保証（モデル・コントローラー） |
 | フロントエンド単体 | Vitest + Testing Library | LIFF 版（Next.js）のコンポーネント・API クライアント |
 | E2E | Playwright | ブラウザ側の品質保証（JS 動作・ユーザー操作フロー） |
-| 探索的テスト | Claude in Chrome | ビジュアル確認・仕様の抜け漏れ発見（ベータ） |
+| | 探索的テスト | Claude in Chrome | ビジュアル確認・仕様の抜け漏れ発見（ベータ） |
 
 `main` ブランチへの push / PR で GitHub Actions により **RSpec**・**Vitest**・**Playwright E2E** が自動実行されます。
 
@@ -230,90 +103,67 @@ config/
 
 テストケースは場当たりではなく、テスト技法（JSTQB）で設計しています。技法は「テストケースの導き方」、ツールは「実行のしかた」——この2軸を分けた上で、各技法をこのアプリの実例に対応させています。
 
-| テスト技法 | このアプリでの実例 | 実行レイヤー |
-|---|---|---|
-| 同値分割 | 点数入力の値クラス: 整数 / 整数以外 / 未入力（[`RoundScoreForm`](app/forms/round_score_form.rb) の正規化） | RSpec |
-| 境界値分析 | 点数の上下限 −1000 / +1000（百点棒単位）、合計 1000 ちょうど、持ち点 > 0 | RSpec |
-| デシジョンテーブル | 順位点のゼロサム検証: 持ち点 × 返し点 × 順位点4つの組み合わせ（[`Game#rank_bonuses_must_be_zero_sum`](app/models/game.rb)） | RSpec |
-| 状態遷移 | ユーザーフロー: メンバー入力 → ゲーム開始 → 点数入力 → 結果表示 | Playwright |
-| ステートメントテスト | 順位点計算 [`Game#calculate_ranking_scores`](app/models/game.rb) の各行を通すケース | RSpec ※網羅率は未計測（カバレッジ計測の導入はバックログ） |
-| ブランチテスト | 同点時の分岐: 同順位の引き継ぎ・ボーナス均等分配の有無 | RSpec ※同上 |
-| エラー推測 | 事故りやすい入力: 全員同点・マイナス点・合計不一致・プレイヤー名重複 | RSpec |
-| 探索的テスト | 画面を自由に操作して仕様の抜け漏れ・見た目の崩れを発見 | 人間 + Claude in Chrome（補助） |
-| チェックリストベース | LINE 実機でしか確認できない項目の消し込み（[`docs/manual-test-checklist.md`](docs/manual-test-checklist.md)） | 人間（実機） |
+<table>
+  <thead>
+    <tr><th>分類</th><th>テスト技法</th><th>このアプリでの実例</th><th>実行レイヤー</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="4">ブラックボックステスト技法</td>
+      <td>同値分割法（EP）</td>
+      <td>点数入力の値クラス: 整数 / 整数以外 / 未入力（<a href="app/forms/round_score_form.rb"><code>RoundScoreForm</code></a> の正規化）</td>
+      <td>RSpec</td>
+    </tr>
+    <tr>
+      <td>境界値分析（BVA）</td>
+      <td>点数の上下限 −1000 / +1000（百点棒単位）、合計 1000 ちょうど、持ち点 &gt; 0</td>
+      <td>RSpec</td>
+    </tr>
+    <tr>
+      <td>デシジョンテーブルテスト</td>
+      <td>順位点のゼロサム検証: 持ち点 × 返し点 × 順位点4つの組み合わせ（<a href="app/models/game.rb"><code>Game#rank_bonuses_must_be_zero_sum</code></a>）</td>
+      <td>RSpec</td>
+    </tr>
+    <tr>
+      <td>状態遷移テスト</td>
+      <td>ユーザーフロー: メンバー入力 → ゲーム開始 → 点数入力 → 結果表示</td>
+      <td>Playwright</td>
+    </tr>
+    <tr>
+      <td rowspan="2">ホワイトボックステスト技法</td>
+      <td>ステートメントテスト</td>
+      <td>順位点計算 <a href="app/models/game.rb"><code>Game#calculate_ranking_scores</code></a> の各行を通すケース</td>
+      <td>RSpec ※網羅率は未計測（カバレッジ計測の導入はバックログ）</td>
+    </tr>
+    <tr>
+      <td>ブランチテスト</td>
+      <td>同点時の分岐: 同順位の引き継ぎ・ボーナス均等分配の有無</td>
+      <td>RSpec ※同上</td>
+    </tr>
+    <tr>
+      <td rowspan="3">経験ベースのテスト技法</td>
+      <td>エラー推測</td>
+      <td>事故りやすい入力: 全員同点・マイナス点・合計不一致・プレイヤー名重複</td>
+      <td>RSpec</td>
+    </tr>
+    <tr>
+      <td>探索的テスト</td>
+      <td>画面を自由に操作して仕様の抜け漏れ・見た目の崩れを発見</td>
+      <td>人間 + Claude in Chrome（補助）</td>
+    </tr>
+    <tr>
+      <td>チェックリストベースドテスト</td>
+      <td>LINE 実機でしか確認できない項目の消し込み（<a href="docs/manual-test-checklist.md"><code>docs/manual-test-checklist.md</code></a>）</td>
+      <td>人間（実機）</td>
+    </tr>
+  </tbody>
+</table>
 
 どこに厚くテストを張り、どこを浅くしたかの判断は [`docs/test-strategy.md`](docs/test-strategy.md) に言語化しています。
 
 > **Note**: E2E テストが失敗した場合、スクリーンショットと動画が Artifacts として保存されます。GitHub の Actions タブ → 該当ワークフロー → `playwright-report` から確認できます。
 
-## Production（AWS）
-
-- EC2（t2.micro）+ RDS（PostgreSQL 16）
-- CloudFormation でインフラをコード化（`infra/cloudformation.yml`）
-- Docker Compose で Rails アプリを起動
-
-### デプロイ手順
-
-1. EC2 に SSH 接続する
-2. アプリを更新する（`git pull`）
-3. コンテナを再起動する（`docker-compose up -d`）
-4. 本番環境で動作確認する
-
-<details>
-<summary><b>systemd サービスの設定（初回のみ）</b></summary>
-
-EC2 再起動時にアプリが自動起動するよう設定する:
-
-```bash
-sudo cp infra/mahjong-score.service /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable mahjong-score
-```
-
-※ CloudFormation で新規構築した場合は UserData で自動設定済み
-
-</details>
-
-## Troubleshooting
-
-<details>
-<summary><b><code>localhost:3000</code> にアクセスできない</b></summary>
-
-```bash
-# コンテナが起動しているか確認
-docker compose ps
-
-# ログを確認
-docker compose logs web
-```
-
-</details>
-
-<details>
-<summary><b>DB 接続エラー</b></summary>
-
-```bash
-# DB コンテナが起動しているか確認
-docker compose ps
-
-# DB を再作成（データは消える）
-docker compose exec web bin/rails db:drop db:create db:migrate
-```
-
-</details>
-
-<details>
-<summary><b>gem のインストールエラー</b></summary>
-
-```bash
-# コンテナを再ビルド
-docker compose down
-docker compose up --build
-```
-
-</details>
-
-## Development
+## 開発の進め方
 
 Issue 駆動 + TDD（テスト駆動開発）で進めます。
 
