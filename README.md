@@ -109,28 +109,28 @@ mahjong_score/
   </thead>
   <tbody>
     <tr>
-      <td rowspan="4">ブラックボックス</td>
-      <td>同値分割</td>
+      <td rowspan="4">ブラックボックステスト技法</td>
+      <td>同値分割法（EP）</td>
       <td>点数入力の値クラス: 整数 / 整数以外 / 未入力（<a href="app/forms/round_score_form.rb"><code>RoundScoreForm</code></a> の正規化）</td>
       <td>RSpec</td>
     </tr>
     <tr>
-      <td>境界値分析</td>
+      <td>境界値分析（BVA）</td>
       <td>点数の上下限 −1000 / +1000（百点棒単位）、合計 1000 ちょうど、持ち点 &gt; 0</td>
       <td>RSpec</td>
     </tr>
     <tr>
-      <td>デシジョンテーブル</td>
+      <td>デシジョンテーブルテスト</td>
       <td>順位点のゼロサム検証: 持ち点 × 返し点 × 順位点4つの組み合わせ（<a href="app/models/game.rb"><code>Game#rank_bonuses_must_be_zero_sum</code></a>）</td>
       <td>RSpec</td>
     </tr>
     <tr>
-      <td>状態遷移</td>
+      <td>状態遷移テスト</td>
       <td>ユーザーフロー: メンバー入力 → ゲーム開始 → 点数入力 → 結果表示</td>
       <td>Playwright</td>
     </tr>
     <tr>
-      <td rowspan="2">ホワイトボックス</td>
+      <td rowspan="2">ホワイトボックステスト技法</td>
       <td>ステートメントテスト</td>
       <td>順位点計算 <a href="app/models/game.rb"><code>Game#calculate_ranking_scores</code></a> の各行を通すケース</td>
       <td>RSpec ※網羅率は未計測（カバレッジ計測の導入はバックログ）</td>
@@ -141,7 +141,7 @@ mahjong_score/
       <td>RSpec ※同上</td>
     </tr>
     <tr>
-      <td rowspan="3">経験ベース</td>
+      <td rowspan="3">経験ベースのテスト技法</td>
       <td>エラー推測</td>
       <td>事故りやすい入力: 全員同点・マイナス点・合計不一致・プレイヤー名重複</td>
       <td>RSpec</td>
@@ -152,7 +152,7 @@ mahjong_score/
       <td>人間 + Claude in Chrome（補助）</td>
     </tr>
     <tr>
-      <td>チェックリストベース</td>
+      <td>チェックリストベースドテスト</td>
       <td>LINE 実機でしか確認できない項目の消し込み（<a href="docs/manual-test-checklist.md"><code>docs/manual-test-checklist.md</code></a>）</td>
       <td>人間（実機）</td>
     </tr>
