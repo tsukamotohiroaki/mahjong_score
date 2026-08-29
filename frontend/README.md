@@ -1,6 +1,6 @@
 # frontend — LIFF 版（Next.js）
 
-麻雀スコア管理アプリの LIFF（LINE Front-end Framework）版です。MPA 版（Rails + ERB）を動かしたまま、ストラングラーフィグパターンで段階的にこちらへ移行しています。全体像はルートの [README](../README.md) と [`docs/architecture.md`](../docs/architecture.md) を参照してください。
+麻雀スコア管理アプリの LIFF（LINE Front-end Framework）版です。MPA 版（Rails + ERB）と並ぶ正式なクライアントとして維持するマルチクライアント構成の LIFF 側です（[ADR-0001](../docs/adr/0001-mpa-版を残す.md)）。全体像はルートの [README](../README.md) と [`docs/architecture.md`](../docs/architecture.md) を参照してください。
 
 ## 構成の要点
 
