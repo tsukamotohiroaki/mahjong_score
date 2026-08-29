@@ -4,7 +4,7 @@
   <a href="https://github.com/tsukamotohiroaki/mahjong_score/actions/workflows/ci.yml">
     <img src="https://github.com/tsukamotohiroaki/mahjong_score/actions/workflows/ci.yml/badge.svg" alt="CI" vspace="10">
   </a>
-  <img src="https://img.shields.io/badge/version-v0.2.2-blue" alt="Version" vspace="10">
+  <img src="https://img.shields.io/badge/version-v0.2.3-blue" alt="Version" vspace="10">
   <img src="https://img.shields.io/badge/Ruby-3.3-CC342D?logo=ruby&logoColor=white" alt="Ruby 3.3" vspace="10">
   <img src="https://img.shields.io/badge/Rails-7.1-D30001?logo=rubyonrails&logoColor=white" alt="Rails 7.1" vspace="10">
   <img src="https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white" alt="PostgreSQL 16" vspace="10">
