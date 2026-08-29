@@ -14,8 +14,6 @@
 
 麻雀の半荘結果を記録し、順位点まで自動計算するシンプルなスコア管理アプリ 🀄
 
-MPA（Rails + ERB + Hotwire）で MVP を最短リリースし、LIFF 版（Next.js）を段階的に追加しました。現在は両者を正式なクライアントとして維持するマルチクライアント構成です（[ADR-0001](docs/adr/0001-mpa-版を残す.md)）。
-
 > 面倒で間違えやすい計算作業を自動化して、人が本来やりたいこと（対局を楽しむ・ルールを学ぶ）に集中できるようにする——このアプリが解決する課題は [`docs/value-proposition.md`](docs/value-proposition.md) にまとめています。
 
 ## デモ
@@ -50,7 +48,7 @@ http://localhost:3000 にアクセスする 🎉
 
 ## アーキテクチャ
 
-MPA 版 + JSON API + LIFF 版の併存構成です。全体像は [`docs/architecture.md`](docs/architecture.md) を参照してください。
+MPA 版（Rails + ERB + Hotwire）・JSON API・LIFF 版（Next.js）の併存構成です。MPA で MVP を最短リリースした後に LIFF 版を追加し、現在は両者を正式なクライアントとして維持しています（[ADR-0001](docs/adr/0001-mpa-版を残す.md)）。全体像は [`docs/architecture.md`](docs/architecture.md) を参照してください。
 
 本番環境（AWS）:
 
