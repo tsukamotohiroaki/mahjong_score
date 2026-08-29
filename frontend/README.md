@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# frontend — LIFF 版（Next.js）
 
-## Getting Started
+麻雀スコア管理アプリの LIFF（LINE Front-end Framework）版です。MPA 版（Rails + ERB）を動かしたまま、ストラングラーフィグパターンで段階的にこちらへ移行しています。全体像はルートの [README](../README.md) と [`docs/architecture.md`](../docs/architecture.md) を参照してください。
 
-First, run the development server:
+## 構成の要点
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Next.js（App Router）** がポート **3001** で動きます（3000 は Rails）
+- 画面からの API 呼び出しは `/api/*` を Next.js が Rails（3000）へプロキシします（[`docs/api-proxy.md`](../docs/api-proxy.md)）
+- LINE 内で動かすときは LIFF SDK（`@line/liff`）で初期化します。ブラウザでの日常検証は `localhost:3001` で可能です
+
+```
+app/
+├── page.tsx                    # ゲーム一覧
+├── games/new/                  # メンバー入力（ゲーム作成）
+├── games/[id]/                 # ゲーム詳細（スコア表）
+├── games/[id]/rounds/new/      # 点数入力
+└── lib/
+    ├── api.ts                  # Rails API クライアント
+    └── score-input.ts          # 点数入力ロジック
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 起動手順
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+前提: リポジトリルートで Rails 側が起動していること（`docker compose up`）。
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. LIFF ID を設定する（初回のみ）:
 
-## Learn More
+   ```bash
+   cp .env.local.example .env.local
+   # .env.local の NEXT_PUBLIC_LIFF_ID を設定する
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. 依存をインストールして開発サーバーを起動する:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   ```bash
+   npm install
+   npm run dev
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+3. http://localhost:3001 にアクセスする
 
-## Deploy on Vercel
+## テスト
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Vitest + Testing Library（jsdom）でコンポーネントと API クライアントをテストしています。
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run test        # 一括実行
+npm run test:watch  # ウォッチモード
+```
+
+CI（GitHub Actions の `frontend-test` ジョブ）でも PR ごとに自動実行されます。テスト全体の役割分担は [`docs/test-strategy.md`](../docs/test-strategy.md) を参照してください。
