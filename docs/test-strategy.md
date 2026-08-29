@@ -44,7 +44,8 @@ flowchart LR
 | 手段 | 一覧 |
 |---|---|
 | Playwright | [#175 のコメント](https://github.com/tsukamotohiroaki/mahjong_score/issues/175#issuecomment-5381018205) |
-| Claude in Chrome / 実機 | [#268 のコメント](https://github.com/tsukamotohiroaki/mahjong_score/issues/268#issuecomment-5381024233) |
+| Claude in Chrome | [`.claude/skills/regression-test/SKILL.md`](../.claude/skills/regression-test/SKILL.md)（`/regression-test` で実行する） |
+| 実機（人間 + スマホ） | [`docs/manual-test-checklist.md`](manual-test-checklist.md) |
 
 ### 二重実装が前提にあること
 
