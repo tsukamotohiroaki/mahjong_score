@@ -14,8 +14,6 @@
 
 麻雀の半荘結果を記録し、順位点まで自動計算するシンプルなスコア管理アプリ 🀄
 
-MPA（Rails + ERB + Hotwire）で MVP を最短リリースし、動かしたまま LIFF 版（Next.js）へ段階的に移行しています（ストラングラーフィグパターン）。
-
 > 面倒で間違えやすい計算作業を自動化して、人が本来やりたいこと（対局を楽しむ・ルールを学ぶ）に集中できるようにする——このアプリが解決する課題は [`docs/value-proposition.md`](docs/value-proposition.md) にまとめています。
 
 ## デモ
@@ -50,7 +48,7 @@ http://localhost:3000 にアクセスする 🎉
 
 ## アーキテクチャ
 
-MPA 版 + JSON API + LIFF 版の併存構成です。全体像は [`docs/architecture.md`](docs/architecture.md) を参照してください。
+MPA 版（Rails + ERB + Hotwire）・JSON API・LIFF 版（Next.js）の併存構成です。MPA で MVP を最短リリースした後に LIFF 版を追加し、現在は両者を正式なクライアントとして維持しています（[ADR-0001](docs/adr/0001-mpa-版を残す.md)）。全体像は [`docs/architecture.md`](docs/architecture.md) を参照してください。
 
 本番環境（AWS）:
 
@@ -95,7 +93,7 @@ mahjong_score/
 | 単体・リクエスト | RSpec + FactoryBot | サーバー側の品質保証（モデル・コントローラー） |
 | フロントエンド単体 | Vitest + Testing Library | LIFF 版（Next.js）のコンポーネント・API クライアント |
 | E2E | Playwright | ブラウザ側の品質保証（JS 動作・ユーザー操作フロー） |
-| | 探索的テスト | Claude in Chrome | ビジュアル確認・仕様の抜け漏れ発見（ベータ） |
+| 探索的テスト | Claude in Chrome | ビジュアル確認・仕様の抜け漏れ発見 |
 
 `main` ブランチへの push / PR で GitHub Actions により **RSpec**・**Vitest**・**Playwright E2E** が自動実行されます。
 
