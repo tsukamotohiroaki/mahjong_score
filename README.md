@@ -135,17 +135,61 @@ config/
 
 テストケースは場当たりではなく、テスト技法（JSTQB）で設計しています。技法は「テストケースの導き方」、ツールは「実行のしかた」——この2軸を分けた上で、各技法をこのアプリの実例に対応させています。
 
-| 分類 | テスト技法 | このアプリでの実例 | 実行レイヤー |
-|---|---|---|---|
-| ブラックボックス | 同値分割 | 点数入力の値クラス: 整数 / 整数以外 / 未入力（[`RoundScoreForm`](app/forms/round_score_form.rb) の正規化） | RSpec |
-| | 境界値分析 | 点数の上下限 −1000 / +1000（百点棒単位）、合計 1000 ちょうど、持ち点 > 0 | RSpec |
-| | デシジョンテーブル | 順位点のゼロサム検証: 持ち点 × 返し点 × 順位点4つの組み合わせ（[`Game#rank_bonuses_must_be_zero_sum`](app/models/game.rb)） | RSpec |
-| | 状態遷移 | ユーザーフロー: メンバー入力 → ゲーム開始 → 点数入力 → 結果表示 | Playwright |
-| ホワイトボックス | ステートメントテスト | 順位点計算 [`Game#calculate_ranking_scores`](app/models/game.rb) の各行を通すケース | RSpec ※網羅率は未計測（カバレッジ計測の導入はバックログ） |
-| | ブランチテスト | 同点時の分岐: 同順位の引き継ぎ・ボーナス均等分配の有無 | RSpec ※同上 |
-| 経験ベース | エラー推測 | 事故りやすい入力: 全員同点・マイナス点・合計不一致・プレイヤー名重複 | RSpec |
-| | 探索的テスト | 画面を自由に操作して仕様の抜け漏れ・見た目の崩れを発見 | 人間 + Claude in Chrome（補助） |
-| | チェックリストベース | LINE 実機でしか確認できない項目の消し込み（[`docs/manual-test-checklist.md`](docs/manual-test-checklist.md)） | 人間（実機） |
+<table>
+  <thead>
+    <tr><th>分類</th><th>テスト技法</th><th>このアプリでの実例</th><th>実行レイヤー</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="4">ブラックボックス</td>
+      <td>同値分割</td>
+      <td>点数入力の値クラス: 整数 / 整数以外 / 未入力（<a href="app/forms/round_score_form.rb"><code>RoundScoreForm</code></a> の正規化）</td>
+      <td>RSpec</td>
+    </tr>
+    <tr>
+      <td>境界値分析</td>
+      <td>点数の上下限 −1000 / +1000（百点棒単位）、合計 1000 ちょうど、持ち点 &gt; 0</td>
+      <td>RSpec</td>
+    </tr>
+    <tr>
+      <td>デシジョンテーブル</td>
+      <td>順位点のゼロサム検証: 持ち点 × 返し点 × 順位点4つの組み合わせ（<a href="app/models/game.rb"><code>Game#rank_bonuses_must_be_zero_sum</code></a>）</td>
+      <td>RSpec</td>
+    </tr>
+    <tr>
+      <td>状態遷移</td>
+      <td>ユーザーフロー: メンバー入力 → ゲーム開始 → 点数入力 → 結果表示</td>
+      <td>Playwright</td>
+    </tr>
+    <tr>
+      <td rowspan="2">ホワイトボックス</td>
+      <td>ステートメントテスト</td>
+      <td>順位点計算 <a href="app/models/game.rb"><code>Game#calculate_ranking_scores</code></a> の各行を通すケース</td>
+      <td>RSpec ※網羅率は未計測（カバレッジ計測の導入はバックログ）</td>
+    </tr>
+    <tr>
+      <td>ブランチテスト</td>
+      <td>同点時の分岐: 同順位の引き継ぎ・ボーナス均等分配の有無</td>
+      <td>RSpec ※同上</td>
+    </tr>
+    <tr>
+      <td rowspan="3">経験ベース</td>
+      <td>エラー推測</td>
+      <td>事故りやすい入力: 全員同点・マイナス点・合計不一致・プレイヤー名重複</td>
+      <td>RSpec</td>
+    </tr>
+    <tr>
+      <td>探索的テスト</td>
+      <td>画面を自由に操作して仕様の抜け漏れ・見た目の崩れを発見</td>
+      <td>人間 + Claude in Chrome（補助）</td>
+    </tr>
+    <tr>
+      <td>チェックリストベース</td>
+      <td>LINE 実機でしか確認できない項目の消し込み（<a href="docs/manual-test-checklist.md"><code>docs/manual-test-checklist.md</code></a>）</td>
+      <td>人間（実機）</td>
+    </tr>
+  </tbody>
+</table>
 
 どこに厚くテストを張り、どこを浅くしたかの判断は [`docs/test-strategy.md`](docs/test-strategy.md) に言語化しています。
 
