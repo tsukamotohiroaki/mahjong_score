@@ -73,7 +73,7 @@ export default function GameDetailPage() {
 
     if (navigator.share) {
       try {
-        await navigator.share({ title: "麻雀スコア", url });
+        await navigator.share({ title: "楽雀", url });
       } catch {
         // 共有シートのキャンセルはエラー扱いしない
       }

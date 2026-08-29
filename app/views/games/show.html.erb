@@ -63,7 +63,7 @@
     btn.addEventListener('click', function() {
       var url = btn.dataset.shareUrl;
       if (navigator.share) {
-        navigator.share({ title: '麻雀スコア', url: url });
+        navigator.share({ title: '楽雀', url: url });
       } else {
         var textarea = document.createElement('textarea');
         textarea.value = url;

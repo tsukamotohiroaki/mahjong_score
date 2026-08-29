@@ -190,7 +190,7 @@ describe("GameDetailPage (URLを共有する)", () => {
 
     await vi.waitFor(() => {
       expect(share).toHaveBeenCalledWith({
-        title: "麻雀スコア",
+        title: "楽雀",
         url: shareUrl,
       });
     });
