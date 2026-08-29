@@ -4,8 +4,22 @@
     {
       "name": "Rails (Docker Compose)",
       "runtimeExecutable": "docker",
-      "runtimeArgs": ["compose", "up"],
+      "runtimeArgs": [
+        "compose",
+        "up"
+      ],
       "port": 3000
+    },
+    {
+      "name": "LIFF (Next.js dev)",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--prefix",
+        "frontend"
+      ],
+      "port": 3001
     }
   ]
 }
