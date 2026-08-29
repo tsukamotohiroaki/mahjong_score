@@ -88,42 +88,6 @@ mahjong_score/
 - **Turbo** — ページ遷移の高速化（Turbo Drive）
 - **Stimulus** — HTML 属性ベースの軽量 JS フレームワーク
 
-<details>
-<summary><b>Stimulus コントローラーの使い方</b></summary>
-
-`bin/rails generate stimulus controller_name` で `app/javascript/controllers/` にファイルが生成されます。
-
-```erb
-<!-- ビューで data-controller 属性を指定 -->
-<div data-controller="hello">
-  <!-- connect() 時に "Hello World!" に置き換わる -->
-</div>
-```
-
-```javascript
-// app/javascript/controllers/hello_controller.js
-import { Controller } from "@hotwired/stimulus"
-
-export default class extends Controller {
-  connect() {
-    this.element.textContent = "Hello World!"
-  }
-}
-```
-
-```
-app/javascript/
-├── application.js                 # エントリーポイント（Turbo + Stimulus を読み込み）
-└── controllers/
-    ├── application.js             # Stimulus アプリケーション設定
-    ├── index.js                   # コントローラーの自動読み込み
-    └── hello_controller.js        # サンプルコントローラー
-config/
-└── importmap.rb                   # JS モジュールのピン定義
-```
-
-</details>
-
 ## テストと CI
 
 | レイヤー | ツール | 役割 |
