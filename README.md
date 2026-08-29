@@ -4,7 +4,7 @@
   <a href="https://github.com/tsukamotohiroaki/mahjong_score/actions/workflows/ci.yml">
     <img src="https://github.com/tsukamotohiroaki/mahjong_score/actions/workflows/ci.yml/badge.svg" alt="CI" vspace="10">
   </a>
-  <img src="https://img.shields.io/badge/version-v0.2.0-blue" alt="Version" vspace="10">
+  <img src="https://img.shields.io/badge/version-v0.2.2-blue" alt="Version" vspace="10">
   <img src="https://img.shields.io/badge/Ruby-3.3-CC342D?logo=ruby&logoColor=white" alt="Ruby 3.3" vspace="10">
   <img src="https://img.shields.io/badge/Rails-7.1-D30001?logo=rubyonrails&logoColor=white" alt="Rails 7.1" vspace="10">
   <img src="https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white" alt="PostgreSQL 16" vspace="10">
@@ -17,6 +17,8 @@
 MPA（Rails + ERB + Hotwire）で MVP を最短リリースし、動かしたまま LIFF 版（Next.js）へ段階的に移行しています（ストラングラーフィグパターン）。
 
 > 面倒で間違えやすい計算作業を自動化して、人が本来やりたいこと（対局を楽しむ・ルールを学ぶ）に集中できるようにする——このアプリが解決する課題は [`docs/value-proposition.md`](docs/value-proposition.md) にまとめています。
+
+<!-- #146: ここにデモ動画（GIF）を掲載する -->
 
 ## Try it on LINE
 
@@ -214,10 +216,29 @@ config/
 | レイヤー | ツール | 役割 |
 |---|---|---|
 | 単体・リクエスト | RSpec + FactoryBot | サーバー側の品質保証（モデル・コントローラー） |
+| フロントエンド単体 | Vitest + Testing Library | LIFF 版（Next.js）のコンポーネント・API クライアント |
 | E2E | Playwright | ブラウザ側の品質保証（JS 動作・ユーザー操作フロー） |
 | 探索的テスト | Claude in Chrome | ビジュアル確認・仕様の抜け漏れ発見（ベータ） |
 
-`main` ブランチへの push / PR で GitHub Actions により **RSpec** と **Playwright E2E** が自動実行されます。
+`main` ブランチへの push / PR で GitHub Actions により **RSpec**・**Vitest**・**Playwright E2E** が自動実行されます。
+
+### テスト設計（テスト技法との対応）
+
+テストケースは場当たりではなく、テスト技法（JSTQB）で設計しています。技法は「テストケースの導き方」、ツールは「実行のしかた」——この2軸を分けた上で、各技法をこのアプリの実例に対応させています。
+
+| テスト技法 | このアプリでの実例 | 実行レイヤー |
+|---|---|---|
+| 同値分割 | 点数入力の値クラス: 整数 / 整数以外 / 未入力（[`RoundScoreForm`](app/forms/round_score_form.rb) の正規化） | RSpec |
+| 境界値分析 | 点数の上下限 −1000 / +1000（百点棒単位）、合計 1000 ちょうど、持ち点 > 0 | RSpec |
+| デシジョンテーブル | 順位点のゼロサム検証: 持ち点 × 返し点 × 順位点4つの組み合わせ（[`Game#rank_bonuses_must_be_zero_sum`](app/models/game.rb)） | RSpec |
+| 状態遷移 | ユーザーフロー: メンバー入力 → ゲーム開始 → 点数入力 → 結果表示 | Playwright |
+| ステートメントテスト | 順位点計算 [`Game#calculate_ranking_scores`](app/models/game.rb) の各行を通すケース | RSpec ※網羅率は未計測（カバレッジ計測の導入はバックログ） |
+| ブランチテスト | 同点時の分岐: 同順位の引き継ぎ・ボーナス均等分配の有無 | RSpec ※同上 |
+| エラー推測 | 事故りやすい入力: 全員同点・マイナス点・合計不一致・プレイヤー名重複 | RSpec |
+| 探索的テスト | 画面を自由に操作して仕様の抜け漏れ・見た目の崩れを発見 | 人間 + Claude in Chrome（補助） |
+| チェックリストベース | LINE 実機でしか確認できない項目の消し込み（[`docs/manual-test-checklist.md`](docs/manual-test-checklist.md)） | 人間（実機） |
+
+どこに厚くテストを張り、どこを浅くしたかの判断は [`docs/test-strategy.md`](docs/test-strategy.md) に言語化しています。
 
 > **Note**: E2E テストが失敗した場合、スクリーンショットと動画が Artifacts として保存されます。GitHub の Actions タブ → 該当ワークフロー → `playwright-report` から確認できます。
 
