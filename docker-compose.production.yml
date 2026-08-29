@@ -1,11 +1,17 @@
 services:
   web:
+    # クラッシュ（OOM kill 等）時に自動復帰させる。手動 stop では復帰しない（メンテの邪魔をしないため）
+    restart: unless-stopped
     logging:
       driver: awslogs
       options:
         awslogs-region: ap-northeast-1
         awslogs-group: /mahjong-score/rails/production
         awslogs-create-group: "true"
+
+  # db はベース側（docker-compose.yml）に定義がある。本番でのみ自動復帰させたいため差分だけをここに書く
+  db:
+    restart: unless-stopped
 
   # LIFF版（Next.js）。本番のみ常時稼働させるため production 側に定義する（#203）
   frontend:
