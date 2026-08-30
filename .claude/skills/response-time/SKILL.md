@@ -34,6 +34,11 @@ allowed-tools: Bash, Read, mcp__claude-in-chrome__tabs_context_mcp, mcp__claude-
 
 `$ARGUMENTS` の先頭1語だけを見る。空なら `local`。
 
+```
+/response-time              → 開発環境（既定）
+/response-time production   → 本番環境（EC2）
+```
+
 | 引数 | MPA 版 | LIFF 版 |
 |---|---|---|
 | `local`（既定） | `http://localhost:3000` | `http://localhost:3001` |
@@ -43,6 +48,8 @@ allowed-tools: Bash, Read, mcp__claude-in-chrome__tabs_context_mcp, mcp__claude-
 > 実行前に「本番に書き込む」と明示してから始め、作成したゲームの ID を必ず報告に残す。
 >
 > EC2 は使わないとき停止する運用のため、疎通しないことがある。**勝手に起動せず**、疎通不可として報告して終わる。
+>
+> 本番ドメインは Chrome 拡張のサイト許可が要る。未許可だと `Navigation to this domain is not allowed` で止まるので、その旨を報告してユーザーに許可を依頼する。
 
 ## 手順
 

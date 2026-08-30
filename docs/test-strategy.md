@@ -48,7 +48,7 @@ flowchart LR
 | 手段 | 一覧 |
 |---|---|
 | Playwright | [#175 のコメント](https://github.com/tsukamotohiroaki/mahjong_score/issues/175#issuecomment-5381018205) |
-| Claude in Chrome | [`.claude/skills/response-time/SKILL.md`](../.claude/skills/response-time/SKILL.md)（`/response-time` で実行する） |
+| Claude in Chrome | [`.claude/skills/response-time/SKILL.md`](../.claude/skills/response-time/SKILL.md)（`/response-time` は開発環境、`/response-time production` は本番環境） |
 | 実機（人間 + スマホ） | [`docs/manual-test-checklist.md`](manual-test-checklist.md) |
 
 ### 二重実装が前提にあること
