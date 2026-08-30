@@ -32,8 +32,6 @@ LINE 公式アカウントを友だち追加すると、リッチメニューか
 2. トーク画面下部のリッチメニューから楽雀を開く
 3. LIFF 版アプリが起動し、そのままゲームを作成できる
 
-> **Note**: デモ環境（AWS EC2）はコスト節約のため停止していることがあります。動かない場合はイシューでお知らせください。
-
 ## セットアップ
 
 Docker Desktop（または Docker Engine + Docker Compose）があれば動きます。
@@ -48,7 +46,11 @@ http://localhost:3000 にアクセスする 🎉
 
 ## アーキテクチャ
 
-MPA 版（Rails + ERB + Hotwire）・JSON API・LIFF 版（Next.js）の併存構成です。MPA で MVP を最短リリースした後に LIFF 版を追加し、現在は両者を正式なクライアントとして維持しています（[ADR-0001](docs/adr/0001-mpa-版を残す.md)）。全体像は [`docs/architecture.md`](docs/architecture.md) を参照してください。
+**MPA 版（Rails + ERB + Hotwire）・JSON API・LIFF 版（Next.js）の併存構成**です。
+
+MPA 版で MVP を最短リリースし、あとから LIFF 版を追加しました。現在は両者を正式なクライアントとして維持しています（[ADR-0001](docs/adr/0001-mpa-版を残す.md)）。
+
+全体像は [`docs/architecture.md`](docs/architecture.md) を参照してください。
 
 本番環境（AWS）:
 
@@ -58,6 +60,7 @@ MPA 版（Rails + ERB + Hotwire）・JSON API・LIFF 版（Next.js）の併存�
 
 ```
 mahjong_score/
+├── .claude/                    # Claude Code のスキル・依存マップ
 ├── app/
 │   ├── controllers/            # MPA 版コントローラー + api/v1（JSON API）
 │   ├── javascript/             # Stimulus コントローラー等
@@ -80,12 +83,6 @@ mahjong_score/
 └── Gemfile                     # gem 定義
 ```
 
-### Hotwire（Turbo + Stimulus）
-
-- **importmap-rails** — JS モジュールの配信（バンドラー不要）
-- **Turbo** — ページ遷移の高速化（Turbo Drive）
-- **Stimulus** — HTML 属性ベースの軽量 JS フレームワーク
-
 ## テストと CI
 
 | レイヤー | ツール | 役割 |
@@ -93,13 +90,11 @@ mahjong_score/
 | 単体・リクエスト | RSpec + FactoryBot | サーバー側の品質保証（モデル・コントローラー） |
 | フロントエンド単体 | Vitest + Testing Library | LIFF 版（Next.js）のコンポーネント・API クライアント |
 | E2E | Playwright | ブラウザ側の品質保証（JS 動作・ユーザー操作フロー） |
-| 探索的テスト | Claude in Chrome | ビジュアル確認・仕様の抜け漏れ発見 |
+| 非機能テスト（性能） | Claude in Chrome | 操作してから画面が表示されるまでの応答速度（[`/response-time`](.claude/skills/response-time/SKILL.md)） |
 
 `main` ブランチへの push / PR で GitHub Actions により **RSpec**・**Vitest**・**Playwright E2E** が自動実行されます。
 
 ### テスト設計（テスト技法との対応）
-
-テストケースは場当たりではなく、テスト技法（JSTQB）で設計しています。技法は「テストケースの導き方」、ツールは「実行のしかた」——この2軸を分けた上で、各技法をこのアプリの実例に対応させています。
 
 <table>
   <thead>
@@ -110,44 +105,44 @@ mahjong_score/
       <td rowspan="4">ブラックボックステスト技法</td>
       <td>同値分割法（EP）</td>
       <td>点数入力の値クラス: 整数 / 整数以外 / 未入力（<a href="app/forms/round_score_form.rb"><code>RoundScoreForm</code></a> の正規化）</td>
-      <td>RSpec</td>
+      <td>RSpec<br><a href="spec/forms/round_score_form_spec.rb"><code>round_score_form_spec.rb</code></a></td>
     </tr>
     <tr>
       <td>境界値分析（BVA）</td>
       <td>点数の上下限 −1000 / +1000（百点棒単位）、合計 1000 ちょうど、持ち点 &gt; 0</td>
-      <td>RSpec</td>
+      <td>RSpec<br><a href="spec/forms/round_score_form_spec.rb"><code>round_score_form_spec.rb</code></a><br><a href="spec/models/game_spec.rb"><code>game_spec.rb</code></a></td>
     </tr>
     <tr>
       <td>デシジョンテーブルテスト</td>
       <td>順位点のゼロサム検証: 持ち点 × 返し点 × 順位点4つの組み合わせ（<a href="app/models/game.rb"><code>Game#rank_bonuses_must_be_zero_sum</code></a>）</td>
-      <td>RSpec</td>
+      <td>RSpec<br><a href="spec/models/game_spec.rb"><code>game_spec.rb</code></a></td>
     </tr>
     <tr>
       <td>状態遷移テスト</td>
       <td>ユーザーフロー: メンバー入力 → ゲーム開始 → 点数入力 → 結果表示</td>
-      <td>Playwright</td>
+      <td>Playwright<br><a href="e2e/new_game.spec.ts"><code>new_game.spec.ts</code></a><br><a href="e2e/score_input.spec.ts"><code>score_input.spec.ts</code></a></td>
     </tr>
     <tr>
       <td rowspan="2">ホワイトボックステスト技法</td>
       <td>ステートメントテスト</td>
       <td>順位点計算 <a href="app/models/game.rb"><code>Game#calculate_ranking_scores</code></a> の各行を通すケース</td>
-      <td>RSpec ※網羅率は未計測（カバレッジ計測の導入はバックログ）</td>
+      <td>RSpec<br><a href="spec/models/game_spec.rb"><code>game_spec.rb</code></a></td>
     </tr>
     <tr>
       <td>ブランチテスト</td>
       <td>同点時の分岐: 同順位の引き継ぎ・ボーナス均等分配の有無</td>
-      <td>RSpec ※同上</td>
+      <td>RSpec<br><a href="spec/models/game_spec.rb"><code>game_spec.rb</code></a></td>
     </tr>
     <tr>
       <td rowspan="3">経験ベースのテスト技法</td>
       <td>エラー推測</td>
       <td>事故りやすい入力: 全員同点・マイナス点・合計不一致・プレイヤー名重複</td>
-      <td>RSpec</td>
+      <td>RSpec<br><a href="spec/models/game_spec.rb"><code>game_spec.rb</code></a><br><a href="spec/requests/rounds_spec.rb"><code>rounds_spec.rb</code></a></td>
     </tr>
     <tr>
       <td>探索的テスト</td>
       <td>画面を自由に操作して仕様の抜け漏れ・見た目の崩れを発見</td>
-      <td>人間 + Claude in Chrome（補助）</td>
+      <td>人間（実機）</td>
     </tr>
     <tr>
       <td>チェックリストベースドテスト</td>
@@ -157,26 +152,17 @@ mahjong_score/
   </tbody>
 </table>
 
-どこに厚くテストを張り、どこを浅くしたかの判断は [`docs/test-strategy.md`](docs/test-strategy.md) に言語化しています。
+> 上表はサーバー側が中心です。LIFF 版は同じ技法を Vitest で検証しています（`frontend/app/**/*.test.tsx`）。
 
-> **Note**: E2E テストが失敗した場合、スクリーンショットと動画が Artifacts として保存されます。GitHub の Actions タブ → 該当ワークフロー → `playwright-report` から確認できます。
+どこに厚くテストを張り、どこを浅くしたかの判断は [`docs/test-strategy.md`](docs/test-strategy.md) に言語化しています。
 
 ## 開発の進め方
 
-Issue 駆動 + TDD（テスト駆動開発）で進めます。
+**Issue 駆動 + TDD（テスト駆動開発）。** イシューを起点にブランチを切り、テストを先に書いてから実装します（Red → Green → Refactor）。
 
-1. イシューを作成する
-2. ブランチを切る（`feature/` `fix/` `chore/`）
-3. テストを書く（TDD: Red → Green → Refactor）
-4. 実装する
-5. 動作確認する
-6. PR を作成する（ベースブランチは `main`）
-7. マージする
-8. イシューを Close する
+コード変更の前には [`.claude/dependencies.md`](.claude/dependencies.md)（依存マップ）で影響を受けるテストを特定してから着手します（TDAD: Test-Driven Agentic Development）。どのコードがどのテストに守られているかを事前に引けるので、AI に実装させても壊した箇所を取りこぼしません。
 
-コード変更前に `.claude/dependencies.md` を確認し、影響を受けるテストを把握してから作業します（TDAD）。「気をつける」ではなく「気をつけなくても壊れない仕組み」で品質を守ります。
-
-> **Note**: `chore/initial-setup` ブランチは Rails + Docker + PostgreSQL の初期構成保存用です（以後更新しない）。
+「気をつける」ではなく「気をつけなくても壊れない仕組み」で品質を守る、という方針です。
 
 ---
 
