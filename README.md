@@ -89,7 +89,7 @@ mahjong_score/
 | 単体・リクエスト | RSpec + FactoryBot | サーバー側の品質保証（モデル・コントローラー） |
 | フロントエンド単体 | Vitest + Testing Library | LIFF 版（Next.js）のコンポーネント・API クライアント |
 | E2E | Playwright | ブラウザ側の品質保証（JS 動作・ユーザー操作フロー） |
-| 探索的テスト | Claude in Chrome | Chrome で確認できる範囲（見た目・API 通信・MPA と LIFF の一貫性・コンソールエラー） |
+| 非機能テスト（性能） | Claude in Chrome | 操作してから画面が表示されるまでの応答速度（[`/response-time`](.claude/skills/response-time/SKILL.md)） |
 
 `main` ブランチへの push / PR で GitHub Actions により **RSpec**・**Vitest**・**Playwright E2E** が自動実行されます。
 
@@ -141,7 +141,7 @@ mahjong_score/
     <tr>
       <td>探索的テスト</td>
       <td>画面を自由に操作して仕様の抜け漏れ・見た目の崩れを発見</td>
-      <td>人間（実機）<br><a href=".claude/skills/regression-test/SKILL.md">Claude in Chrome（補助）</a></td>
+      <td>人間（実機）</td>
     </tr>
     <tr>
       <td>チェックリストベースドテスト</td>
