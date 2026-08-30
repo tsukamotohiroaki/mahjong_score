@@ -34,13 +34,13 @@ flowchart LR
 | **RSpec**（`spec/`） | サーバー側の計算・バリデーション・レスポンス |
 | **Vitest**（`frontend/app/**/*.test.*`） | LIFF 版の React コンポーネント・`lib/api.ts`・`lib/score-input.ts` |
 | **Playwright**（`e2e/`） | 本物のブラウザでの機能挙動。MPA 版と LIFF 版の**両方に同じ spec を流す** |
-| **Claude in Chrome** | 見た目・API 通信の実際・MPA と LIFF の一貫性・コンソールエラー |
+| **Claude in Chrome** | 操作してから画面が表示されるまでの応答速度 |
 | **実機（人間 + スマホ）** | LINE アプリの中でしか起こらないこと |
 
 ### 境界の引き方
 
 - **Vitest と Playwright**: Vitest は jsdom 上で動き API もモックするため、**実際の HTTP 通信は一度も発生しない**。「関数は正しく呼ばれたが通信は届いていない」を検出できるのは Playwright だけ
-- **Playwright と Claude in Chrome**: Playwright は**書いた項目しか見ない**。ボタンが画面外にはみ出していても、アサーションが無ければ通過する。画面全体を見て「おかしい」を報告するのが Claude in Chrome
+- **Playwright と Claude in Chrome**: Playwright は**動くかどうかしか見ない**。同じ操作が3倍遅くなっても、アサーションが無ければ通過する。押してから画面が出るまでの時間を実測するのが Claude in Chrome
 - **Claude in Chrome と実機**: Claude in Chrome はデスクトップの Chrome を操作するため、LINE アプリ内の WebView には到達できない。共有シート・テンキー・LIFF の起動導線は実機でしか確認できない
 
 各手段の具体的な確認項目は次を参照する。
@@ -48,7 +48,7 @@ flowchart LR
 | 手段 | 一覧 |
 |---|---|
 | Playwright | [#175 のコメント](https://github.com/tsukamotohiroaki/mahjong_score/issues/175#issuecomment-5381018205) |
-| Claude in Chrome | [`.claude/skills/regression-test/SKILL.md`](../.claude/skills/regression-test/SKILL.md)（`/regression-test` で実行する） |
+| Claude in Chrome | [`.claude/skills/response-time/SKILL.md`](../.claude/skills/response-time/SKILL.md)（`/response-time` は開発環境、`/response-time production` は本番環境） |
 | 実機（人間 + スマホ） | [`docs/manual-test-checklist.md`](manual-test-checklist.md) |
 
 ### 二重実装が前提にあること
@@ -123,5 +123,5 @@ JSTQB（Japan Software Testing Qualifications Board）が定義するテスト�
 | 全数テストは不可能 | だからリスクベースで厚みを配分する。周辺は浅くてよい |
 | 欠陥の偏在 | 欠陥は急所（計算・入力・不変条件）に集中すると予測し、急所マップを作った |
 | 早期テストで時間とコストを節約 | TDD でテストを先に書く（シフトレフト）。実装後に見つけるより手戻りが小さい |
-| 殺虫剤のパラドックス | 同じ自動テストの繰り返しでは新しい欠陥は見つからない。探索的テスト（Claude in Chrome）を併用する |
+| 殺虫剤のパラドックス | 同じ自動テストの繰り返しでは新しい欠陥は見つからない。人手による探索的テストを併用する |
 | 「バグゼロ」の落とし穴 | テストが全部通ることと価値があることは別。E2E はユーザー操作フローの単位で書く |
