@@ -34,7 +34,8 @@
 - Issueは日本語 + `.github/ISSUE_TEMPLATE/task.md` に従う。「背景・目的」は3行以内、他の項目は1項目1行で書く
 - TDDで開発する: テストを先に書き、失敗を確認してから実装する。Red → Green → Refactor を守り、リファクタリングフェーズを省略しない
 - コード変更前に `.claude/dependencies.md` で影響を受けるテストを把握する
-- 調査・デバッグの初動は `docs/debugging-guide.md`（症状起点のログ逆引き表）を参照する
+- 調査・デバッグの初動は `docs/debugging-guide.md`（症状 → 原因の逆引き）を参照する
+- 起動・停止・テスト実行のコマンドは `docs/commands.md` が正
 
 ## テスト戦略
 
