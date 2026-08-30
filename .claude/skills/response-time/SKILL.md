@@ -1,20 +1,22 @@
 ---
 name: response-time
-description: ボタンを押してからスコア一覧が表示されるまでの時間を Chrome で実測する。「速度を測って」「応答速度を確認して」「遅くなっていないか見て」と言われたときに使う。ローカル（既定）と本番（EC2）を引数で切り替える。機能の正しさは見ない（Playwright・RSpec が担当）。
+description: 非機能テスト（性能）。ボタンを押してからスコア一覧が表示されるまでの時間を Chrome で実測する。「速度を測って」「応答速度を確認して」「遅くなっていないか見て」と言われたときに使う。ローカル（既定）と本番（EC2）を引数で切り替える。機能の正しさは見ない（機能テスト = Playwright・RSpec が担当）。
 argument-hint: "[local|production] — 既定は local"
 allowed-tools: Bash, Read, mcp__claude-in-chrome__tabs_context_mcp, mcp__claude-in-chrome__tabs_create_mcp, mcp__claude-in-chrome__tabs_close_mcp, mcp__claude-in-chrome__navigate, mcp__claude-in-chrome__computer, mcp__claude-in-chrome__read_page, mcp__claude-in-chrome__form_input, mcp__claude-in-chrome__javascript_tool, mcp__claude-in-chrome__browser_batch
 ---
 
 # 応答速度の計測
 
-操作してから次の画面が出るまでの時間を実測する。**自動テストが誰も見ていない「体感の速さ」だけを見る。**
+操作してから次の画面が出るまでの時間を実測する。**非機能テストのうち性能（応答速度）だけを見る。**
+
+機能が動くかは**機能テスト**（Playwright・RSpec）が守る。ここは「動くけれど遅い」を拾う担当。
 
 ## 分かること / 分からないこと
 
 **分かる**: ボタンを押してからスコア一覧が表示されるまでの実測値。1秒の壁を越えていないか。
 
 **分からない**（他の手段が担当）:
-- 機能が正しく動くか → Playwright（`e2e/`）・RSpec（`spec/`）
+- 機能が正しく動くか → **機能テスト**（Playwright `e2e/`・RSpec `spec/`）
 - 負荷がかかったときの性能 → 負荷試験。これは1人で1回操作しただけの値
 - 見た目の崩れ → 今回のスコープ外
 
