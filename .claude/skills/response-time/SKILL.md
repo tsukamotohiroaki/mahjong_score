@@ -58,8 +58,8 @@ allowed-tools: Bash, Read, mcp__claude-in-chrome__tabs_context_mcp, mcp__claude-
    curl -s -o /dev/null -w "%{http_code}\n" --max-time 10 <MPA>/games/new
    ```
 2. **初回**: 各シナリオの1回目を「初回」として**別枠で記録する**（捨てない）
-3. 続けて**5回**実行し、こちらを**定常値**として最小〜最大と中央値を記録する
-4. `measurements.md` に追記する
+3. 続けて**5回**実行し、こちらを**定常値**として最小〜最大と中央値を出す
+4. 結果を報告する。**`measurements.md` への記録は毎回やらない** — 1秒を超えた回が出たときと、頼まれたときだけ
 
 ## 計測のやり方
 
@@ -109,6 +109,8 @@ const done = await Promise.race([
 | 1 ゲーム開始 | MPA / LIFF | ○○ms | ○○ / ○○ / ○○ / ○○ / ○○ | ○○ms | ○○ms |
 
 あわせて、環境（`local` / `production`）と作成したゲームの ID を書く。
+
+`measurements.md` は過去の実測を置く場所。**毎回追記しない**（数値はぶれるので履歴を比較しても意味がない）。1秒を超えた回が出たときと、頼まれたときだけ残す。
 
 ## 制約
 
