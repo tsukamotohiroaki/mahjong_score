@@ -152,6 +152,8 @@ mahjong_score/
   </tbody>
 </table>
 
+> 上表はサーバー側が中心です。LIFF 版は同じ技法を Vitest で検証しています（`frontend/app/**/*.test.tsx`）。
+
 どこに厚くテストを張り、どこを浅くしたかの判断は [`docs/test-strategy.md`](docs/test-strategy.md) に言語化しています。
 
 ## 開発の進め方
