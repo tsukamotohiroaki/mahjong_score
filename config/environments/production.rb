@@ -44,9 +44,10 @@ Rails.application.configure do
   # config.action_cable.url = "wss://example.com/cable"
   # config.action_cable.allowed_request_origins = [ "http://example.com", /http:\/\/example.*/ ]
 
-  # Assume all access to the app is happening through a SSL-terminating reverse proxy.
-  # Can be used together with config.force_ssl for Strict-Transport-Security and secure cookies.
-  # config.assume_ssl = true
+  # CloudFront が HTTPS を終端し EC2 へは HTTP で渡すため、これが無いと Rails が自身を
+  # HTTP と認識する。ブラウザが送る Origin(https) と base_url(http) が食い違い、
+  # MPA 版のフォーム送信が CSRF 検証で全て 422 になる（#319）。
+  config.assume_ssl = true
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
   # config.force_ssl = true

@@ -7,7 +7,7 @@
 - **対象**: 本番（CloudFront）
 - **やる人**: 人間（スマホ実機）。Claude は実行できない
 
-Chrome で確認できる範囲（見た目・API 通信・MPA と LIFF の一貫性・コンソールエラー）は [`.claude/skills/regression-test/SKILL.md`](../.claude/skills/regression-test/SKILL.md) が担当する。**重複して確認しない。**
+Chrome で確認できる範囲（操作してから画面が表示されるまでの応答速度）は [`.claude/skills/response-time/SKILL.md`](../.claude/skills/response-time/SKILL.md) が担当する。**重複して確認しない。**
 
 ## この確認でしか分からないこと
 
@@ -186,7 +186,7 @@ puts "GAME_ID=#{g.id}"
 
 | 除外するもの | 守っている手段 |
 |---|---|
-| 見た目・API 通信・MPA と LIFF の一貫性・コンソールエラー | [`.claude/skills/regression-test/SKILL.md`](../.claude/skills/regression-test/SKILL.md) |
+| 操作してから画面が表示されるまでの応答速度 | [`.claude/skills/response-time/SKILL.md`](../.claude/skills/response-time/SKILL.md) |
 | 計算の正しさ・保存・バリデーション | `spec/` |
 | 基本フロー・送信ボタンの活性条件・自動補完 | `e2e/` |
 | 共有ボタンの分岐ロジック | `frontend/app/games/[id]/page.test.tsx` |
