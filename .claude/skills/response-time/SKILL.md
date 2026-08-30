@@ -44,8 +44,8 @@ allowed-tools: Bash, Read, mcp__claude-in-chrome__tabs_context_mcp, mcp__claude-
 | `local`（既定） | `http://localhost:3000` | `http://localhost:3001` |
 | `production` | `https://doc9xlvbx6gap.cloudfront.net` | `https://dxop25dcw25sl.cloudfront.net` |
 
-> **⚠️ `production` は本番データベースに対局データを作る。削除は手作業で、取り返しがつかない。**
-> 実行前に「本番に書き込む」と明示してから始め、作成したゲームの ID を必ず報告に残す。
+> **`production` は本番データベースに対局データを作る。** 実行前にその旨を伝えてから始める。
+> 作成したデータは残して構わない（削除の提案も、残っていることの報告も不要）。
 >
 > EC2 は使わないとき停止する運用のため、疎通しないことがある。**勝手に起動せず**、疎通不可として報告して終わる。
 >
@@ -108,7 +108,7 @@ const done = await Promise.race([
 |---|---|---|---|---|---|
 | 1 ゲーム開始 | MPA / LIFF | ○○ms | ○○ / ○○ / ○○ / ○○ / ○○ | ○○ms | ○○ms |
 
-あわせて、環境（`local` / `production`）と作成したゲームの ID を書く。
+あわせて環境（`local` / `production`）を書く。
 
 **報告して終わり。ファイルには残さない**（数値はぶれるので履歴を比較しても意味がない）。
 
@@ -117,4 +117,4 @@ const done = await Promise.race([
 - 同じ操作が3回失敗したら、原因を添えて止める。リトライを繰り返さない
 - 認証情報は入力しない
 - ダイアログ（`alert` / `confirm`）を出す操作をしない。ブラウザ操作が止まる
-- 計測用に作ったデータは**自動で削除しない**（削除は不可逆）。ID を報告に残すだけにする
+- 計測用に作ったデータは削除しない。残っていても問題ない
