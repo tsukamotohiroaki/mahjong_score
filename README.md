@@ -60,6 +60,7 @@ MPA 版で MVP を最短リリースし、あとから LIFF 版を追加しま�
 
 ```
 mahjong_score/
+├── .claude/                    # Claude Code のスキル・依存マップ
 ├── app/
 │   ├── controllers/            # MPA 版コントローラー + api/v1（JSON API）
 │   ├── javascript/             # Stimulus コントローラー等
