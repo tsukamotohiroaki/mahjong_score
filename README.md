@@ -14,7 +14,7 @@
 
 麻雀の半荘結果を記録し、順位点まで自動計算するシンプルなスコア管理アプリ 🀄
 
-> 面倒で間違えやすい計算作業を自動化して、人が本来やりたいこと（対局を楽しむ・ルールを学ぶ）に集中できるようにする——このアプリが解決する課題は [`docs/value-proposition.md`](docs/value-proposition.md) にまとめています。
+> 面倒で間違えやすい計算作業を自動化して、人が本来やりたいこと（対局を楽しむ・ルールを学ぶ）に集中できるようにする——このアプリが解決する課題は [`docs/value-proposition.md`](docs/value-proposition.md) にまとめている。
 
 ## デモ
 
@@ -24,40 +24,41 @@
 
 ## LINE で試す
 
-LINE 公式アカウントを友だち追加すると、リッチメニューから LIFF 版アプリをすぐに試せます。
+LINE 公式アカウントを友だち追加すると、リッチメニューから LIFF 版アプリをすぐに試せる。
 
 <img src="docs/images/line-add-friend-qr.png" alt="LINE友だち追加QRコード" width="240">
 
 1. QR コード（または [友だち追加リンク](https://line.me/R/ti/p/@165fpsbq)）から「楽雀」を友だち追加する
-2. トーク画面下部のリッチメニューから楽雀を開く
-3. LIFF 版アプリが起動し、そのままゲームを作成できる
+2. トーク画面下部のリッチメニューから「楽雀」を開く
+
+LIFF 版アプリが起動し、そのままゲームを作成できる。
 
 ## セットアップ
 
-Docker Desktop（または Docker Engine + Docker Compose）があれば動きます。
+Docker Desktop（または Docker Engine + Docker Compose）があれば動く。
 
 ```bash
 git clone <repository-url> && cd mahjong_score
-docker compose up                                        # 初回は gem のインストールが自動で走ります
-docker compose exec web bin/rails db:create db:migrate   # 初回のみ、別ターミナルで
+docker compose up                                        # 初回は gem のインストールが自動で走る
+docker compose exec web bin/rails db:create db:migrate   # 初回のみ、別ターミナルで実行する
 ```
 
 http://localhost:3000 にアクセスする 🎉
 
 ## アーキテクチャ
 
-**同じアプリを、ブラウザと LINE の2つの入り口から使えます。**
+**同じアプリを、ブラウザと LINE の2つの入り口から使える。**
 
 | 使う場所 | 呼び名 | 技術 |
 |---|---|---|
 | ブラウザ | MPA 版（複数ページ型 Web アプリ） | Rails + ERB + Hotwire |
 | LINE のトーク画面 | LIFF 版（LINE Front-end Framework） | Next.js |
 
-どちらも同じ JSON API（`/api/v1`）にデータを預けるので、どちらで入力しても同じスコアが見えます。API の仕様は [OpenAPI 仕様書](docs/openapi.yaml) を正としています。
+どちらも同じ JSON API（`/api/v1`）にデータを預けるので、どちらで入力しても同じスコアが見える。API の仕様は [OpenAPI 仕様書](docs/openapi.yaml) を正とする。
 
-MPA 版で MVP（実用最小限の製品）を最短リリースし、あとから LIFF 版を追加しました。
+MPA 版で MVP（実用最小限の製品）を最短リリースし、あとから LIFF 版を追加した。
 
-全体像は [`docs/architecture.md`](docs/architecture.md) を参照してください。
+全体像は [`docs/architecture.md`](docs/architecture.md) を参照。
 
 本番環境（AWS）:
 
@@ -99,7 +100,7 @@ mahjong_score/
 | E2E | Playwright | ブラウザ側の品質保証（JS 動作・ユーザー操作フロー） |
 | 非機能テスト（性能） | Claude in Chrome | 操作してから画面が表示されるまでの応答速度（[`/response-time`](.claude/skills/response-time/SKILL.md)） |
 
-`main` ブランチへの push / PR で GitHub Actions により **RSpec**・**Vitest**・**Playwright E2E** が自動実行されます。
+`main` ブランチへの push / PR で GitHub Actions により **RSpec**・**Vitest**・**Playwright E2E** が自動実行される。
 
 ### テスト設計（テスト技法との対応）
 
@@ -159,17 +160,17 @@ mahjong_score/
   </tbody>
 </table>
 
-> 上表はサーバー側が中心です。LIFF 版は同じ技法を Vitest で検証しています（`frontend/app/**/*.test.tsx`）。
+> 上表はサーバー側が中心。LIFF 版は同じ技法を Vitest で検証している（`frontend/app/**/*.test.tsx`）。
 
-どこに厚くテストを張り、どこを浅くしたかの判断は [`docs/test-strategy.md`](docs/test-strategy.md) に言語化しています。
+どこに厚くテストを張り、どこを浅くしたかの判断は [`docs/test-strategy.md`](docs/test-strategy.md) に言語化している。
 
 ## 開発の進め方
 
-**Issue 駆動 + TDD（テスト駆動開発）。** イシューを起点にブランチを切り、テストを先に書いてから実装します（Red → Green → Refactor）。
+**Issue 駆動 + TDD（テスト駆動開発）。** Issue を起点にブランチを切り、テストを先に書いてから実装する（Red → Green → Refactor）。
 
-コード変更の前には [`.claude/dependencies.md`](.claude/dependencies.md)（依存マップ）で影響を受けるテストを特定してから着手します（TDAD: Test-Driven Agentic Development）。どのコードがどのテストに守られているかを事前に引けるので、AI に実装させても壊した箇所を取りこぼしません。
+コード変更の前には [`.claude/dependencies.md`](.claude/dependencies.md)（依存マップ）で影響を受けるテストを特定してから着手する（TDAD: Test-Driven Agentic Development）。どのコードがどのテストに守られているかを事前に引けるので、AI に実装させても壊した箇所を取りこぼさない。
 
-「気をつける」ではなく「気をつけなくても壊れない仕組み」で品質を守る、という方針です。
+「気をつける」ではなく「気をつけなくても壊れない仕組み」で品質を守る、という方針。
 
 ---
 
