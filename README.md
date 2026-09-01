@@ -46,9 +46,15 @@ http://localhost:3000 にアクセスする 🎉
 
 ## アーキテクチャ
 
-**MPA 版（Rails + ERB + Hotwire）・JSON API・LIFF 版（Next.js）の併存構成**です。
+2つのクライアントが1つの API を共有する**マルチクライアント構成**です。
 
-MPA 版で MVP を最短リリースし、あとから LIFF 版を追加しました。現在は両者を正式なクライアントとして維持しています（[ADR-0001](docs/adr/0001-mpa-版を残す.md)）。
+| 構成 | 技術 | 役割 |
+|---|---|---|
+| MPA 版 | Rails + ERB + Hotwire | ブラウザ版。LINE アカウントがなくても使える |
+| JSON API | Rails（`/api/v1`） | 両クライアントの共通土台。契約は [OpenAPI](docs/openapi.yaml) |
+| LIFF 版 | Next.js | LINE 版。リッチメニューから起動する |
+
+MPA 版で MVP を最短リリースし、あとから LIFF 版を追加しました。MPA 版は移行用の足場ではなく、撤去予定もありません（[ADR-0001](docs/adr/0001-mpa-版を残す.md)）。
 
 全体像は [`docs/architecture.md`](docs/architecture.md) を参照してください。
 
