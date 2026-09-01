@@ -14,7 +14,7 @@
 
 麻雀の半荘結果を記録し、順位点まで自動計算するシンプルなスコア管理アプリ 🀄
 
-> 面倒で間違えやすい計算作業を自動化して、人が本来やりたいこと（対局を楽しむ・ルールを学ぶ）に集中できるようにする——このアプリが解決する課題は [`docs/value-proposition.md`](docs/value-proposition.md) にまとめています。
+> 面倒で間違えやすい計算作業を自動化して、人が本来やりたいこと（対局を楽しむ・ルールを学ぶ）に集中できるようにしたい——このアプリが解決する課題は [`docs/value-proposition.md`](docs/value-proposition.md) にまとめています。
 
 ## デモ
 
@@ -29,8 +29,9 @@ LINE 公式アカウントを友だち追加すると、リッチメニューか
 <img src="docs/images/line-add-friend-qr.png" alt="LINE友だち追加QRコード" width="240">
 
 1. QR コード（または [友だち追加リンク](https://line.me/R/ti/p/@165fpsbq)）から「楽雀」を友だち追加する
-2. トーク画面下部のリッチメニューから楽雀を開く
-3. LIFF 版アプリが起動し、そのままゲームを作成できる
+2. トーク画面下部のリッチメニューから「楽雀」を開く
+
+LIFF 版アプリが起動し、そのままゲームを作成できます。
 
 ## セットアップ
 
@@ -39,10 +40,10 @@ Docker Desktop（または Docker Engine + Docker Compose）があれば動き�
 ```bash
 git clone <repository-url> && cd mahjong_score
 docker compose up                                        # 初回は gem のインストールが自動で走ります
-docker compose exec web bin/rails db:create db:migrate   # 初回のみ、別ターミナルで
+docker compose exec web bin/rails db:create db:migrate   # 初回のみ、別ターミナルで実行します
 ```
 
-http://localhost:3000 にアクセスする 🎉
+http://localhost:3000 にアクセスします 🎉
 
 ## アーキテクチャ
 
@@ -165,7 +166,7 @@ mahjong_score/
 
 ## 開発の進め方
 
-**Issue 駆動 + TDD（テスト駆動開発）。** イシューを起点にブランチを切り、テストを先に書いてから実装します（Red → Green → Refactor）。
+**Issue 駆動 + TDD（テスト駆動開発）で進めます。** Issue を起点にブランチを切り、テストを先に書いてから実装します（Red → Green → Refactor）。
 
 コード変更の前には [`.claude/dependencies.md`](.claude/dependencies.md)（依存マップ）で影響を受けるテストを特定してから着手します（TDAD: Test-Driven Agentic Development）。どのコードがどのテストに守られているかを事前に引けるので、AI に実装させても壊した箇所を取りこぼしません。
 
