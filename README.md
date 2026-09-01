@@ -46,15 +46,16 @@ http://localhost:3000 にアクセスする 🎉
 
 ## アーキテクチャ
 
-2つのクライアントが1つの API を共有する**マルチクライアント構成**です。
+**同じアプリを、ブラウザと LINE の2つの入り口から使えます。**
 
-| 構成 | 技術 | 役割 |
+| 使う場所 | 呼び名 | 技術 |
 |---|---|---|
-| MPA 版 | Rails + ERB + Hotwire | ブラウザ版。LINE アカウントがなくても使える |
-| JSON API | Rails（`/api/v1`） | 両クライアントの共通土台。契約は [OpenAPI](docs/openapi.yaml) |
-| LIFF 版 | Next.js | LINE 版。リッチメニューから起動する |
+| ブラウザ | MPA 版（複数ページ型 Web アプリ） | Rails + ERB + Hotwire |
+| LINE のトーク画面 | LIFF 版（LINE Front-end Framework） | Next.js |
 
-MPA 版で MVP を最短リリースし、あとから LIFF 版を追加しました。MPA 版は移行用の足場ではなく、撤去予定もありません（[ADR-0001](docs/adr/0001-mpa-版を残す.md)）。
+どちらも同じ JSON API（`/api/v1`）にデータを預けるので、どちらで入力しても同じスコアが見えます。API の仕様は [OpenAPI 仕様書](docs/openapi.yaml) を正としています。
+
+MPA 版で MVP（実用最小限の製品）を最短リリースし、あとから LIFF 版を追加しました。
 
 全体像は [`docs/architecture.md`](docs/architecture.md) を参照してください。
 
