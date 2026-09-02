@@ -38,7 +38,7 @@ LIFF 版アプリが起動し、そのままゲームを作成できる。
 Docker Desktop（または Docker Engine + Docker Compose）があれば動く。
 
 ```bash
-git clone <repository-url> && cd mahjong_score
+git clone https://github.com/tsukamotohiroaki/mahjong_score.git && cd mahjong_score
 docker compose up                                        # 初回は gem のインストールが自動で走る
 docker compose exec web bin/rails db:create db:migrate   # 初回のみ、別ターミナルで実行する
 ```
@@ -84,6 +84,7 @@ mahjong_score/
 │   ├── architecture.md         # アーキテクチャ構成図（Mermaid）
 │   └── openapi.yaml            # API 仕様書（OpenAPI 3.0）
 ├── e2e/                        # E2E テスト（Playwright）
+├── e2e-liff/                   # LIFF 版 E2E テスト（Playwright）
 ├── frontend/                   # LIFF 版（Next.js）
 ├── infra/                      # CloudFormation テンプレート等
 ├── spec/                       # RSpec（モデル・リクエスト）
