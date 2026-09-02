@@ -45,8 +45,6 @@ docker compose exec web bin/rails db:create db:migrate   # 初回のみ、別タ
 
 http://localhost:3000 にアクセスする 🎉
 
-LIFF 版（Next.js）の起動手順は [`frontend/README.md`](frontend/README.md) を参照。
-
 ## アーキテクチャ
 
 **同じアプリを、ブラウザと LINE の2つの入り口から使える。**
@@ -83,11 +81,8 @@ mahjong_score/
 │   ├── migrate/                # マイグレーションファイル
 │   └── schema.rb               # スキーマ定義
 ├── docs/
-│   ├── adr/                    # 設計判断の記録（ADR）
 │   ├── architecture.md         # アーキテクチャ構成図（Mermaid）
-│   ├── openapi.yaml            # API 仕様書（OpenAPI 3.0）
-│   ├── test-strategy.md        # テスト戦略（厚み配分の判断）
-│   └── ...                     # コマンド・デバッグガイド・インフラ構成など
+│   └── openapi.yaml            # API 仕様書（OpenAPI 3.0）
 ├── e2e/                        # E2E テスト（Playwright）
 ├── e2e-liff/                   # LIFF 版 E2E テスト（Playwright）
 ├── frontend/                   # LIFF 版（Next.js）
@@ -103,12 +98,10 @@ mahjong_score/
 |---|---|---|
 | 単体・リクエスト | RSpec + FactoryBot | サーバー側の品質保証（モデル・コントローラー） |
 | フロントエンド単体 | Vitest + Testing Library | LIFF 版（Next.js）のコンポーネント・API クライアント |
-| E2E（MPA 版） | Playwright | ブラウザ側の品質保証（JS 動作・ユーザー操作フロー）。CI で自動実行 |
-| E2E（LIFF 版） | Playwright | LIFF 版のゲーム作成〜結果表示フロー（`e2e-liff/`）。ローカルで手動実行 |
+| E2E | Playwright | ブラウザ側の品質保証（JS 動作・ユーザー操作フロー） |
 | 非機能テスト（性能） | Claude in Chrome | 操作してから画面が表示されるまでの応答速度（[`/response-time`](.claude/skills/response-time/SKILL.md)） |
 
-`main` ブランチへの push / PR で GitHub Actions により **RSpec**・**Vitest**・**Playwright E2E（MPA 版）** が自動実行される。
-LIFF 版 E2E は LIFF ID が必要なため CI 対象外（ローカルで実行する）。
+`main` ブランチへの push / PR で GitHub Actions により **RSpec**・**Vitest**・**Playwright E2E** が自動実行される。
 
 ### テスト設計（テスト技法との対応）
 
@@ -182,10 +175,4 @@ LIFF 版 E2E は LIFF ID が必要なため CI 対象外（ローカルで実行
 
 ---
 
-## ライセンス
-
-[MIT License](LICENSE)
-
----
-
-関連ドキュメント: [価値提案（なぜ作ったか）](docs/value-proposition.md) · [アーキテクチャ構成図](docs/architecture.md) · [設計判断の記録（ADR）](docs/adr/) · [テスト戦略](docs/test-strategy.md) · [API 仕様書（OpenAPI）](docs/openapi.yaml) · [インフラ構成](docs/infrastructure.md) · [LIFF 版 frontend](frontend/README.md) · [CLAUDE.md](CLAUDE.md)
+関連ドキュメント: [価値提案（なぜ作ったか）](docs/value-proposition.md) · [アーキテクチャ構成図](docs/architecture.md) · [API 仕様書（OpenAPI）](docs/openapi.yaml) · [LIFF 版 frontend](frontend/README.md) · [CLAUDE.md](CLAUDE.md)
