@@ -115,13 +115,4 @@ flowchart LR
 3. **画面は二重、計算とデータは一重** — 点線ペアは恒久的な管理対象（[ADR-0001](adr/0001-mpa-%E7%89%88%E3%82%92%E6%AE%8B%E3%81%99.md)）。両版が同一挙動かを検証する手段は未整備（[#175](https://github.com/tsukamotohiroaki/mahjong_score/issues/175)）
 4. **`lib/api.ts` と API コントローラーの間が契約境界** — ここを変えると LIFF 版だけが静かに壊れる。`docs/openapi.yaml` と `spec/requests/api/v1/` で守る。通信経路は `docs/api-proxy.md` を参照
 
-## テスト戦略との対応
-
-本表は**上図の箱と自動テストの対応**に限定する。手段ごとの守備範囲・境界の引き方（Claude in Chrome と実機を含む5手段）は [`docs/test-strategy.md`](test-strategy.md) が正。
-
-| テスト | 守っている箱 |
-|---|---|
-| RSpec モデルスペック（`spec/models/`） | Game モデル（順位点計算・ゼロサム・一意性） |
-| RSpec リクエストスペック（`spec/requests/`） | MPA コントローラー + API コントローラー（画面表示・点数検証・API契約） |
-| Playwright E2E（`e2e/`） | MPA 版の画面 + `score_input_controller.js`（ブラウザ上の JS 動作） |
-| Vitest（`frontend/app/**/*.test.*`） | LIFF 版の React コンポーネント + `lib/api.ts` + `lib/score-input.ts` |
+箱とテストの対応は [`docs/test-strategy.md`](test-strategy.md) の「確認手段の分担」を参照。
