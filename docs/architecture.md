@@ -125,5 +125,3 @@ flowchart LR
 | RSpec リクエストスペック（`spec/requests/`） | MPA コントローラー + API コントローラー（画面表示・点数検証・API契約） |
 | Playwright E2E（`e2e/`） | MPA 版の画面 + `score_input_controller.js`（ブラウザ上の JS 動作） |
 | Vitest（`frontend/app/**/*.test.*`） | LIFF 版の React コンポーネント + `lib/api.ts` + `lib/score-input.ts` |
-
-厚みの配分・急所マップ・確認手段の分担は [`docs/test-strategy.md`](test-strategy.md) を参照。
