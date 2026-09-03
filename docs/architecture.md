@@ -101,7 +101,7 @@ flowchart LR
 
 1. **利用者の入口は各版2つ** — 通常の入口（MPA は `/`、LIFF は LIFF URL）と、共有 URL でスコア一覧へ直接着地する経路。共有 URL は設計上の入口であり、内部リンクではない
 2. **すべての矢印が Game モデルに集まる** — 順位点計算・ゼロサム検証は1箇所。壊れると全経路が壊れるため `spec/models/game_spec.rb` が最重要
-3. **画面は二重、計算とデータは一重** — 点線ペアは恒久的な管理対象（[ADR-0001](adr/0001-mpa-%E7%89%88%E3%82%92%E6%AE%8B%E3%81%99.md)）。両版が同一挙動かを検証する手段は未整備（[#175](https://github.com/tsukamotohiroaki/mahjong_score/issues/175)）
+3. **画面は二重、計算とデータは一重** — 点線ペアは恒久的な管理対象（[ADR-0001](adr/0001-mpa-%E7%89%88%E3%82%92%E6%AE%8B%E3%81%99.md)）。両版に同じ spec を流して同一挙動を検証する仕組みは未整備（[#175](https://github.com/tsukamotohiroaki/mahjong_score/issues/175)）
 4. **`lib/api.ts` と API コントローラーの間が契約境界** — ここを変えると LIFF 版だけが静かに壊れる。`docs/openapi.yaml` と `spec/requests/api/v1/` で守る。通信経路は `docs/api-proxy.md` を参照
 
 箱とテストの対応は [`docs/test-strategy.md`](test-strategy.md) の「確認手段の分担」を参照。
