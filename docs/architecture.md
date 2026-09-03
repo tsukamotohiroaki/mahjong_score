@@ -18,17 +18,11 @@ flowchart TB
     user(("ユーザー"))
 
     subgraph MPA["MPA版（ERB + Stimulus）"]
-        root["/<br>（routes.rb で 302 リダイレクト）"]
         gnew["games/new<br>ゲーム作成画面"]
         gshow["games/show<br>スコア一覧画面"]
         rnew["rounds/new<br>点数入力画面"]
         stim["score_input_controller.js<br>（合計計算・自動補完）"]
-        rnew -.双方向.- stim
-        root -.302リダイレクト.-> gnew
-        gnew -.ゲーム開始.-> gshow
-        gshow -.局番号リンク.-> rnew
-        rnew -.入力完了・戻る.-> gshow
-        gshow -.新しいゲーム.-> gnew
+        rnew -.- stim
     end
 
     subgraph LIFF["LIFF版（Next.js / React）"]
@@ -38,12 +32,7 @@ flowchart TB
         lrnew["games/[id]/rounds/new/page.tsx<br>点数入力画面"]
         sinput["lib/score-input.ts<br>（合計計算・自動補完）"]
         apits["lib/api.ts<br>通信層"]
-        lrnew -.利用.- sinput
-        lpage -.ログイン後.-> lnew
-        lnew -.ゲーム開始.-> lshow
-        lshow -.局番号リンク.-> lrnew
-        lrnew -.送信・戻る.-> lshow
-        lshow -.新しいゲーム.-> lnew
+        lrnew -.- sinput
         lnew & lshow & lrnew --> apits
     end
 
@@ -52,14 +41,14 @@ flowchart TB
         rc["RoundsController"]
         agc["Api::V1::GamesController"]
         arc["Api::V1::RoundsController"]
-        form["RoundScoreForm<br>点数バリデーション（±1000・合計1000）"]
-        model["Game モデル<br>create_with_players!（プレイヤー4人検証）<br>calculate_ranking_scores<br>順位点計算・ゼロサム検証"]
+        form["RoundScoreForm<br>点数バリデーション"]
+        model["Game モデル<br>順位点計算・ゼロサム検証<br>プレイヤー4人検証"]
         db[("PostgreSQL<br>games / players<br>rounds / scores")]
     end
 
-    user -- 通常 --> root
+    user -- "通常（/ から 302）" --> gnew
     user -- 共有URL --> gshow
-    user -- LIFFURL --> lpage
+    user -- LIFF URL --> lpage
     user -- 共有URL --> lshow
 
     gnew & gshow --> gc
