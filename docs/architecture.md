@@ -107,8 +107,6 @@ flowchart LR
 ```
 
 - 点線ペア（m1〜m4）が「変更時に2箇所直す場所」。**実線の先（RoundScoreForm / Game モデル）は共有されており、二重実装ではない**
-- コントローラーの点数検証は `RoundScoreForm` に一本化済み（[#193](https://github.com/tsukamotohiroaki/mahjong_score/issues/193)）。MPA・LIFF 両経路がこれを呼ぶため、二重実装ペアには含まれない
-- ゲーム作成の「プレイヤーちょうど4人」検証は `Game.create_with_players!` に集約済み（[#192](https://github.com/tsukamotohiroaki/mahjong_score/issues/192)）。同上
 - **「同一仕様」のはずが食い違っている箇所**: LIFF 版のエラー画面（`games/[id]/page.tsx` と `games/[id]/rounds/new/page.tsx`）には「← トップに戻る」リンクが残っており `/` へ遷移する。MPA 版は [#216](https://github.com/tsukamotohiroaki/mahjong_score/issues/216) でトップページを廃止した際にこのリンクを削除済み。LIFF 版で `/` に戻ると `liff.login()` が走るため、エラーからの復帰導線として妥当かを含めて要検討
 
 ## 読みどころ
