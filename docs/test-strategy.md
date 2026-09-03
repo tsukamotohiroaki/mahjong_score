@@ -33,7 +33,7 @@ flowchart LR
 |---|---|
 | **RSpec**（`spec/`） | サーバー側の計算・バリデーション・レスポンス |
 | **Vitest**（`frontend/app/**/*.test.*`） | LIFF 版の React コンポーネント・`lib/api.ts`・`lib/score-input.ts` |
-| **Playwright**（`e2e/`） | 本物のブラウザでの機能挙動。MPA 版と LIFF 版の**両方に同じ spec を流す** |
+| **Playwright**（`e2e/`） | 本物のブラウザでの機能挙動。現状は MPA 版のみ。LIFF 版は [#175](https://github.com/tsukamotohiroaki/mahjong_score/issues/175) で整備予定 |
 | **Claude in Chrome** | 操作してから画面が表示されるまでの応答速度 |
 | **実機（人間 + スマホ）** | LINE アプリの中でしか起こらないこと |
 
@@ -55,7 +55,7 @@ flowchart LR
 
 MPA 版と LIFF 版は同一仕様の別実装であり、これは[恒久的な管理対象](adr/0001-mpa-%E7%89%88%E3%82%92%E6%AE%8B%E3%81%99.md)である。**片方だけを修正しても、実装ごとに分かれたテスト（Playwright は MPA、Vitest は LIFF）は双方とも緑のまま通過してしまう。**
 
-これを防ぐため、Playwright は同じ内容のテストを2本書くのではなく、**1本の spec を `baseURL` 違いの2プロジェクトで実行する**（[#175](https://github.com/tsukamotohiroaki/mahjong_score/issues/175)）。テストが1本しかないからこそ、実装の食い違いが必ず表面化する。
+これを防ぐため、Playwright は同じ内容のテストを2本書くのではなく、**1本の spec を `baseURL` 違いの2プロジェクトで実行する**方針とする（[#175](https://github.com/tsukamotohiroaki/mahjong_score/issues/175) で整備予定）。テストが1本しかないからこそ、実装の食い違いが必ず表面化する。
 
 ## 急所マップ
 
