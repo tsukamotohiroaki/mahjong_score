@@ -113,8 +113,7 @@ flowchart LR
 1. **利用者の入口は各版2つずつしかない** — 通常の入口（MPA は `/`、LIFF は LIFF URL）と、共有された URL で直接スコア一覧に着地する経路の2つ。それ以外の画面には画面遷移でしか到達しない。共有 URL は「あとから直接開かれる」ことを前提とした設計上の入口であり、単なる内部リンクではない
 2. **すべての矢印が最終的に Game モデルに集まる** — 順位点計算・ゼロサム検証は Game モデル1箇所に集約されており、MPA・LIFF どちらの経路でも同じ計算結果になる。ここが壊れると全経路が同時に壊れるため、`spec/models/game_spec.rb` が最重要テスト
 3. **画面まわりは二重、計算とデータは一重** — 二重実装マップの点線ペアが「変更時に2箇所直す場所」の一覧。MPA 版を維持する方針（[ADR-0001](adr/0001-mpa-%E7%89%88%E3%82%92%E6%AE%8B%E3%81%99.md)）のため、これは一時的な負債ではなく恒久的な管理対象になる。現状は Playwright が MPA 版、Vitest が LIFF 版と検証が分かれており、「2つが同一の挙動か」を検証する手段がない（[#175](https://github.com/tsukamotohiroaki/mahjong_score/issues/175) で対応）
-4. **仕様書にあるが誰も呼んでいない API がある** — `docs/openapi.yaml` に定義された `GET /api/v1/games`（ゲーム一覧）は Rails 側に実装があるものの、`lib/api.ts` に対応する関数がなく、MPA・LIFF いずれの画面からも呼ばれていない。画面操作では到達しないため、ブラウザでの動作確認では検証できない
-5. **`lib/api.ts` と API コントローラーの間が契約境界** — レスポンス構造を変えると LIFF 版だけが静かに壊れる。`docs/openapi.yaml` と `spec/requests/api/v1/` を同期させて守る。この区間の通信経路（Next.js が `/api/*` を Rails にプロキシする仕組みと CORS を回避する意図）は `docs/api-proxy.md` を参照
+4. **`lib/api.ts` と API コントローラーの間が契約境界** — レスポンス構造を変えると LIFF 版だけが静かに壊れる。`docs/openapi.yaml` と `spec/requests/api/v1/` を同期させて守る。この区間の通信経路（Next.js が `/api/*` を Rails にプロキシする仕組みと CORS を回避する意図）は `docs/api-proxy.md` を参照
 
 ## テスト戦略との対応
 
