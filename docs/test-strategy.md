@@ -11,23 +11,23 @@
 
 ## リスクと備え
 
-影響の大きい順。テスト名がそのまま仕様なので、詳細は各ファイルを参照。
+影響の大きい順。厚みは ◎ 個別ケースを網羅 / ○ 主要ケース / △ スモーク / 手動。テスト名がそのまま仕様なので、詳細は各ファイルを参照。
 
-| リスク | 備え | 厚み |
-|---|---|---|
-| 順位点を黙って間違える（例外が出ないため気づけない） | `spec/models/game_spec.rb`: 同点分配・ゼロサム・境界値を個別に網羅 | ◎ |
-| 不正な点数が保存され、以後の全計算を汚染する（範囲外・合計不一致・非整数・人数不足） | `spec/forms/round_score_form_spec.rb`: 検証順序まで固定。`spec/requests/**/rounds_spec.rb`: MPA / API の両経路。クライアント側検証は UX のためで、正はサーバー側 `RoundScoreForm` | ◎ |
-| 不正なゲームが作られる（3/5/0人・名前重複・ゼロサム不成立） | `game_spec` + `spec/requests/**/games_spec.rb`: MPA / API の両経路。Game と Player 4件は全部成功 or 全部ロールバック | ◎ |
-| 入力補助（合計・自動補完・送信可否）が壊れ、「紙より速い」体験が消える | `e2e/score_input.spec.ts`（MPA）・`frontend/app/games/[id]/rounds/new/page.test.tsx`（LIFF）。ブラウザ内で完結するためサーバー側では守れない | ◎ |
-| MPA 版と LIFF 版の仕様が乖離し、片方だけ壊れても気づけない | 計算はサーバー側 `Game` 1箇所に集約し API で共有（契約は `docs/openapi.yaml`）。二重実装は入力補助のみで、両版に E2E を流す（`e2e/` `e2e-liff/`。1本の spec を両版に流す統合は [#175](https://github.com/tsukamotohiroaki/mahjong_score/issues/175)） | ○ |
-| 局の上書き・採番がずれ、記録が消える／重複する | `rounds_spec`（既存最大 + 1・上書き）・`spec/models/round_spec.rb`・`score_spec`（同一局内の重複禁止） | ○ |
-| API のエラーが画面に届かず、失敗に気づけない | `frontend/app/lib/api.test.ts`（404 / 422 / ネットワーク → ApiError）・各 `page.test.tsx` のエラー表示 | ○ |
-| 二重送信で同じゲームが2件できる | `frontend/app/games/new/page.test.tsx` | △ |
-| 画面表示の崩れ（入力欄・日付・負数の赤字・リンク先） | リクエストスペック・各 `page.test.tsx` | △ |
-| LIFF ログイン分岐の誤りでアプリに入れない | `frontend/app/page.test.tsx`（SDK をモック）＋実機 | △ |
-| 本番だけ POST が失敗する（CloudFront 経由の CSRF） | `spec/configuration_spec.rb` | △ |
-| 応答が遅くなる（Playwright は速度を見ない） | Claude in Chrome で実測。手順は [`/response-time`](../.claude/skills/response-time/SKILL.md)（`production` で本番） | 手動 |
-| LINE アプリ内でしか起きないこと（共有シート・テンキー・起動導線） | 実機。項目は [`docs/manual-test-checklist.md`](manual-test-checklist.md) | 手動 |
+| リスク | 守り方 | テスト | 厚み |
+|---|---|---|---|
+| 順位点を黙って間違える（例外が出ないため気づけない） | 同点分配・ゼロサム・境界値を1ケースずつ検証 | `spec/models/game_spec.rb` | ◎ |
+| 不正な点数が保存される（範囲外・合計不一致・非整数・人数不足） | サーバー側 `RoundScoreForm` で拒否し、検証順序も固定。クライアント側検証は UX 用 | `spec/forms/round_score_form_spec.rb`・`spec/requests/**/rounds_spec.rb` | ◎ |
+| 不正なゲームが作られる（3/5/0人・名前重複・ゼロサム不成立） | 入口で拒否。Game と Player 4件は全部成功 or 全部ロールバック | `spec/models/game_spec.rb`・`spec/requests/**/games_spec.rb` | ◎ |
+| 入力補助（合計・自動補完・送信可否）が壊れる | ブラウザ内で完結するため、本物のブラウザと React コンポーネントで検証 | `e2e/score_input.spec.ts`・`frontend/app/games/[id]/rounds/new/page.test.tsx` | ◎ |
+| MPA 版と LIFF 版の仕様が乖離する | 計算は `Game` 1箇所に集約し API で共有（契約は `docs/openapi.yaml`）。二重実装の入力補助は両版に E2E を流す | `e2e/`・`e2e-liff/`（1本の spec を両版に流す統合は [#175](https://github.com/tsukamotohiroaki/mahjong_score/issues/175)） | ○ |
+| 局の採番・上書きがずれ、記録が消える／重複する | 既存最大 + 1 で採番し、同一局内の重複を禁止 | `spec/requests/**/rounds_spec.rb`・`spec/models/round_spec.rb`・`spec/models/score_spec.rb` | ○ |
+| API のエラーが画面に届かず、失敗に気づけない | 404 / 422 / ネットワーク断を ApiError に変換し、各画面で表示 | `frontend/app/lib/api.test.ts`・各 `page.test.tsx` | ○ |
+| 二重送信で同じゲームが2件できる | 送信中はボタンを無効化 | `frontend/app/games/new/page.test.tsx` | △ |
+| 画面表示が崩れる（入力欄・日付・負数の赤字・リンク先） | 表示内容を確認 | リクエストスペック・各 `page.test.tsx` | △ |
+| LIFF ログインの分岐を誤り、アプリに入れない | SDK をモックして分岐を確認。実物は実機 | `frontend/app/page.test.tsx` | △ |
+| 本番だけ POST が失敗する（CloudFront 経由の CSRF） | 本番設定を検証 | `spec/configuration_spec.rb` | △ |
+| 応答が遅くなる | Playwright は速度を見ないため、Claude in Chrome で実測 | [`/response-time`](../.claude/skills/response-time/SKILL.md)（`production` で本番） | 手動 |
+| LINE アプリ内でしか起きないこと（共有シート・テンキー・起動導線） | 実機で確認 | [`docs/manual-test-checklist.md`](manual-test-checklist.md) | 手動 |
 
 ## 確認手段の分担
 
