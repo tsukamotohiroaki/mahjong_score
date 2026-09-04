@@ -13,20 +13,37 @@
 
 影響の大きい順。厚みは ◎ 個別ケースを網羅 / ○ 主要ケース / △ スモーク / 手動。テスト名がそのまま仕様なので、詳細は各ファイルを参照。
 
+### スコアの正しさ（壊れると記録の信頼が消える）
+
 | リスク | 守り方 | テスト | 厚み |
 |---|---|---|---|
 | 順位点を黙って間違える（例外が出ないため気づけない） | 同点分配・ゼロサム・境界値を1ケースずつ検証 | `spec/models/game_spec.rb` | ◎ |
 | 不正な点数が保存される（範囲外・合計不一致・非整数・人数不足） | サーバー側 `RoundScoreForm` で拒否し、検証順序も固定。クライアント側検証は UX 用 | `spec/forms/round_score_form_spec.rb`・`spec/requests/**/rounds_spec.rb` | ◎ |
 | 不正なゲームが作られる（3/5/0人・名前重複・ゼロサム不成立） | 入口で拒否。Game と Player 4件は全部成功 or 全部ロールバック | `spec/models/game_spec.rb`・`spec/requests/**/games_spec.rb` | ◎ |
-| 入力補助（合計・自動補完・送信可否）が壊れる | ブラウザ内で完結するため、本物のブラウザと React コンポーネントで検証 | `e2e/score_input.spec.ts`・`frontend/app/games/[id]/rounds/new/page.test.tsx` | ◎ |
-| MPA 版と LIFF 版の仕様が乖離する | 計算は `Game` 1箇所に集約し API で共有（契約は `docs/openapi.yaml`）。二重実装の入力補助は両版に E2E を流す | `e2e/`・`e2e-liff/`（1本の spec を両版に流す統合は [#175](https://github.com/tsukamotohiroaki/mahjong_score/issues/175)） | ○ |
 | 局の採番・上書きがずれ、記録が消える／重複する | 既存最大 + 1 で採番し、同一局内の重複を禁止 | `spec/requests/**/rounds_spec.rb`・`spec/models/round_spec.rb`・`spec/models/score_spec.rb` | ○ |
+
+### 入力体験（壊れると「紙より速い」が消える）
+
+| リスク | 守り方 | テスト | 厚み |
+|---|---|---|---|
+| 入力補助（合計・自動補完・送信可否）が壊れる | ブラウザ内で完結するため、本物のブラウザと React コンポーネントで検証 | `e2e/score_input.spec.ts`・`frontend/app/games/[id]/rounds/new/page.test.tsx` | ◎ |
 | API のエラーが画面に届かず、失敗に気づけない | 404 / 422 / ネットワーク断を ApiError に変換し、各画面で表示 | `frontend/app/lib/api.test.ts`・各 `page.test.tsx` | ○ |
 | 二重送信で同じゲームが2件できる | 送信中はボタンを無効化 | `frontend/app/games/new/page.test.tsx` | △ |
 | 画面表示が崩れる（入力欄・日付・負数の赤字・リンク先） | 表示内容を確認 | リクエストスペック・各 `page.test.tsx` | △ |
-| LIFF ログインの分岐を誤り、アプリに入れない | SDK をモックして分岐を確認。実物は実機 | `frontend/app/page.test.tsx` | △ |
-| 本番だけ POST が失敗する（CloudFront 経由の CSRF） | 本番設定を検証 | `spec/configuration_spec.rb` | △ |
 | 応答が遅くなる | Playwright は速度を見ないため、Claude in Chrome で実測 | [`/response-time`](../.claude/skills/response-time/SKILL.md)（`production` で本番） | 手動 |
+
+### 2つの実装（MPA 版と LIFF 版）
+
+| リスク | 守り方 | テスト | 厚み |
+|---|---|---|---|
+| 仕様が乖離し、片方だけ壊れても気づけない | 計算は `Game` 1箇所に集約し API で共有（契約は `docs/openapi.yaml`）。二重実装の入力補助は両版に E2E を流す | `e2e/`・`e2e-liff/`（1本の spec を両版に流す統合は [#175](https://github.com/tsukamotohiroaki/mahjong_score/issues/175)） | ○ |
+
+### 本番・LINE 環境（ローカルでは起きない）
+
+| リスク | 守り方 | テスト | 厚み |
+|---|---|---|---|
+| 本番だけ POST が失敗する（CloudFront 経由の CSRF） | 本番設定を検証 | `spec/configuration_spec.rb` | △ |
+| LIFF ログインの分岐を誤り、アプリに入れない | SDK をモックして分岐を確認。実物は実機 | `frontend/app/page.test.tsx` | △ |
 | LINE アプリ内でしか起きないこと（共有シート・テンキー・起動導線） | 実機で確認 | [`docs/manual-test-checklist.md`](manual-test-checklist.md) | 手動 |
 
 ## 確認手段の分担
