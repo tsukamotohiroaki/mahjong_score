@@ -14,7 +14,7 @@ AI を介さず自分で環境を動かすためのコマンド集。**すべて
 - **EC2 は使わないとき停止する**（コスト優先の運用）。起動から全サービス復帰まで約2分
 - EC2 の状態確認: `aws ec2 describe-instances --instance-ids i-061932ee89db4e727 --query 'Reservations[0].Instances[0].State.Name' --output text`
 
-### 起動できたかの確認
+### 疎通確認
 
 `200` が返れば起動している。**MPA と LIFF は別々に実行する**（`;` でつなぐと接続失敗時にコマンド全体が止まる）。
 
@@ -50,7 +50,7 @@ Playwright は Rails（`:3000`）と Next.js（`:3001`）が起動している�
 1. `config/initializers/version.rb` の `APP_VERSION` を feature/chore ブランチで更新し、PR を main にマージする（main への直接コミットは禁止）
 2. ローカルの main を更新する（`git pull`）
 3. EC2 にデプロイする（下記）
-4. 本番の反映を確認する（「起動できたかの確認」の本番 curl で `200`）
+4. 本番の反映を確認する（「疎通確認」の本番 curl で `200`）
 5. `gh release create vX.Y.Z --notes-file <ファイル>` でタグを作成する
 6. リリース後に確認する: 応答速度（`/response-time production`）と実機（[`docs/manual-test-checklist.md`](manual-test-checklist.md)）
 
