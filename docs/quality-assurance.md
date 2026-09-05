@@ -83,6 +83,6 @@
 |---|---|---|---|
 | **RSpec**（`spec/`） | サーバー側の計算・検証・HTTP 入出力 | ○ | ○（計算はサーバー側に集約されているため共有） |
 | **Vitest**（`frontend/app/**/*.test.*`） | React コンポーネント・API クライアント。jsdom + モックのため HTTP 通信は発生しない | – | ○ |
-| **Playwright**（`e2e/`） | 本物のブラウザでの機能挙動。確認項目は [#175 のコメント](https://github.com/tsukamotohiroaki/mahjong_score/issues/175#issuecomment-5381018205) | ○ | ○ |
+| **Playwright**（`e2e/`） | 本物のブラウザでしか確認できない操作フロー: ルール設定の折りたたみ、合計のリアルタイム更新、4人目の自動補完、送信可否、送信後のスコア一覧遷移。1本の spec を mpa / liff の両 project に流す | ○ | ○（`/` は LINE ログインへ外部遷移するため除外） |
 | **Claude in Chrome** | 応答速度の実測 | ○ | ○ |
 | **実機（人間 + スマホ）** | LINE アプリの中でしか起きないこと（Chrome からは WebView に到達できない） | – | ○ |
