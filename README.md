@@ -99,7 +99,7 @@ mahjong_score/
 | フロントエンド単体 | Vitest + Testing Library | LIFF 版（Next.js）のコンポーネント・API クライアント |
 | E2E | Playwright | ブラウザ側の操作フロー。1本の spec を MPA 版・LIFF 版の両方に流す |
 | 非機能テスト（性能） | Claude in Chrome | 操作してから画面が表示されるまでの応答速度（[`/response-time`](.claude/skills/response-time/SKILL.md)） |
-| 手動 | 人間（実機） | スマホ実機でしか再現できないこと（[`docs/manual-test-checklist.md`](docs/manual-test-checklist.md)）と探索的テスト。LIFF 版のみ。MPA 版のスマホ確認は未実施（受け入れたリスク） |
+| 手動 | 人間（実機） | スマホ実機でしか確認できない項目の消し込み（[`docs/manual-test-checklist.md`](docs/manual-test-checklist.md)） |
 
 `main` ブランチへの push / PR で GitHub Actions により **RSpec**・**Vitest**・**Playwright E2E** が自動実行される。
 
