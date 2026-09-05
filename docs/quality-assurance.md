@@ -42,15 +42,15 @@
 |---|---|---|
 | 本番だけフォーム送信が全部 422 になる（Rails が自分を HTTP だと誤認し、CSRF（クロスサイトリクエストフォージェリ）検証で弾く） | 本番でしか再現しないため、`config.assume_ssl = true` が消えていないことだけを固定。仕組みは [`docs/debugging-guide.md`](debugging-guide.md) | [`spec/configuration_spec.rb`](../spec/configuration_spec.rb) |
 | LIFF 版を開いてもメンバー入力画面に進めない | LINE SDK をモックし、ログイン済み → 進む / 未ログイン → LINE ログインへ / 初期化失敗 → エラー表示 の3分岐を検証。本物の LINE ログインは実機 | [`frontend/app/page.test.tsx`](../frontend/app/page.test.tsx) |
-| デスクトップの Chrome では再現できないこと。LINE アプリの機能（QR・リッチメニュー・LINE ログイン）は LIFF 版だけ、スマホの入力・共有（テンキー・共有シート・セーフエリア）は両版で起きる | LIFF 版を実機で確認 | [`docs/manual-test-checklist.md`](manual-test-checklist.md) |
+| スマホ実機でしか再現できないこと。LINE アプリの機能（QR・リッチメニュー・LINE ログイン）は LIFF 版だけ、スマホの入力・共有（テンキー・共有シート・セーフエリア）は両版で起きる | LIFF 版を実機で確認 | [`docs/manual-test-checklist.md`](manual-test-checklist.md) |
 
 ## 開発者を守る
 
 フック4本（[`.claude/hooks/`](../.claude/hooks/)）は Claude Code 経由の操作にだけ効き、人間の git 操作と PR のマージは止めない（main にブランチ保護は未設定）。
 
-### 迷わない
+### 迷わない仕組み
 
-| リスク | 守り方 | 仕組み |
+| リスク | 守り方 | ファイル |
 |---|---|---|
 | スコープが膨らみ、手戻りする | Issue で目的・やること・やらないことを固定してから着手。1 Issue = 1 PR | [`.github/ISSUE_TEMPLATE/task.md`](../.github/ISSUE_TEMPLATE/task.md)・[`.github/pull_request_template.md`](../.github/pull_request_template.md) |
 | AI が使えないとき、起動・テスト・デプロイの手が止まる | 実行確認済みのコマンドだけを残し、AI なしで再現できる状態を保つ | [`docs/commands.md`](commands.md) |
@@ -58,23 +58,23 @@
 | AI が方針を忘れる | プロセス・制約・Git 運用を1枚に固定 | [`CLAUDE.md`](../CLAUDE.md) |
 | 環境の状態を知らずに作業を始める | セッション開始時に git の状態を表示 | [`.claude/hooks/session-start-info.sh`](../.claude/hooks/session-start-info.sh) |
 
-### 壊さない
+### 壊さない仕組み
 
-| リスク | 守り方 | 仕組み |
+| リスク | 守り方 | ファイル |
 |---|---|---|
-| 壊れた変更が main に入る | main 向け PR と push で RSpec・Vitest・Playwright（MPA 版 / LIFF 版）を自動実行。push 前にも RSpec | [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)・[`.claude/hooks/pre-push-test.sh`](../.claude/hooks/pre-push-test.sh) |
+| 壊れた変更が main に入り、気づかないまま残る | main 向け PR と main への push のたびに RSpec・Vitest・Playwright（MPA 版 / LIFF 版）を全部流し、壊れていれば自動で気づける。push 前にも RSpec | [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)・[`.claude/hooks/pre-push-test.sh`](../.claude/hooks/pre-push-test.sh) |
 | main に直接コミットする | ブランチが main なら止める | [`.claude/hooks/prevent-main-commit.sh`](../.claude/hooks/prevent-main-commit.sh) |
 | 古い main から分岐し、コンフリクトする | `git checkout -b` の前に pull | [`.claude/hooks/pre-branch-pull.sh`](../.claude/hooks/pre-branch-pull.sh) |
 | 変更の影響範囲を見落とし、間接的に壊す | 変更前に影響する spec を引く。実装とテストは常にセットで入れる（TDD） | [`.claude/dependencies.md`](../.claude/dependencies.md) |
 | MPA 版と LIFF 版の仕様が乖離し、片方だけ壊れても気づけない | 順位点計算とサーバー側の検証は Rails 側1箇所に集約。二重実装の入力補助は共通 E2E テストを両版に流し、同じ DOM 契約（見出し・ラベル・`data-testid`）に縛る。片方だけ壊れると落ちる | [二重実装マップ](architecture.md#二重実装マップ)・[`e2e/`](../e2e/)（[`playwright.config.ts`](../playwright.config.ts) の mpa / liff 両 project） |
 | API 変更で LIFF 版だけ静かに壊れる | 契約を明文化し、振る舞いはリクエストスペックで検証 | [`docs/openapi.yaml`](openapi.yaml)・[`spec/requests/api/v1/`](../spec/requests/api/v1/) |
 
-### 繰り返さない
+### 繰り返さない仕組み
 
-| リスク | 守り方 | 仕組み |
+| リスク | 守り方 | ファイル |
 |---|---|---|
 | 同じ事故を再調査する | 遭遇した事故だけを症状 → 原因で残す | [`docs/debugging-guide.md`](debugging-guide.md) |
-| 過去の判断を蒸し返す | 決定と理由を記録する | [`docs/adr/`](adr/) |
+| なぜそう決めたか、すぐ思い出せない | 決定と理由を記録する | [`docs/adr/`](adr/) |
 | 本番環境を手作業で作り直す | VPC・EC2・RDS・CloudFront・アラームを1テンプレートで定義 | [`infra/cloudformation.yml`](../infra/cloudformation.yml) |
 
 ## 確認手段の分担
@@ -85,4 +85,4 @@
 | **Vitest**（[`frontend/app/**/*.test.*`](../frontend/app/)） | React コンポーネント・API クライアント。jsdom + モックのため HTTP 通信は発生しない | – | ○ |
 | **Playwright**（[`e2e/`](../e2e/)） | 本物のブラウザでしか見られない操作フロー。1本の spec を mpa / liff の両 project に流す | ○ | ○（`/` は LINE ログインへ外部遷移するため除外） |
 | **Claude in Chrome** | 応答速度の実測 | ○ | ○ |
-| **実機（人間 + スマホ）** | デスクトップの Chrome では再現できないこと | –（スマホ確認は未実施。受け入れたリスク） | ○ |
+| **人間** | スマホ実機でしか再現できないこと | –（スマホ確認は未実施。受け入れたリスク） | ○ |
