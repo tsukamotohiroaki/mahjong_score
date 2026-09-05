@@ -80,12 +80,13 @@
 
 ## リリース手順
 
-1. PRをmainにマージする
+コマンドと注意点は `docs/commands.md`「リリース」が正。
+
+1. `config/initializers/version.rb` の `APP_VERSION` を feature ブランチで更新し、PRをmainにマージする
 2. ローカルのmainを更新する（`git pull`）
 3. EC2にデプロイする
 4. 本番環境で動作確認する
-5. `config/initializers/version.rb` の `APP_VERSION` を更新する
-6. `gh release create` でタグを作成する
+5. `gh release create` でタグを作成する
 
 ## 品質保証の考え方
 
