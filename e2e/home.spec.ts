@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 // #216: トップページは廃止し、`/` はメンバー入力画面へ直行させる
+// MPA 版のみ。LIFF 版の `/` は LINE ログインへ外部遷移するため playwright.config.ts で除外している
 test("トップ URL からメンバー入力画面に直接着地する", async ({ page }) => {
   await page.goto("/");
 

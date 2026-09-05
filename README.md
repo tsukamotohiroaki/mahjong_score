@@ -83,8 +83,7 @@ mahjong_score/
 ├── docs/
 │   ├── architecture.md         # アーキテクチャ構成図（Mermaid）
 │   └── openapi.yaml            # API 仕様書（OpenAPI 3.0）
-├── e2e/                        # E2E テスト（Playwright）
-├── e2e-liff/                   # LIFF 版 E2E テスト（Playwright）
+├── e2e/                        # E2E テスト（Playwright。MPA / LIFF 両版に流す）
 ├── frontend/                   # LIFF 版（Next.js）
 ├── infra/                      # CloudFormation テンプレート等
 ├── spec/                       # RSpec（モデル・リクエスト）

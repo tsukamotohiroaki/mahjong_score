@@ -41,7 +41,8 @@ services:
       - .:/app
     environment:
       BASE_URL: http://web:3000
-    command: bash -lc "npm ci && npx playwright test"
+    # frontend サービスは compose に無いため MPA 版だけ流す（両版は docs/commands.md の手順で）
+    command: bash -lc "npm ci && npx playwright test --project mpa"
     profiles:
       - e2e
 
