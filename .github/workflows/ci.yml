@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  rspec:
     runs-on: ubuntu-latest
 
     services:
@@ -45,7 +45,7 @@ jobs:
       - name: RSpec
         run: bundle exec rspec
 
-  frontend-test:
+  vitest:
     runs-on: ubuntu-latest
 
     defaults:
