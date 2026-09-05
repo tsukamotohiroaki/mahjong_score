@@ -95,10 +95,11 @@ mahjong_score/
 
 | レイヤー | ツール | 役割 |
 |---|---|---|
-| 単体・リクエスト | RSpec + FactoryBot | サーバー側の品質保証（モデル・コントローラー） |
+| 単体・リクエスト | RSpec + FactoryBot | サーバー側の計算・検証・HTTP 入出力（両版で共有） |
 | フロントエンド単体 | Vitest + Testing Library | LIFF 版（Next.js）のコンポーネント・API クライアント |
-| E2E | Playwright | ブラウザ側の品質保証（JS 動作・ユーザー操作フロー） |
+| E2E | Playwright | ブラウザ側の操作フロー。1本の spec を MPA 版・LIFF 版の両方に流す |
 | 非機能テスト（性能） | Claude in Chrome | 操作してから画面が表示されるまでの応答速度（[`/response-time`](.claude/skills/response-time/SKILL.md)） |
+| 手動 | 人間（実機） | スマホ実機でしか確認できない項目の消し込み（[`docs/manual-test-checklist.md`](docs/manual-test-checklist.md)） |
 
 `main` ブランチへの push / PR で GitHub Actions により **RSpec**・**Vitest**・**Playwright E2E** が自動実行される。
 
@@ -154,7 +155,7 @@ mahjong_score/
     </tr>
     <tr>
       <td>チェックリストベースドテスト</td>
-      <td>LINE 実機でしか確認できない項目の消し込み（<a href="docs/manual-test-checklist.md"><code>docs/manual-test-checklist.md</code></a>）</td>
+      <td>スマホ実機でしか確認できない項目の消し込み（<a href="docs/manual-test-checklist.md"><code>docs/manual-test-checklist.md</code></a>）</td>
       <td>人間（実機）</td>
     </tr>
   </tbody>
@@ -162,7 +163,7 @@ mahjong_score/
 
 > 上表はサーバー側が中心。LIFF 版は同じ技法を Vitest で検証している（`frontend/app/**/*.test.tsx`）。
 
-何を守り、どう守っているかは [`docs/quality-assurance.md`](docs/quality-assurance.md) に言語化している。
+何を守り、どう守っているかの詳細は [`docs/quality-assurance.md`](docs/quality-assurance.md) を参照。
 
 ## 開発の進め方
 
