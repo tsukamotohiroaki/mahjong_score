@@ -66,7 +66,7 @@
 | main に直接コミットする | ブランチが main なら止める | `.claude/hooks/prevent-main-commit.sh` |
 | 古い main から分岐し、コンフリクトする | `git checkout -b` の前に pull | `.claude/hooks/pre-branch-pull.sh` |
 | 変更の影響範囲を見落とし、間接的に壊す | 変更前に影響する spec を引く。実装とテストは常にセットで入れる（TDD） | `.claude/dependencies.md` |
-| MPA 版と LIFF 版の仕様が乖離し、片方だけ壊れても気づけない | 順位点計算とサーバー側の検証は Rails 側1箇所に集約。二重実装の入力補助は MPA 版を E2E、LIFF 版を Vitest で検証 | [二重実装マップ](architecture.md#二重実装マップ)・`e2e/`・`e2e-liff/`（1本の spec を両版に流す統合は [#175](https://github.com/tsukamotohiroaki/mahjong_score/issues/175)） |
+| MPA 版と LIFF 版の仕様が乖離し、片方だけ壊れても気づけない | 順位点計算とサーバー側の検証は Rails 側1箇所に集約。二重実装の入力補助は1本の E2E spec を両版に流し、片方だけ壊れると落ちる | [二重実装マップ](architecture.md#二重実装マップ)・`e2e/`（`playwright.config.ts` の mpa / liff 両 project） |
 | API 変更で LIFF 版だけ静かに壊れる | 契約を明文化し、振る舞いはリクエストスペックで検証 | `docs/openapi.yaml`・`spec/requests/api/v1/` |
 
 ### 繰り返さない
@@ -83,6 +83,6 @@
 |---|---|---|---|
 | **RSpec**（`spec/`） | サーバー側の計算・検証・HTTP 入出力 | ○ | ○（計算はサーバー側に集約されているため共有） |
 | **Vitest**（`frontend/app/**/*.test.*`） | React コンポーネント・API クライアント。jsdom + モックのため HTTP 通信は発生しない | – | ○ |
-| **Playwright**（`e2e/`・`e2e-liff/`） | 本物のブラウザでの機能挙動。確認項目は [#175 のコメント](https://github.com/tsukamotohiroaki/mahjong_score/issues/175#issuecomment-5381018205) | ○ | ○ |
+| **Playwright**（`e2e/`） | 本物のブラウザでの機能挙動。確認項目は [#175 のコメント](https://github.com/tsukamotohiroaki/mahjong_score/issues/175#issuecomment-5381018205) | ○ | ○ |
 | **Claude in Chrome** | 応答速度の実測 | ○ | ○ |
 | **実機（人間 + スマホ）** | LINE アプリの中でしか起きないこと（Chrome からは WebView に到達できない） | – | ○ |
