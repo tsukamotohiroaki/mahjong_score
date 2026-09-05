@@ -31,6 +31,7 @@ test.describe("メンバー入力画面", () => {
     await page.getByRole("button", { name: "ゲーム開始" }).click();
 
     // スコア一覧（1回戦目の入力リンクが表示される）に遷移する
+    await expect(page.getByRole("heading", { name: "スコア一覧" })).toBeVisible();
     await expect(page.getByRole("link", { name: "1", exact: true })).toBeVisible();
   });
 });

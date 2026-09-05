@@ -17,7 +17,8 @@ function scoreInputs(page: Page) {
 }
 
 function totalOutput(page: Page) {
-  return page.locator("[data-score-input-target='totalOutput']");
+  // MPA（ERB）と LIFF（React）の両実装に同じ data-testid を付けてある
+  return page.getByTestId("score-total");
 }
 
 function submitButton(page: Page) {

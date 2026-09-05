@@ -187,7 +187,7 @@ export default function NewRoundPage() {
               <tr className="score-total">
                 <th>合計</th>
                 <td className="score-total-value">
-                  <span>{totalUnits * UNIT_SCALE}</span>
+                  <span data-testid="score-total">{totalUnits * UNIT_SCALE}</span>
                   <span className="score-unit">点</span>
                 </td>
               </tr>

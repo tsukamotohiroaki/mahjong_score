@@ -31,8 +31,8 @@ curl -s -o /dev/null -w "%{http_code}\n" --max-time 10 http://localhost:3001/gam
 |---|---|---|
 | RSpec | `docker compose exec web bundle exec rspec` | リポジトリ直下 |
 | Vitest | `npm test` | `frontend/` |
-| Playwright（MPA 版） | `npx playwright test` | リポジトリ直下 |
-| Playwright（LIFF 版） | `npx playwright test --config playwright.liff.config.ts` | リポジトリ直下 |
+| Playwright（MPA + LIFF） | `npx playwright test` | リポジトリ直下 |
+| Playwright（片方だけ） | `npx playwright test --project mpa`／`--project liff` | リポジトリ直下 |
 
 Playwright は Rails（`:3000`）と Next.js（`:3001`）が起動している必要がある。
 
