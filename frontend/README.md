@@ -48,4 +48,4 @@ npm run test        # 一括実行
 npm run test:watch  # ウォッチモード
 ```
 
-CI（GitHub Actions の `frontend-test` ジョブ）でも PR ごとに自動実行されます。テスト全体の役割分担は [`docs/test-strategy.md`](../docs/test-strategy.md) を参照してください。
+CI（GitHub Actions の `frontend-test` ジョブ）でも PR ごとに自動実行されます。テスト全体の役割分担は [`docs/quality-assurance.md`](../docs/quality-assurance.md) を参照してください。

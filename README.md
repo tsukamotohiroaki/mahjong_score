@@ -163,7 +163,7 @@ mahjong_score/
 
 > 上表はサーバー側が中心。LIFF 版は同じ技法を Vitest で検証している（`frontend/app/**/*.test.tsx`）。
 
-どこに厚くテストを張り、どこを浅くしたかの判断は [`docs/test-strategy.md`](docs/test-strategy.md) に言語化している。
+何を守り、どう守っているかは [`docs/quality-assurance.md`](docs/quality-assurance.md) に言語化している。
 
 ## 開発の進め方
 
