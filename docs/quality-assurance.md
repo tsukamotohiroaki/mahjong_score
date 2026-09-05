@@ -10,6 +10,7 @@
 - リスクは「起きる可能性 × 影響の大きさ」で評価し、高い順に厚く守る
 - 同じことを2つの手段で確認しない（重複すると続かず、実施漏れも分からなくなる）
 - テスト技法（同値分割・境界値分析など）と実例の対応は [README の「テスト設計」](../README.md#テスト設計テスト技法との対応)
+- 確認手段（RSpec・Vitest・Playwright・Claude in Chrome・人間）の分担は [README の「テストと CI」](../README.md#テストと-ci)
 
 ## 利用者を守る
 
@@ -76,13 +77,3 @@
 | 同じ事故を再調査する | 遭遇した事故だけを症状 → 原因で残す | [`docs/debugging-guide.md`](debugging-guide.md) |
 | なぜそう決めたか、すぐ思い出せない | 決定と理由を記録する | [`docs/adr/`](adr/) |
 | 本番環境を手作業で作り直す | VPC・EC2・RDS・CloudFront・アラームを1テンプレートで定義 | [`infra/cloudformation.yml`](../infra/cloudformation.yml) |
-
-## 確認手段の分担
-
-| 手段 | 守る範囲 | MPA 版 | LIFF 版 |
-|---|---|---|---|
-| **RSpec**（[`spec/`](../spec/)） | サーバー側の計算・検証・HTTP 入出力 | ○ | ○（計算はサーバー側に集約されているため共有） |
-| **Vitest**（[`frontend/app/**/*.test.*`](../frontend/app/)） | React コンポーネント・API クライアント。jsdom + モックのため HTTP 通信は発生しない | – | ○ |
-| **Playwright**（[`e2e/`](../e2e/)） | 本物のブラウザでしか見られない操作フロー。1本の spec を mpa / liff の両 project に流す | ○ | ○（`/` は LINE ログインへ外部遷移するため除外） |
-| **Claude in Chrome** | 応答速度の実測 | ○ | ○ |
-| **人間** | スマホ実機でしか再現できないこと | –（スマホ確認は未実施。受け入れたリスク） | ○ |
