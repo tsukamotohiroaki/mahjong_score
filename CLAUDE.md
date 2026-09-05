@@ -3,23 +3,22 @@
 ## プロジェクト概要
 
 - シンプルで使いやすい麻雀スコア管理アプリ。MVPを最短でリリースし、段階的に改善する
-- MPA → LIFF の順で拡張する（SPA・ネイティブは当面スコープ外）
+- MPA 版と LIFF 版はどちらも正式なクライアント（`docs/adr/0001-mpa-版を残す.md`）。SPA・ネイティブは当面スコープ外
 
 ## 技術スタック
 
-- バックエンド: Ruby 3.3.10 / Rails 7.1.3 / PostgreSQL 16
-- フロントエンド: Hotwire (Turbo + Stimulus) / ERB / Sprockets
-- インフラ: Docker Compose（開発）/ AWS EC2 + RDS（本番）/ CloudFormation
-- テスト: RSpec + FactoryBot / Playwright（E2E）
-- CI/CD: GitHub Actions（3月〜導入予定）
+- バックエンド: Ruby 3.3.10 / Rails 7.1.6 / PostgreSQL 16
+- フロントエンド: MPA 版 = Hotwire (Turbo + Stimulus) / ERB / Sprockets、LIFF 版 = Next.js 16 / React 19（`frontend/`）
+- インフラ: Docker Compose（開発）/ AWS EC2 + RDS + CloudFront ×2（本番）/ CloudFormation
+- テスト: RSpec + FactoryBot / Vitest + Testing Library / Playwright（E2E、MPA 版・LIFF 版）
+- CI/CD: GitHub Actions（main 向け PR と push で RSpec・Vitest・Playwright を自動実行）。デプロイは手動
 - AI支援: Claude Code（実装・テスト生成・リファクタリング）
 
 ## コマンド
 
-- テスト実行: `docker compose run --rm -e RAILS_ENV=test web bash -lc "bundle install && bundle exec rspec"`
 - マイグレーション: `docker compose exec web bin/rails db:migrate`
 - コンソール: `docker compose exec web bin/rails console`
-- サーバー起動: `docker compose up`
+- サーバー起動: `docker compose up -d`
 - ルーティング確認: `docker compose exec web bin/rails routes`
 
 ## 開発プロセス
@@ -40,6 +39,7 @@
 ## テスト戦略
 
 - RSpec（単体・リクエスト）: サーバー側の品質保証（モデル・コントローラー）
+- Vitest（単体）: LIFF 版のコンポーネント・API クライアント
 - Playwright（E2E）: ブラウザ側の品質保証（JS動作・ユーザー操作フロー）。リファクタリング前に現在の動作をE2Eテストで固める
 - Claude in Chrome: 応答速度の計測（操作してから画面が表示されるまでの時間）。守備範囲は `docs/quality-assurance.md`、実行手順は `.claude/skills/response-time/SKILL.md` が正
 - テストコード生成・実行はAIで効率化しつつ、テストシナリオの設計は人間が握る
