@@ -33,7 +33,7 @@ curl -s -o /dev/null -w "%{http_code}\n" --max-time 10 http://localhost:3001/gam
 | Vitest | `npm test` | `frontend/` |
 | Playwright（MPA + LIFF） | `npx playwright test` | リポジトリ直下 |
 | Playwright（片方だけ） | `npx playwright test --project mpa`／`--project liff` | リポジトリ直下 |
-| Playwright（ファイルと版を絞る。ファイル名は `--project` より前に書く） | `npx playwright test <home / new_game / score_input> --project <mpa / liff>` | リポジトリ直下 |
+| Playwright（ファイルと版を絞る。ファイル名は `--project` より前に書く） | `npx playwright test <home / new_game / score_input> --project <mpa / liff>`（例: `npx playwright test score_input --project liff`） | リポジトリ直下 |
 | Playwright の確認項目一覧（テスト名 = 仕様。サーバー不要） | `npx playwright test --list` | リポジトリ直下 |
 
 Playwright は Rails（`:3000`）と Next.js（`:3001`）が起動している必要がある。`home` は MPA 版のみのため `--project liff` では 0 件になる。
