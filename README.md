@@ -167,11 +167,11 @@ mahjong_score/
 
 ## 開発の進め方
 
+「気をつける」ではなく「気をつけなくても壊れない仕組み」で品質を守る。
+
 **Issue 駆動 + TDD（テスト駆動開発）。** Issue を起点にブランチを切り、テストを先に書いてから実装する（Red → Green → Refactor）。
 
 コード変更の前には [`.claude/dependencies.md`](.claude/dependencies.md)（依存マップ）で影響を受けるテストを特定してから着手する（TDAD: Test-Driven Agentic Development）。どのコードがどのテストに守られているかを事前に引けるので、AI に実装させても壊した箇所を取りこぼさない。
-
-「気をつける」ではなく「気をつけなくても壊れない仕組み」で品質を守る、という方針。
 
 ---
 
