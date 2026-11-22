@@ -22,17 +22,6 @@
 
 <img src="docs/images/demo.gif" alt="デモ: メンバー入力 → ゲーム開始 → 点数入力 → 順位点の自動計算" width="300">
 
-## LINE で試す
-
-LINE 公式アカウントを友だち追加すると、リッチメニューから LIFF 版アプリをすぐに試せる。
-
-<img src="docs/images/line-add-friend-qr.png" alt="LINE友だち追加QRコード" width="240">
-
-1. QR コード（または [友だち追加リンク](https://line.me/R/ti/p/@165fpsbq)）から「楽雀」を友だち追加する
-2. トーク画面下部のリッチメニューから「楽雀」を開く
-
-LIFF 版アプリが起動し、そのままゲームを作成できる。
-
 ## セットアップ
 
 Docker Desktop（または Docker Engine + Docker Compose）があれば動く。

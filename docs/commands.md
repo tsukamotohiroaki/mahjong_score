@@ -30,6 +30,45 @@ curl -s -o /dev/null -w "%{http_code}\n" --max-time 10 https://doc9xlvbx6gap.clo
 curl -s -o /dev/null -w "%{http_code}\n" --max-time 10 https://dxop25dcw25sl.cloudfront.net/   # LIFF 版
 ```
 
+## リアル麻雀で使う日の起動（家の Mac + ngrok）
+
+対局の日だけ、家の Mac で次の4つを動かす。**1つでも止まると LINE から使えない**（2026-11-16 に停止時の症状まで確認）。
+
+```
+スマホの LINE → ngrok（外部への中継）→ LIFF 版（Next.js）→ Rails → PostgreSQL
+```
+
+### 起動する
+
+コマンドは3つ、動くものは4つ。2 と 3 は別々のターミナルで実行し、閉じずに残す。
+
+| 順 | コマンド | 動くもの | 停止 |
+|---|---|---|---|
+| 1 | `docker compose up -d` | Rails + PostgreSQL | `docker compose down` |
+| 2 | `cd frontend && npm run dev` | LIFF 版 | Ctrl+C |
+| 3 | `caffeinate -s ngrok http 3001` | ngrok（スリープ防止つき） | Ctrl+C |
+
+- `caffeinate -s` は ngrok が動いている間だけ Mac 本体のスリープを止める。止めれば普段の省電力に戻る
+- 公開 URL は固定: `https://zippy-comrade-goal.ngrok-free.dev`
+- ローカルの DB が本番データを兼ねる。`db:reset` などで消すと戻せない（RSpec はテスト用 DB なので影響しない）
+- `docker compose up -d` が `Cannot connect to the Docker daemon` で失敗したら、Docker Desktop を起動してからやり直す
+
+### 出かける前に確認する
+
+外出先からは直せないため、家を出る前に3点を確かめる。
+
+- 電源アダプタをつないでいる（`caffeinate -s` は電源接続時だけ効く）
+- ふたを開けたままにしている（閉じるとスリープする）
+- スマホの Wi-Fi を切り、LINE のリッチメニューから画面が開く
+
+### 開けないときに止まっているものを見分ける
+
+| スマホに出る症状 | 止まっているもの |
+|---|---|
+| `ERR_NGROK_3200`（offline）の画面が出る | ngrok、または Mac 本体（スリープ・電源断） |
+| `ERR_NGROK_8012` の画面が出る | LIFF 版 |
+| 画面は開くが、対局の作成・保存・表示で失敗する | Rails か PostgreSQL |
+
 ## テスト実行
 
 | 対象 | コマンド | 実行場所 |
