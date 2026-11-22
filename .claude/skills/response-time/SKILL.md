@@ -1,7 +1,6 @@
 ---
 name: response-time
-description: 非機能テスト（性能）。ボタンを押してからスコア一覧が表示されるまでの時間を Chrome で実測する。「速度を測って」「応答速度を確認して」「遅くなっていないか見て」と言われたときに使う。ローカル（既定）と本番（EC2）を引数で切り替える。機能の正しさは見ない（機能テスト = Playwright・RSpec が担当）。
-argument-hint: "[local|production] — 既定は local"
+description: 非機能テスト（性能）。ボタンを押してからスコア一覧が表示されるまでの時間を Chrome で実測する。「速度を測って」「応答速度を確認して」「遅くなっていないか見て」と言われたときに使う。機能の正しさは見ない（機能テスト = Playwright・RSpec が担当）。
 allowed-tools: Bash, Read, mcp__claude-in-chrome__tabs_context_mcp, mcp__claude-in-chrome__tabs_create_mcp, mcp__claude-in-chrome__tabs_close_mcp, mcp__claude-in-chrome__navigate, mcp__claude-in-chrome__computer, mcp__claude-in-chrome__read_page, mcp__claude-in-chrome__form_input, mcp__claude-in-chrome__javascript_tool, mcp__claude-in-chrome__browser_batch
 ---
 
@@ -30,26 +29,11 @@ allowed-tools: Bash, Read, mcp__claude-in-chrome__tabs_context_mcp, mcp__claude-
 
 > 3 は既存の点数が入力欄に復元されない仕様なので、4欄すべて打ち直す操作になる。
 
-## 環境（引数で切り替え）
+## 計測先
 
-`$ARGUMENTS` の先頭1語だけを見る。空なら `local`。
+MPA 版 `http://localhost:3000`、LIFF 版 `http://localhost:3001`。
 
-```
-/response-time              → 開発環境（既定）
-/response-time production   → 本番環境（EC2）
-```
-
-| 引数 | MPA 版 | LIFF 版 |
-|---|---|---|
-| `local`（既定） | `http://localhost:3000` | `http://localhost:3001` |
-| `production` | `https://doc9xlvbx6gap.cloudfront.net` | `https://dxop25dcw25sl.cloudfront.net` |
-
-> **`production` は本番データベースに対局データを作る。** 実行前にその旨を伝えてから始める。
-> 作成したデータは残して構わない（削除の提案も、残っていることの報告も不要）。
->
-> EC2 は使わないとき停止する運用のため、疎通しないことがある。**勝手に起動せず**、疎通不可として報告して終わる。
->
-> 本番ドメインは Chrome 拡張のサイト許可が要る。未許可だと `Navigation to this domain is not allowed` で止まるので、その旨を報告してユーザーに許可を依頼する。
+> **ローカルの DB は本番データを兼ねる**（[ADR-0002](../../../docs/adr/0002-aws-の運用をやめる.md)）。計測で対局データが増えるが、残して構わない（削除の提案も、残っていることの報告も不要）。
 
 ## 手順
 
@@ -102,8 +86,6 @@ const done = await Promise.race([
 | シナリオ | 版 | 初回 | 定常5回 | 中央値 | 最大 |
 |---|---|---|---|---|---|
 | 1 ゲーム開始 | MPA / LIFF | ○○ms | ○○ / ○○ / ○○ / ○○ / ○○ | ○○ms | ○○ms |
-
-あわせて環境（`local` / `production`）を書く。
 
 **報告して終わり。ファイルには残さない**（数値はぶれるので履歴を比較しても意味がない）。
 

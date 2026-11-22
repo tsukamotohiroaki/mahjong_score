@@ -76,4 +76,3 @@
 |---|---|---|
 | 同じ事故を再調査する | 遭遇した事故だけを症状 → 原因で残す | [`docs/debugging-guide.md`](debugging-guide.md) |
 | なぜそう決めたか、すぐ思い出せない | 決定と理由を記録する | [`docs/adr/`](adr/) |
-| 本番環境を手作業で作り直す | VPC・EC2・RDS・CloudFront・アラームを1テンプレートで定義 | [`infra/cloudformation.yml`](../infra/cloudformation.yml) |

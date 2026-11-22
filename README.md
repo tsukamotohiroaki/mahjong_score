@@ -49,11 +49,7 @@ MPA 版で MVP（実用最小限の製品）を最短リリースし、あとか
 
 全体像は [`docs/architecture.md`](docs/architecture.md) を参照。
 
-本番環境（AWS）:
-
-- EC2（t2.micro）+ RDS（PostgreSQL 16）
-- CloudFormation でインフラをコード化（[`infra/cloudformation.yml`](infra/cloudformation.yml)）
-- Docker Compose で Rails アプリを起動
+本番環境: 家の Mac（Docker Compose）を ngrok で公開する。以前の AWS 構成は記録として残す（[ADR-0002](docs/adr/0002-aws-の運用をやめる.md)）。
 
 ```
 mahjong_score/
@@ -74,7 +70,7 @@ mahjong_score/
 │   └── openapi.yaml            # API 仕様書（OpenAPI 3.0）
 ├── e2e/                        # E2E テスト（Playwright。MPA / LIFF 両版に流す）
 ├── frontend/                   # LIFF 版（Next.js）
-├── infra/                      # CloudFormation テンプレート等
+├── infra/                      # AWS 構成の記録（CloudFormation。運用は終了）
 ├── spec/                       # RSpec（モデル・リクエスト）
 ├── docker-compose.yml          # 開発環境の Docker Compose 設定
 └── Gemfile                     # gem 定義

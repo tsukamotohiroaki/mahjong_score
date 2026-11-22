@@ -18,7 +18,6 @@
 | 環境 | コマンド |
 |---|---|
 | ローカル（Rails） | `docker compose logs web -f` |
-| 本番（Rails） | EC2 に SSH → `docker-compose logs web --tail 100` |
 | CI（GitHub Actions） | `gh run view --log-failed` |
 | E2E（Playwright） | `test-results/` のスクリーンショット・動画、`npx playwright show-report` |
 
