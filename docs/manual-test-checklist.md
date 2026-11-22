@@ -2,12 +2,11 @@
 
 **LINE アプリの中でしか起こらないこと**だけを確認する。Chrome で分かること（応答速度）は [`response-time`](../.claude/skills/response-time/SKILL.md) が担当。重複して確認しない。
 
-- 所要: 5〜10分 ／ いつ: リリース前に1回 ／ 対象: 本番（CloudFront）／ やる人: 人間（スマホ実機）
-- URL: LIFF 版 `https://dxop25dcw25sl.cloudfront.net` ／ MPA 版 `https://doc9xlvbx6gap.cloudfront.net`
+- 所要: 5〜10分 ／ いつ: リリース前に1回 ／ 対象: 本番（家の Mac + ngrok）／ やる人: 人間（スマホ実機）
 
 ## 準備
 
-- [ ] EC2 が起動している（停止中は両版とも開けない。起動から復帰まで約2分）
+- [ ] [`docs/commands.md`](commands.md)「リアル麻雀で使う日の起動」で4つが動いている
 - [ ] スマホに LINE アプリ。公式アカウント「楽雀」を[友だち追加](https://line.me/R/ti/p/@165fpsbq)済み
 - [ ] 12局すべて埋まったゲームの URL（項目6で使う）。無ければ「12局データの作り方」で作る
 
@@ -17,7 +16,7 @@
 
 | # | 項目 | 期待 | 備考 |
 |---|---|---|---|
-| 1 ★ | QR コードを読む | メンバー入力の画面が開く | 開かなければ EC2 停止を疑う |
+| 1 ★ | QR コードを読む | メンバー入力の画面が開く | 開かなければ ngrok か Mac の停止を疑う |
 | 2 ☆ | 未ログインから LINE ログインを通過 | ログイン後に元の画面へ戻る | ログアウトした端末が要る |
 | 3 ★ | 公式アカウント → リッチメニュー →「楽雀を開く」 | LIFF 版が起動する | |
 | 4 ★ | ヘッダーのタイトル | 前回と変わっていない | 既知: LIFF は `Create Next App` のまま。悪化していないことだけ見る |
@@ -38,8 +37,7 @@
 **画面に出ている＝DB に入っている、ではない。** 項目14は `round_number` が送られていないと上書きではなく局が増え、画面では気づけない。
 
 ```bash
-ssh -i ~/.ssh/mahjong-score-key.pem -o StrictHostKeyChecking=no ec2-user@3.114.238.160
-cd /home/ec2-user/mahjong_score && docker-compose exec -T web bin/rails runner 'g = Game.order(:created_at).last; puts({id: g.id, players: g.players.order(:created_at).pluck(:name), rounds: g.rounds.count, numbers: g.rounds.order(:round_number).pluck(:round_number), sums: g.rounds.map { |r| r.scores.sum(:point) }, counts: g.rounds.map { |r| r.scores.count }}.to_json)'
+docker compose exec -T web bin/rails runner 'g = Game.order(:created_at).last; puts({id: g.id, players: g.players.order(:created_at).pluck(:name), rounds: g.rounds.count, numbers: g.rounds.order(:round_number).pluck(:round_number), sums: g.rounds.map { |r| r.scores.sum(:point) }, counts: g.rounds.map { |r| r.scores.count }}.to_json)'
 ```
 
 | 見るもの | 合格 |
@@ -50,14 +48,12 @@ cd /home/ec2-user/mahjong_score && docker-compose exec -T web bin/rails runner '
 | `sums` | 全部 `100000` |
 | `counts` | 全部 `4` |
 
-> `exec` を使う（`run --rm` は gem が無く失敗する）。本番は `docker-compose`（ハイフン付き）。
-
 ## 12局データの作り方（項目6の準備）
 
-上の SSH 先で実行する。URL は `https://dxop25dcw25sl.cloudfront.net/games/<GAME_ID>`、合計は `720.0 / 120.0 / -240.0 / -600.0` になる。
+リポジトリ直下で実行する。URL は `https://liff.line.me/2010461471-oglRjBsP/games/<GAME_ID>`、合計は `720.0 / 120.0 / -240.0 / -600.0` になる。
 
 ```bash
-cd /home/ec2-user/mahjong_score && docker-compose exec -T web bin/rails runner '
+docker compose exec -T web bin/rails runner '
 rule = { mochi_ten: 25000, kaeshi_ten: 30000, rank_1_bonus: 50, rank_2_bonus: 10, rank_3_bonus: -10, rank_4_bonus: -30 }
 g = Game.create_with_players!(rule, %w[東 南 西 北])
 ps = g.players.order(:created_at).to_a
@@ -95,4 +91,4 @@ puts "GAME_ID=#{g.id}"
 | 基本フロー・送信ボタンの活性条件・自動補完 | `e2e/` |
 | 共有ボタンの分岐ロジック | `frontend/app/games/[id]/page.test.tsx` |
 
-ngrok でローカルを実機から開く手順は含めない（[#273](https://github.com/tsukamotohiroaki/mahjong_score/issues/273) で取りやめ済み）。LIFF アプリの使い分けは [`frontend/.env.local.example`](../frontend/.env.local.example) を参照。
+LIFF アプリの使い分けは [`frontend/.env.local.example`](../frontend/.env.local.example) を参照。

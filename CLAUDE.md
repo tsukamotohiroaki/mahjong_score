@@ -9,7 +9,7 @@
 
 - バックエンド: Ruby 3.3.10 / Rails 7.1.6 / PostgreSQL 16
 - フロントエンド: MPA 版 = Hotwire (Turbo + Stimulus) / ERB / Sprockets、LIFF 版 = Next.js 16 / React 19（`frontend/`）
-- インフラ: Docker Compose（開発）/ AWS EC2 + RDS + CloudFront ×2（本番）/ CloudFormation
+- インフラ: Docker Compose（開発・本番とも家の Mac）/ ngrok（LINE からの公開）。AWS 構成は記録のみ（`docs/adr/0002-aws-の運用をやめる.md`）
 - テスト: RSpec + FactoryBot / Vitest + Testing Library / Playwright（E2E、MPA 版・LIFF 版）
 - CI/CD: GitHub Actions（main 向け PR と push で RSpec・Vitest・Playwright を自動実行）。デプロイは手動
 - AI支援: Claude Code（実装・テスト生成・リファクタリング）
@@ -82,9 +82,8 @@
 
 1. `config/initializers/version.rb` の `APP_VERSION` を feature ブランチで更新し、PRをmainにマージする
 2. ローカルのmainを更新する（`git pull`）
-3. EC2にデプロイする
-4. 本番環境で動作確認する
-5. `gh release create` でタグを作成する
+3. 次に家の Mac で起動したとき、LINE から動作確認する
+4. `gh release create` でタグを作成する
 
 ## 品質保証の考え方
 
