@@ -50,6 +50,7 @@ curl -s -o /dev/null -w "%{http_code}\n" --max-time 10 https://dxop25dcw25sl.clo
 
 - `caffeinate -s` は ngrok が動いている間だけ Mac 本体のスリープを止める。止めれば普段の省電力に戻る
 - 公開 URL は固定: `https://zippy-comrade-goal.ngrok-free.dev`
+- ローカルの DB が本番データを兼ねる。`db:reset` などで消すと戻せない（RSpec はテスト用 DB なので影響しない）
 - `docker compose up -d` が `Cannot connect to the Docker daemon` で失敗したら、Docker Desktop を起動してからやり直す
 
 ### 出かける前に確認する
